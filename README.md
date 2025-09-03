@@ -1,6 +1,6 @@
-# Tiptap AI Toolkit Demo
+# Tiptap AI Toolkit Demos
 
-This is a Next.js project demonstrating the Tiptap AI Toolkit with two main features:
+This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with a list of demos:
 
 1. **AI Agent Chatbot** (`/ai-agent-chatbot`) - A simple AI agent that can read and edit Tiptap documents
 2. **Review Changes** (`/review-changes`) - Preview and approve AI-inserted changes using suggestions
