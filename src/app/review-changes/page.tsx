@@ -85,7 +85,7 @@ export default function Page() {
                   element.addEventListener("click", () => {
                     toolkit.removeSuggestion(options.suggestion.id);
                     if (toolkit.getSuggestions().length === 0) {
-                      acceptButtonRef.current?.click();
+                      rejectButtonRef.current?.click();
                     }
                   });
                   return element;
