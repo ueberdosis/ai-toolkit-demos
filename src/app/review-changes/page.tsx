@@ -140,7 +140,7 @@ export default function Page() {
               {message.parts
                 .filter((p) => p.type === "text")
                 .map((p) => p.text)
-                .join("\n")}
+                .join("\n") || "Loading..."}
             </div>
           </div>
         ))}
