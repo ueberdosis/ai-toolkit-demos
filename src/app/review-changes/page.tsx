@@ -187,7 +187,7 @@ export default function Page() {
                 toolkit.setSuggestions([]);
                 addToolResult({
                   ...reviewState,
-                  output: "The changes were rejected",
+                  output: "The changes were rejected. Ask the user why, and what you can do to improve them.",
                 });
                 return setReviewState({
                   ...reviewState,
