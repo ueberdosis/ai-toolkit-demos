@@ -36,6 +36,9 @@ export default function Page() {
     output: "",
   });
 
+  const acceptButtonRef = useRef<HTMLButtonElement>(null);
+  const rejectButtonRef = useRef<HTMLButtonElement>(null);
+
   const { messages, sendMessage, addToolResult } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
@@ -66,6 +69,9 @@ export default function Page() {
                     "ml-2 bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600";
                   element.addEventListener("click", () => {
                     toolkit.applySuggestion(options.suggestion.id);
+                    if (toolkit.getSuggestions().length === 0) {
+                      acceptButtonRef.current?.click();
+                    }
                   });
                   return element;
                 }),
@@ -78,6 +84,9 @@ export default function Page() {
                     "ml-2 bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600";
                   element.addEventListener("click", () => {
                     toolkit.removeSuggestion(options.suggestion.id);
+                    if (toolkit.getSuggestions().length === 0) {
+                      acceptButtonRef.current?.click();
+                    }
                   });
                   return element;
                 }),
@@ -168,6 +177,7 @@ export default function Page() {
           <h2 className="text-xl font-semibold mb-4">Reviewing Changes</h2>
           <div className="flex gap-4">
             <button
+              ref={acceptButtonRef}
               onClick={() => {
                 const toolkit = getAiToolkit(editor);
                 toolkit.applyAllSuggestions();
@@ -182,12 +192,14 @@ export default function Page() {
               Accept all
             </button>
             <button
+              ref={rejectButtonRef}
               onClick={() => {
                 const toolkit = getAiToolkit(editor);
                 toolkit.setSuggestions([]);
                 addToolResult({
                   ...reviewState,
-                  output: "The changes were rejected. Ask the user why, and what you can do to improve them.",
+                  output:
+                    "The changes were rejected. Ask the user why, and what you can do to improve them.",
                 });
                 return setReviewState({
                   ...reviewState,
