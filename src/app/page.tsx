@@ -18,7 +18,7 @@ export default function Home() {
               href="/ai-agent-chatbot"
               className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
             >
-              Try AI Agent Chatbot
+              AI Agent Chatbot
             </Link>
           </div>
           
@@ -27,12 +27,20 @@ export default function Home() {
             <p className="text-gray-600 mb-4">
               Preview and approve AI-inserted changes using suggestions with customizable rendering.
             </p>
-            <Link 
-              href="/review-changes"
-              className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
-            >
-              Try Review Changes
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link 
+                href="/review-changes"
+                className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
+              >
+                Review Changes
+              </Link>
+              <Link 
+                href="/review-changes-as-summary"
+                className="inline-block bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
+              >
+                Review Changes as Summary
+              </Link>
+            </div>
           </div>
         </div>
         
