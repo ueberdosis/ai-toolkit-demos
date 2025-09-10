@@ -4,6 +4,7 @@ This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with 
 
 1. **AI Agent Chatbot** (`/ai-agent-chatbot`) - A simple AI agent that can read and edit Tiptap documents
 2. **Review Changes** (`/review-changes`) - Preview and approve AI-inserted changes using suggestions
+3. **Review Changes as Summary** (`/review-changes-as-summary`) - Preview and approve AI-inserted changes using suggestions as a summary
 
 ## Tech Stack
 
