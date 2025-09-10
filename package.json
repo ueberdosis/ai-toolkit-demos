@@ -6,7 +6,15 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "backend:install": "cd backend && uv sync",
+    "backend:install:dev": "cd backend && uv sync --group dev",
+    "backend:dev": "cd backend && uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "backend:start": "cd backend && uv run uvicorn main:app --host 0.0.0.0 --port 8000",
+    "dev:full": "concurrently \"npm run backend:dev\" \"npm run dev\"",
+    "setup": "npm run backend:install && npm install",
+    "tools:extract": "node extract-tools.js",
+    "tools:extract:python": "node extract-tools.js --python"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.23",
@@ -28,6 +36,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^8.2.2",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "tailwindcss": "^4",

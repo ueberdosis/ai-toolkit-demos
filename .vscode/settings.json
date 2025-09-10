@@ -1,0 +1,14 @@
+{
+    "python.defaultInterpreter": "${workspaceFolder}/backend/.venv/bin/python",
+    "python.pythonPath": "${workspaceFolder}/backend/.venv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/backend"
+    ],
+    "python.envFile": "${workspaceFolder}/backend/.env",
+    "files.associations": {
+        "*.py": "python"
+    }
+}

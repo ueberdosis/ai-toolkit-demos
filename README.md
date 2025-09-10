@@ -53,6 +53,21 @@ This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with 
 - Custom styling for suggestions (red for deletions, green for insertions)
 - Halt conversation until user reviews changes
 
+## Tool Definition Management
+
+When TipTap AI Toolkit updates, you can extract the latest tool definitions:
+
+```bash
+# View current tool definitions
+npm run tools:extract
+
+# Generate Python-ready format for backend
+npm run tools:extract:python
+
+# Save to file for easy copying
+npm run tools:extract:python > backend/latest-tools.json
+```
+
 ## Usage
 
 1. Visit the home page to choose between the two demos

@@ -26,13 +26,19 @@ export default function Page() {
   const currentChunk = useRef(0);
 
   const { messages, sendMessage, addToolResult } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
+    // transport: new DefaultChatTransport({ api: "/api/chat" }),
+    transport: new DefaultChatTransport({ api: "http://localhost:8000/api/chat" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
+      console.log("🔧 Tool call received:", toolCall);
       const editor = editorRef.current;
-      if (!editor) return;
+      if (!editor) {
+        console.error("❌ No editor available");
+        return;
+      }
 
       const { toolName, input, toolCallId } = toolCall;
+      console.log(`🔧 Executing tool: ${toolName}, input:`, input, `toolCallId: ${toolCallId}`);
 
       // Use the AI Toolkit to execute the tool
       const toolkit = getAiToolkit(editor);
@@ -42,9 +48,11 @@ export default function Page() {
         currentChunk: currentChunk.current,
       });
 
+      console.log(`✅ Tool result:`, result);
       currentChunk.current = result.currentChunk;
 
       addToolResult({ tool: toolName, toolCallId, output: result.output });
+      console.log(`📤 Added tool result for ${toolName}:`, result.output);
     },
   });
 
