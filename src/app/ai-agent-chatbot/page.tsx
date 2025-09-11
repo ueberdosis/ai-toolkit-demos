@@ -26,8 +26,8 @@ export default function Page() {
   const currentChunk = useRef(0);
 
   const { messages, sendMessage, addToolResult } = useChat({
-    // transport: new DefaultChatTransport({ api: "/api/chat" }),
-    transport: new DefaultChatTransport({ api: "http://localhost:8000/api/chat" }),
+    transport: new DefaultChatTransport({ api: "/api/chat" }),
+    // transport: new DefaultChatTransport({ api: "http://localhost:8000/api/chat" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
       console.log("🔧 Tool call received:", toolCall);

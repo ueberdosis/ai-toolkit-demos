@@ -9,6 +9,115 @@ load_dotenv()
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
+def convert_to_openai_input(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """
+    Convert UI messages (from our frontend) to OpenAI Responses API input format.
+
+    Rules:
+    - Remove local 'id' fields
+    - For role user/system: send a single { role, content } with concatenated text
+    - For role assistant:
+        1) send any assistant text as { role: 'assistant', content }
+        2) then emit any function calls as separate items: { type: 'function_call', ... }
+        3) then emit any tool results as separate items: { type: 'function_call_output', ... }
+
+    Our frontend stores tool call/result parts as:
+      - tool_call: { type: 'tool_call', toolCallId, toolName, args }
+      - tool_result: { type: 'tool_result', toolCallId, result }
+    """
+    input_list: list[dict[str, Any]] = []
+
+    for msg in messages:
+        role = msg.get("role", "")
+
+        # Helper: gather text content from content or text parts
+        def build_text_content(message: dict[str, Any]) -> str:
+            content_text = message.get("content", "")
+            if not content_text and "parts" in message:
+                try:
+                    text_parts = [
+                        part.get("text", "")
+                        for part in message.get("parts", [])
+                        if part.get("type") == "text"
+                    ]
+                    content_text = "".join(text_parts)
+                except Exception:
+                    content_text = message.get("content", "")
+            return content_text
+
+        if role in ("user", "system"):
+            content_text = build_text_content(msg)
+            if content_text:
+                input_list.append({"role": role, "content": content_text})
+            continue
+
+        if role == "assistant":
+            content_text = build_text_content(msg)
+            parts = msg.get("parts", []) or []
+
+            # 1) Assistant text, if any
+            if content_text:
+                input_list.append({"role": "assistant", "content": content_text})
+
+            # 2) Function calls (mapped from tool_call parts)
+            for part in parts:
+                if part.get("type") == "tool_call":
+                    call_id = part.get("toolCallId") or part.get("call_id")
+                    name = part.get("toolName") or part.get("name")
+                    args = part.get("args") or part.get("arguments") or {}
+                    # Arguments must be a string per OpenAI schema; stringify if needed
+                    try:
+                        import json as _json
+
+                        arguments_str = (
+                            args if isinstance(args, str) else _json.dumps(args or {})
+                        )
+                    except Exception:
+                        arguments_str = "{}"
+
+                    if call_id and name:
+                        input_list.append(
+                            {
+                                "type": "function_call",
+                                "call_id": call_id,
+                                "name": name,
+                                "arguments": arguments_str,
+                                "id": f"fc_{call_id}",
+                            }
+                        )
+
+            # 3) Tool results (mapped from tool_result parts)
+            for part in parts:
+                if part.get("type") == "tool_result":
+                    call_id = part.get("toolCallId") or part.get("call_id")
+                    output = part.get("result") or part.get("output")
+                    if call_id is None:
+                        continue
+                    # Output must be a string
+                    try:
+                        import json as _json
+
+                        output_str = (
+                            output
+                            if isinstance(output, str)
+                            else _json.dumps(output if output is not None else {})
+                        )
+                    except Exception:
+                        output_str = "{}"
+
+                    input_list.append(
+                        {
+                            "type": "function_call_output",
+                            "call_id": call_id,
+                            "output": output_str,
+                        }
+                    )
+
+            continue
+
+    return input_list
+
+
 def get_tool_definitions() -> list[dict[str, Any]]:
     """
     Get the actual TipTap AI Toolkit tool definitions.
@@ -177,16 +286,18 @@ async def stream_chat_completion(
     Stream chat completion with tool support using GPT-5 streaming responses API
     """
     # Convert UI messages to OpenAI input format
+    # openai_input = convert_to_openai_input(messages)
+    openai_input = messages.copy()
 
     # Debug print to see what we're sending to OpenAI
     print("OpenAI input being sent:")
-    print(messages)
+    print(openai_input)
 
     try:
         stream = await client.responses.create(
             model=model,
             instructions=system_message,
-            input=messages,
+            input=openai_input,
             tools=get_tool_definitions(),  # Enable tools
             stream=True,
         )
@@ -217,9 +328,13 @@ async def stream_chat_completion(
                 index = event.output_index
 
                 if function_calls[index]:
-                    function_calls[index].arguments += event.arguments
+                    # Use consolidated final arguments to avoid duplicated strings like "{}{}"
+                    function_calls[index].arguments = event.arguments
 
-                    yield function_calls
+                    # Yield the function call object as a dictionary (not a JSON string)
+                    obj = function_calls[index].model_dump()
+                    print(obj)
+                    yield obj
                 continue
 
             elif event.type == "response.output_item.done":
@@ -238,14 +353,12 @@ async def stream_chat_completion(
 
             # Completed: emit finish
             elif event.type == "response.completed":
-                yield {"type": "finish-step"}
-                yield {"type": "finish"}
                 return
 
             # Error event
             elif event.type == "response.error":
                 message = None
-                if event.error and event.error.message:
+                if hasattr(event, "error") and hasattr(event.error, "message"):
                     message = event.error.message
                 yield {"type": "error", "error": message or str(event)}
                 return

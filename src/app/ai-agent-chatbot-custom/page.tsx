@@ -5,7 +5,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { useRef, useState } from "react";
 import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 
-// Custom message types for GPT-5 function calling
+// Message types matching Vercel AI SDK format
 interface Message {
   id: string;
   role: "user" | "assistant" | "system";
@@ -14,12 +14,12 @@ interface Message {
 }
 
 interface MessagePart {
-  type: "text" | "function_call" | "function_call_output";
+  type: "text" | "tool_call" | "tool_result";
   text?: string;
-  call_id?: string;
-  name?: string;
-  arguments?: string;
-  output?: string;
+  toolCallId?: string;
+  toolName?: string;
+  args?: Record<string, unknown>;
+  result?: unknown;
 }
 
 export default function Page() {
@@ -36,12 +36,13 @@ export default function Page() {
   // The AI Agent reads the document in chunks. This variable tracks of the current chunk
   // that the AI Agent is reading.
   const currentChunk = useRef(0);
+  // Track the active stream reader so we can cancel when a tool call arrives
+  const streamReaderRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(null);
 
-  // Custom state management for messages
+  // Custom state management replicating useChat behavior
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Custom function to send messages and handle streaming
+  // Custom sendMessage function replicating useChat
   const sendMessage = async (text: string) => {
     if (!text.trim()) return;
 
@@ -53,7 +54,6 @@ export default function Page() {
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setIsLoading(true);
 
     try {
       // Send to our backend
@@ -63,7 +63,7 @@ export default function Page() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          messages: [...messages, userMessage],
+          messages: buildBackendMessages([...messages, userMessage]),
         }),
       });
 
@@ -74,8 +74,11 @@ export default function Page() {
       // Handle streaming response
       const reader = response.body?.getReader();
       if (!reader) throw new Error("No reader available");
+      // Abort controller to stop the stream when needed
+      const controller = new AbortController();
+      streamReaderRef.current = reader;
 
-      let assistantMessage: Message = {
+      const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         parts: [],
@@ -113,112 +116,155 @@ export default function Page() {
         role: "assistant",
         content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
       }]);
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  // Handle streaming chunks from backend
-  const handleStreamChunk = async (chunk: any, messageId: string) => {
-    console.log("📥 Stream chunk:", chunk);
-
-    switch (chunk.type) {
-      case "text-delta":
-        // Add text to current message
-        setMessages(prev => prev.map(msg => {
-          if (msg.id === messageId) {
-            const textParts = msg.parts?.filter(p => p.type === "text") || [];
-            const otherParts = msg.parts?.filter(p => p.type !== "text") || [];
-            
-            if (textParts.length > 0) {
-              // Update existing text part
-              textParts[0].text = (textParts[0].text || "") + chunk.textDelta;
-            } else {
-              // Create new text part
-              textParts.push({ type: "text", text: chunk.textDelta });
-            }
-            
-            return { ...msg, parts: [...textParts, ...otherParts] };
-          }
-          return msg;
-        }));
-        break;
-
-      case "tool-input-available":
-        // Store function call and execute tool
-        const functionCall: MessagePart = {
-          type: "function_call",
-          call_id: chunk.toolCallId,
-          name: chunk.toolName,
-          arguments: JSON.stringify(chunk.input),
-        };
-
-        // Add function call to message
-        setMessages(prev => prev.map(msg => {
-          if (msg.id === messageId) {
-            return { ...msg, parts: [...(msg.parts || []), functionCall] };
-          }
-          return msg;
-        }));
-
-        // Execute the tool
-        await executeToolCall(chunk.toolCallId, chunk.toolName, chunk.input, messageId);
-        break;
-    }
-  };
-
-  // Execute tool and add result to message
-  const executeToolCall = async (toolCallId: string, toolName: string, input: any, messageId: string) => {
-    console.log(`🔧 Executing tool: ${toolName}`, input);
-    
+  // Custom tool call handler replicating useChat onToolCall
+  const handleToolCall = async (
+    toolCall: { toolName: string; input: Record<string, unknown>; toolCallId: string },
+    assistantMessageId: string
+  ) => {
+    console.log("🔧 Tool call received:", toolCall);
     const editor = editorRef.current;
     if (!editor) {
       console.error("❌ No editor available");
       return;
     }
 
-    try {
-      // Use the AI Toolkit to execute the tool
-      const toolkit = getAiToolkit(editor);
-      const result = toolkit.executeTool({
-        toolName,
-        input,
-        currentChunk: currentChunk.current,
+    const { toolName, input, toolCallId } = toolCall;
+    console.log(`🔧 Executing tool: ${toolName}, input:`, input, `toolCallId: ${toolCallId}`);
+
+    // Use the AI Toolkit to execute the tool
+    const toolkit = getAiToolkit(editor);
+    const result = toolkit.executeTool({
+      toolName,
+      input,
+      currentChunk: currentChunk.current,
+    });
+
+    console.log(`✅ Tool result:`, result);
+    currentChunk.current = result.currentChunk;
+
+    // Add tool result to the same assistant message and continue conversation
+    setMessages(prev => {
+      const updated = prev.map(msg => {
+        if (msg.id === assistantMessageId) {
+          const newPart: MessagePart = {
+            type: "tool_result",
+            toolCallId,
+            toolName,
+            args: input,
+            result: result.output as unknown,
+          };
+          return {
+            ...msg,
+            parts: [...(msg.parts || []), newPart],
+          };
+        }
+        return msg;
       });
 
-      console.log(`✅ Tool result:`, result);
-      currentChunk.current = result.currentChunk;
+      // Continue the conversation with updated messages
+      continueConversation(updated, assistantMessageId).catch(err =>
+        console.error("Error continuing conversation:", err)
+      );
 
-      // Add function call output to message
-      const functionCallOutput: MessagePart = {
-        type: "function_call_output",
-        call_id: toolCallId,
-        output: JSON.stringify(result.output),
-      };
+      return updated as Message[];
+    });
 
+    console.log(`📤 Added tool result for ${toolName}:`, result.output);
+  };
+
+  // Handle streaming chunks from backend (ai_service.py GPT-5 format)
+  const handleStreamChunk = async (chunk: string | { type: string; name?: string; call_id?: string; arguments?: string | Record<string, unknown>; status?: string; error?: string }, messageId: string) => {
+    console.log("📥 Stream chunk:", chunk);
+
+    // Handle text content (string chunks from ai_service.py)
+    if (typeof chunk === 'string') {
+      // Add text to current message
       setMessages(prev => prev.map(msg => {
         if (msg.id === messageId) {
-          return { ...msg, parts: [...(msg.parts || []), functionCallOutput] };
+          const textParts = msg.parts?.filter(p => p.type === "text") || [];
+          const otherParts = msg.parts?.filter(p => p.type !== "text") || [];
+
+          if (textParts.length > 0) {
+            // Update existing text part
+            textParts[0].text = (textParts[0].text || "") + chunk;
+          } else {
+            // Create new text part
+            textParts.push({ type: "text", text: chunk });
+          }
+
+          return { ...msg, parts: [...textParts, ...otherParts] };
         }
         return msg;
       }));
+      return;
+    }
 
-    } catch (error) {
-      console.error(`❌ Tool execution failed:`, error);
-      
-      // Add error as function call output
-      const errorOutput: MessagePart = {
-        type: "function_call_output",
-        call_id: toolCallId,
-        output: JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      };
+    // Handle object chunks (function calls, errors, etc.)
+    switch (chunk.type) {
+      case "function_call":
+        console.log("🔧 Function call:", chunk);
+        // Handle GPT-5 function call format from ai_service.py
+        if (chunk.name && chunk.call_id && chunk.status === "in_progress") {
+          // Cancel current upstream stream to avoid double-processing (like duplicate applyDiff)
+          try {
+            await streamReaderRef.current?.cancel();
+          } catch (e) {
+            console.warn("Stream cancel warning:", e);
+          } finally {
+            streamReaderRef.current = null;
+          }
+          let parsedArgs: Record<string, unknown> = {};
 
-      setMessages(prev => prev.map(msg => {
-        if (msg.id === messageId) {
-          return { ...msg, parts: [...(msg.parts || []), errorOutput] };
+          // Handle both string and already-parsed arguments
+          if (typeof chunk.arguments === 'string') {
+            try {
+              parsedArgs = JSON.parse(chunk.arguments);
+            } catch (e) {
+              console.error("Failed to parse function call arguments:", e);
+              parsedArgs = {};
+            }
+          } else if (chunk.arguments) {
+            parsedArgs = chunk.arguments;
+          }
+
+          // First, record the tool call as a part on the assistant message
+          setMessages(prev => prev.map((msg: Message) => {
+            if (msg.id === messageId) {
+              const newPart: MessagePart = {
+                type: "tool_call",
+                toolCallId: chunk.call_id,
+                toolName: chunk.name,
+                args: parsedArgs,
+              };
+              const updated: Message = {
+                ...msg,
+                parts: [...(msg.parts || []), newPart],
+              };
+              return updated;
+            }
+            return msg;
+          }));
+
+          // Then execute the tool and continue
+          const toolCall = {
+            toolName: chunk.name,
+            input: parsedArgs,
+            toolCallId: chunk.call_id,
+          };
+          await handleToolCall(toolCall, messageId);
         }
-        return msg;
-      }));
+        break;
+
+      case "error":
+        console.error("❌ Stream error:", chunk.error);
+        break;
+
+      default:
+        console.log("📝 Other chunk type:", chunk.type);
+        break;
     }
   };
 
@@ -226,14 +272,102 @@ export default function Page() {
     "Replace the last paragraph with a short story about Tiptap"
   );
 
+  // Build backend-ready messages (similar to Vercel transport)
+  const buildBackendMessages = (msgs: Message[]) => {
+    const out: Array<Record<string, unknown>> = [];
+    for (const m of msgs) {
+      if (m.role === "user" || m.role === "system") {
+        const text = m.content || (m.parts || [])
+          .filter(p => p.type === "text")
+          .map(p => p.text || "")
+          .join("");
+        if (text) out.push({ role: m.role, content: text });
+        continue;
+      }
+
+      if (m.role === "assistant") {
+        const text = m.content || (m.parts || [])
+          .filter(p => p.type === "text")
+          .map(p => p.text || "")
+          .join("");
+        if (text) out.push({ role: "assistant", content: text });
+
+        // Emit tool calls
+        for (const p of m.parts || []) {
+          if (p.type === "tool_call" && p.toolCallId && p.toolName) {
+            let argumentsStr = "{}";
+            try {
+              argumentsStr = JSON.stringify(p.args || {});
+            } catch {}
+            out.push({
+              type: "function_call",
+              call_id: p.toolCallId,
+              name: p.toolName,
+              arguments: argumentsStr,
+              id: `fc_${p.toolCallId}`,
+            });
+          }
+        }
+
+        // Emit tool results
+        for (const p of m.parts || []) {
+          if (p.type === "tool_result" && p.toolCallId) {
+            let outputStr = "{}";
+            try {
+              outputStr = JSON.stringify(p.result ?? {});
+            } catch {}
+            out.push({
+              type: "function_call_output",
+              call_id: p.toolCallId,
+              output: outputStr,
+            });
+          }
+        }
+      }
+    }
+    return out;
+  };
+
+  // Continue conversation after tool execution
+  const continueConversation = async (updatedMessages: Message[], assistantMessageId: string) => {
+    const response = await fetch("http://localhost:8000/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: buildBackendMessages(updatedMessages) }),
+    });
+
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error("No reader available");
+    streamReaderRef.current = reader;
+
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+      for (const line of lines) {
+        if (line.startsWith("data: ") && !line.includes("[DONE]")) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            await handleStreamChunk(data, assistantMessageId);
+          } catch (e) {
+            console.error("Error parsing continued stream chunk:", e);
+          }
+        }
+      }
+    }
+  };
+
   if (!editor) return null;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">AI Agent Chatbot (Custom GPT-5)</h1>
-      <p className="text-gray-600 mb-4">
-        This version uses custom function calling that handles GPT-5's two-object pattern directly.
-      </p>
+      <h1 className="text-3xl font-bold mb-6">AI Agent Chatbot (Custom)</h1>
 
       <div className="mb-6">
         <EditorContent
@@ -248,48 +382,19 @@ export default function Page() {
             <strong className="text-blue-600">{message.role}</strong>
             <br />
             <div className="mt-2 whitespace-pre-wrap">
-              {/* Display text content */}
-              {message.content && <div>{message.content}</div>}
-              
-              {/* Display text from parts */}
-              {message.parts?.filter(p => p.type === "text").map((part, index) => (
-                <div key={index}>{part.text}</div>
-              ))}
-              
-              {/* Display function calls for debugging */}
-              {message.parts?.filter(p => p.type === "function_call").map((part, index) => (
-                <div key={index} className="text-sm text-gray-600 mt-2">
-                  🔧 Tool: {part.name} ({part.call_id})
-                </div>
-              ))}
-              
-              {/* Display function call outputs for debugging */}
-              {message.parts?.filter(p => p.type === "function_call_output").map((part, index) => (
-                <div key={index} className="text-sm text-green-600 mt-1">
-                  ✅ Result: {part.call_id}
-                </div>
-              ))}
-              
-              {/* Show loading if no content yet */}
-              {!message.content && (!message.parts || message.parts.length === 0) && "Loading..."}
+              {message.parts
+                ?.filter((p) => p.type === "text")
+                .map((p) => p.text)
+                .join("\n") || "Loading..."}
             </div>
           </div>
         ))}
-        
-        {/* Show loading indicator */}
-        {isLoading && (
-          <div className="bg-gray-100 p-4 rounded-lg">
-            <strong className="text-blue-600">assistant</strong>
-            <br />
-            <div className="mt-2 text-gray-500">Thinking...</div>
-          </div>
-        )}
       </div>
 
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (input.trim() && !isLoading) {
+          if (input.trim()) {
             sendMessage(input);
             setInput("");
           }
@@ -304,10 +409,9 @@ export default function Page() {
         />
         <button
           type="submit"
-          disabled={isLoading}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
         >
-          {isLoading ? "Sending..." : "Send"}
+          Send
         </button>
       </form>
     </div>

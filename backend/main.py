@@ -9,8 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from ai_integration import stream_chat_completion
-from rate_limit import rate_limit
+from ai_service import stream_chat_completion
 
 # Load environment variables from .env file first
 load_dotenv()
@@ -93,15 +92,6 @@ async def chat_endpoint(request: Request):
         logger.error(f"Error parsing request: {e}")
         raise HTTPException(status_code=422, detail=f"Request parsing error: {str(e)}")
 
-    # Rate limiting
-    if os.getenv("UPSTASH_REDIS_REST_URL"):
-        is_allowed = await rate_limit(request)
-
-        if not is_allowed:
-            raise HTTPException(
-                status_code=429, detail="Rate limit exceeded. Please try again later."
-            )
-
     try:
         messages = chat_request.messages
 
@@ -118,15 +108,23 @@ async def chat_endpoint(request: Request):
                     model="gpt-5-mini",  # Using gpt-5-mini for better performance
                     system_message="You are an assistant that can edit rich text documents.",
                 ):
-                    # Log only important chunks
-                    if chunk.get("type") in ["tool-input-available", "finish", "error"]:
+                    # chunk can be either a string (text delta) or a dict (tool call/error)
+                    if isinstance(chunk, str):
+                        # Stream raw text (frontend expects string payloads parsed from JSON)
                         logger.info(f"Sending chunk: {chunk}")
-
-                    # Pass through the Vercel AI SDK format directly
-                    yield f"data: {json.dumps(chunk)}\n\n"
+                        yield f"data: {json.dumps(chunk)}\n\n"
+                    else:
+                        # Log only important dict chunks
+                        if chunk.get("type") in [
+                            "tool-input-available",
+                            "finish",
+                            "error",
+                        ]:
+                            logger.info(f"Sending chunk: {chunk}")
+                        yield f"data: {json.dumps(chunk)}\n\n"
 
                     # End the stream after finish
-                    if chunk.get("type") == "finish":
+                    if not isinstance(chunk, str) and chunk.get("type") == "finish":
                         logger.info("Stream finished")
                         yield "data: [DONE]\n\n"
                         return
