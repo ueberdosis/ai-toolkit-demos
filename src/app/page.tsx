@@ -14,12 +14,20 @@ export default function Home() {
             <p className="text-gray-600 mb-4">
               A simple AI agent that can read and edit Tiptap documents using the AI Toolkit and Vercel AI SDK.
             </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link 
               href="/ai-agent-chatbot"
               className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
             >
               AI Agent Chatbot
             </Link>
+            <Link 
+              href="/tool-streaming"
+              className="inline-block bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors"
+            >
+              Chatbot with Tool Streaming
+            </Link>
+            </div>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-md">
