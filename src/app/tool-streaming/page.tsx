@@ -21,10 +21,6 @@ export default function Page() {
   const editorRef = useRef(editor);
   editorRef.current = editor;
 
-  // The AI Agent reads the document in chunks. This variable tracks of the current chunk
-  // that the AI Agent is reading.
-  const currentChunk = useRef(0);
-
   const { messages, sendMessage, addToolResult } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
@@ -41,12 +37,9 @@ export default function Page() {
         toolCallId,
         toolName,
         input,
-        currentChunk: currentChunk.current,
         // This parameter indicates that the tool streaming is complete
         hasFinished: true,
       });
-
-      currentChunk.current = result.currentChunk;
 
       addToolResult({ tool: toolName, toolCallId, output: result.output });
     },
@@ -88,7 +81,6 @@ export default function Page() {
       toolCallId: part.toolCallId,
       toolName,
       input: part.input,
-      currentChunk: currentChunk.current,
     });
   }, [addToolResult, editor, messages]);
 

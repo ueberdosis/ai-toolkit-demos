@@ -23,10 +23,6 @@ export default function Page() {
   const editorRef = useRef(editor);
   editorRef.current = editor;
 
-  // The AI Agent reads the document in chunks. This variable tracks of the current chunk
-  // that the AI Agent is reading.
-  const currentChunk = useRef(0);
-
   const [reviewState, setReviewState] = useState({
     // Whether to display the review UI
     isReviewing: false,
@@ -53,7 +49,6 @@ export default function Page() {
       const result = toolkit.executeTool({
         toolName,
         input,
-        currentChunk: currentChunk.current,
         reviewOptions: {
           mode: "preview",
           displayOptions: {
@@ -95,8 +90,6 @@ export default function Page() {
           },
         },
       });
-
-      currentChunk.current = result.currentChunk;
 
       // If the tool call modifies the document, halt the conversation and display the review UI
       if (result.docChanged) {
