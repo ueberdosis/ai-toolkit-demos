@@ -16,7 +16,7 @@ export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit],
-    content: `<h1>AI Agent Demo</h1><p>Ask the AI to improve this.</p>`,
+    content: `<h1>AI agent demo</h1><p>Ask the AI to improve this.</p>`,
   });
 
   // Fixes issue: https://github.com/vercel/ai/issues/8148
@@ -62,7 +62,7 @@ export default function Page() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">
-        Review Changes as Summary Demo
+        Review changes as summary demo
       </h1>
 
       <div className="mb-6">
@@ -161,7 +161,7 @@ export default function Page() {
 
       {showReviewUI && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h2 className="text-xl font-semibold mb-4">Reviewing Changes</h2>
+          <h2 className="text-xl font-semibold mb-4">Reviewing changes</h2>
           <div className="flex gap-4">
             <button
               onClick={stopComparing}

@@ -5,12 +5,12 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="max-w-2xl mx-auto text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-8">
-          Tiptap AI Toolkit Demo
+          Tiptap AI Toolkit demo
         </h1>
         
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">AI Agent Chatbot</h2>
+            <h2 className="text-2xl font-semibold mb-4">AI agent chatbot</h2>
             <p className="text-gray-600 mb-4">
               A simple AI agent that can read and edit Tiptap documents using the AI Toolkit and Vercel AI SDK.
             </p>
@@ -19,19 +19,19 @@ export default function Home() {
               href="/ai-agent-chatbot"
               className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
             >
-              AI Agent Chatbot
+              AI agent chatbot
             </Link>
             <Link 
               href="/tool-streaming"
               className="inline-block bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors"
             >
-              Chatbot with Tool Streaming
+              Chatbot with tool streaming
             </Link>
             </div>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Review Changes</h2>
+            <h2 className="text-2xl font-semibold mb-4">Review changes</h2>
             <p className="text-gray-600 mb-4">
               Preview and approve AI-inserted changes using suggestions with customizable rendering.
             </p>
@@ -40,13 +40,13 @@ export default function Home() {
                 href="/review-changes"
                 className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
               >
-                Review Changes
+                Review changes
               </Link>
               <Link 
                 href="/review-changes-as-summary"
                 className="inline-block bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
               >
-                Review Changes as Summary
+                Review changes as summary
               </Link>
             </div>
           </div>

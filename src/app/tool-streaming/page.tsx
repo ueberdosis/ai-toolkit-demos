@@ -14,7 +14,7 @@ export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit],
-    content: `<h1>AI Agent Demo</h1><p>Ask the AI to improve this.</p>`,
+    content: `<h1>AI agent demo</h1><p>Ask the AI to improve this.</p>`,
   });
 
   // Fixes issue: https://github.com/vercel/ai/issues/8148
@@ -88,7 +88,7 @@ export default function Page() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">AI Agent Chatbot</h1>
+      <h1 className="text-3xl font-bold mb-6">Tool streaming demo</h1>
 
       <div className="mb-6">
         <EditorContent
