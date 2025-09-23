@@ -7,7 +7,7 @@ import {
 import { useChat } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 
 export default function Page() {
@@ -30,11 +30,15 @@ export default function Page() {
 
       const { toolName, input, toolCallId } = toolCall;
 
+      // When the tool streaming is complete, we need to apply the tool call to the document
       // Use the AI Toolkit to execute the tool
       const toolkit = getAiToolkit(editor);
-      const result = toolkit.executeTool({
+      const result = toolkit.streamTool({
+        toolCallId,
         toolName,
         input,
+        // This parameter indicates that the tool streaming is complete
+        hasFinished: true,
       });
 
       addToolResult({ tool: toolName, toolCallId, output: result.output });
@@ -42,14 +46,49 @@ export default function Page() {
   });
 
   const [input, setInput] = useState(
-    "Replace the last paragraph with a short story about Tiptap"
+    "Insert, at the end of the document, a long story with 10 paragraphs about Tiptap"
   );
+
+  // While the tool streaming is in progress, we need to update the document
+  // as the tool input changes
+  useEffect(() => {
+    if (!editor) return;
+
+    // Find the last message
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage) return;
+
+    // Find the last tool that the AI has just called
+    const toolCallParts =
+      lastMessage.parts.filter((p) => p.type.startsWith("tool-")) ?? [];
+    const lastToolCall = toolCallParts[toolCallParts.length - 1];
+    if (!lastToolCall) return;
+
+    // Get the tool call data
+    interface ToolStreamingPart {
+      input: unknown;
+      state: string;
+      toolCallId: string;
+      type: string;
+    }
+    const part = lastToolCall as ToolStreamingPart;
+    if (!(part.state === "input-streaming")) return;
+    const toolName = part.type.replace("tool-", "");
+
+    // Apply the tool call to the document, while it is streaming
+    const toolkit = getAiToolkit(editor);
+    toolkit.streamTool({
+      toolCallId: part.toolCallId,
+      toolName,
+      input: part.input,
+    });
+  }, [addToolResult, editor, messages]);
 
   if (!editor) return null;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">AI agent chatbot</h1>
+      <h1 className="text-3xl font-bold mb-6">Tool streaming demo</h1>
 
       <div className="mb-6">
         <EditorContent

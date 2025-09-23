@@ -16,16 +16,12 @@ export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit],
-    content: `<h1>AI Agent Demo</h1><p>Ask the AI to improve this.</p>`,
+    content: `<h1>AI agent demo</h1><p>Ask the AI to improve this.</p>`,
   });
 
   // Fixes issue: https://github.com/vercel/ai/issues/8148
   const editorRef = useRef(editor);
   editorRef.current = editor;
-
-  // The AI Agent reads the document in chunks. This variable tracks of the current chunk
-  // that the AI Agent is reading.
-  const currentChunk = useRef(0);
 
   const [reviewState, setReviewState] = useState({
     // Whether to display the review UI
@@ -53,7 +49,6 @@ export default function Page() {
       const result = toolkit.executeTool({
         toolName,
         input,
-        currentChunk: currentChunk.current,
         reviewOptions: {
           mode: "preview",
           displayOptions: {
@@ -96,8 +91,6 @@ export default function Page() {
         },
       });
 
-      currentChunk.current = result.currentChunk;
-
       // If the tool call modifies the document, halt the conversation and display the review UI
       if (result.docChanged) {
         // Show the review UI
@@ -122,7 +115,7 @@ export default function Page() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Review Changes Demo</h1>
+      <h1 className="text-3xl font-bold mb-6">Review changes demo</h1>
 
       <div className="mb-6">
         <EditorContent
@@ -174,7 +167,7 @@ export default function Page() {
 
       {reviewState.isReviewing && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h2 className="text-xl font-semibold mb-4">Reviewing Changes</h2>
+          <h2 className="text-xl font-semibold mb-4">Reviewing changes</h2>
           <div className="flex gap-4">
             <button
               ref={acceptButtonRef}
