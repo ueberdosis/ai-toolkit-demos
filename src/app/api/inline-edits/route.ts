@@ -38,5 +38,6 @@ ${selection}
     },
   });
 
-  return result.toUIMessageStreamResponse();
+  // Return the text stream directly
+  return result.toTextStreamResponse();
 }
