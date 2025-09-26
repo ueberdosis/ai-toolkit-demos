@@ -11,8 +11,8 @@
   "dependencies": {
     "@ai-sdk/openai": "^2.0.23",
     "@ai-sdk/react": "^2.0.30",
-    "@tiptap-pro/ai-toolkit": "^3.0.0-alpha.14",
-    "@tiptap-pro/ai-toolkit-ai-sdk": "^3.0.0-alpha.7",
+    "@tiptap-pro/ai-toolkit": "^3.0.0-alpha.18",
+    "@tiptap-pro/ai-toolkit-ai-sdk": "^3.0.0-alpha.8",
     "@tiptap/react": "^3.5.0",
     "@tiptap/starter-kit": "^3.3.1",
     "@upstash/ratelimit": "^2.0.6",
