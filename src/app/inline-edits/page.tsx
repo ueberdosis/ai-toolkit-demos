@@ -1,6 +1,6 @@
 "use client";
 
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useState } from "react";
 import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
@@ -14,7 +14,14 @@ export default function Page() {
 <p>This is a third paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>`,
   });
 
+  // Disable the buttons when the AI is generating content
   const [isLoading, setIsLoading] = useState(false);
+
+  // Disable the buttons when the selection is empty
+  const selectionIsEmpty = useEditorState({
+    editor,
+    selector: (snapshot) => snapshot.editor?.state.selection.empty ?? true,
+  });
 
   if (!editor) return null;
 
@@ -59,9 +66,7 @@ export default function Page() {
     }
   };
 
-  if (!editor) return null;
-
-  const disabled = editor.state.selection.empty || isLoading;
+  const disabled = selectionIsEmpty || isLoading;
 
   return (
     <div className="max-w-4xl mx-auto p-6">

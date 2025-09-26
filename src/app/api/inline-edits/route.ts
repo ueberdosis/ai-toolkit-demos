@@ -21,8 +21,8 @@ export async function POST(req: Request) {
   const { userRequest, selection }: { userRequest: string, selection: string} = await req.json();
 
   const result = streamText({
-    model: openai("gpt-5"),
-    system: "You are an expert writer that can edit rich text documents. The content of the rich text document is in HTML format. Generate the HTML code for the new content of the selection. You will receive the current content of the selection and the user's request. Re-write the content of the selection to meet the user's request. If the user's request is not clear or does not relate to editing the document, generate HTML code where you ask the user to clarify the request. Your response should only contain the HTML code, no other text or explanation, no Markdown, and your HTML response should not be wrapped in backticks, Markdown code blocks, or other extra formatting.",
+    model: openai("gpt-5-mini"),
+    system: "You are an expert writer that can edit rich text documents. The user has selected part of the document. You will receive the current content of the selection (in HTML format) and the user's request. Re-write the content of the selection to meet the user's request. Generate the HTML code for the new content of the selection. If the user's request is not clear or does not relate to editing the document, generate HTML code where you ask the user to clarify the request. Your response should only contain the HTML code, no other text or explanation, no Markdown, and your HTML response should not be wrapped in backticks, Markdown code blocks, or other extra formatting.",
     prompt: `User request:
 """
 ${userRequest}
