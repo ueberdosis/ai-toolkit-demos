@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const { userRequest, selection }: { userRequest: string, selection: string} = await req.json();
+  const { userRequest, selection } = await req.json();
 
   const result = streamText({
     model: openai("gpt-5-mini"),

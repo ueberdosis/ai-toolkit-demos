@@ -14,7 +14,7 @@ export default function Page() {
 <p>This is a third paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>`,
   });
 
-  // Disable the buttons when the AI is generating content
+  // Show a loading state when the AI is generating content
   const [isLoading, setIsLoading] = useState(false);
 
   // Disable the buttons when the selection is empty
@@ -25,7 +25,7 @@ export default function Page() {
 
   if (!editor) return null;
 
-  const handleInlineEdit = async (userRequest: string) => {
+  const editSelection = async (userRequest: string) => {
     const toolkit = getAiToolkit(editor);
 
     // Use the AI Toolkit to get the selection in HTML format
@@ -33,37 +33,31 @@ export default function Page() {
 
     setIsLoading(true);
 
-    try {
-      // Call the API endpoint to get the edited HTML content
-      const response = await fetch("/api/inline-edits", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userRequest,
-          selection,
-        }),
-      });
+    // Call the API endpoint to get the edited HTML content
+    const response = await fetch("/api/inline-edits", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userRequest,
+        selection,
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      // The response is a stream of HTML content
-      const readableStream = response.body;
-      if (!readableStream) {
-        throw new Error("No response body");
-      }
-
-      // Use the AI Toolkit to stream HTML into the selection
-      toolkit.streamHtml(readableStream);
-    } catch (error) {
-      console.error("Error calling emojify API:", error);
-      alert("Error occurred while emojifying text. Please try again.");
-    } finally {
-      setIsLoading(false);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    // The response is a stream of HTML content
+    const readableStream = response.body;
+    if (!readableStream) {
+      throw new Error("No response body");
+    }
+
+    // Use the AI Toolkit to stream HTML into the selection
+    await toolkit.streamHtml(readableStream, { position: "selection" });
+    setIsLoading(false);
   };
 
   const disabled = selectionIsEmpty || isLoading;
@@ -81,14 +75,14 @@ export default function Page() {
 
       <div className="flex gap-2">
         <button
-          onClick={() => handleInlineEdit("Add emojis to this text")}
+          onClick={() => editSelection("Add emojis to this text")}
           disabled={disabled}
           className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {isLoading ? "Loading..." : "Add emojis"}
         </button>
         <button
-          onClick={() => handleInlineEdit("Make the text twice as long")}
+          onClick={() => editSelection("Make the text twice as long")}
           disabled={disabled}
           className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
