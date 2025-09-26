@@ -49,15 +49,14 @@ export default function Page() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const readableStream = response.body;
+      const readableStream = response.body as ReadableStream<Uint8Array>;
       if (!readableStream) {
         throw new Error("No response body");
       }
 
       // Use the AI Toolkit to stream HTML into the selection
       const toolkit = getAiToolkit(editor);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      toolkit.streamHtml(readableStream as any);
+      toolkit.streamHtml(readableStream);
     } catch (error) {
       console.error("Error calling emojify API:", error);
       alert("Error occurred while emojifying text. Please try again.");
