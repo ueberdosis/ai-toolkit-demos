@@ -2,38 +2,32 @@
 
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 
 export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit],
-    content: `<h1>Inline Edits Demo</h1><p>Select some text and click the "Emojify" button to add emojis to your selection!</p><p>This is another paragraph that you can select and emojify.</p>`,
+    content: `<p>Select some text and click the "Add emojis" button to add emojis to your selection.</p>
+<p>This is another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>
+<p>This is a third paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>`,
   });
-
-  // Fixes issue: https://github.com/vercel/ai/issues/8148
-  const editorRef = useRef(editor);
-  editorRef.current = editor;
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleEmojify = async () => {
-    const editor = editorRef.current;
-    if (!editor) return;
+  if (!editor) return null;
 
-    const { from, to } = editor.state.selection;
-    if (from === to) {
-      alert("Please select some text first!");
-      return;
-    }
+  const handleInlineEdit = async (userRequest: string) => {
+    const toolkit = getAiToolkit(editor);
 
-    const selection = editor.state.doc.textBetween(from, to);
-    const userRequest = "Add emojis to this text";
+    // Use the AI Toolkit to get the selection in HTML format
+    const selection = toolkit.getHtmlSelection();
 
     setIsLoading(true);
 
     try {
+      // Call the API endpoint to get the edited HTML content
       const response = await fetch("/api/inline-edits", {
         method: "POST",
         headers: {
@@ -49,13 +43,13 @@ export default function Page() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const readableStream = response.body as ReadableStream<Uint8Array>;
+      // The response is a stream of HTML content
+      const readableStream = response.body;
       if (!readableStream) {
         throw new Error("No response body");
       }
 
       // Use the AI Toolkit to stream HTML into the selection
-      const toolkit = getAiToolkit(editor);
       toolkit.streamHtml(readableStream);
     } catch (error) {
       console.error("Error calling emojify API:", error);
@@ -66,6 +60,8 @@ export default function Page() {
   };
 
   if (!editor) return null;
+
+  const disabled = editor.state.selection.empty || isLoading;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -80,11 +76,18 @@ export default function Page() {
 
       <div className="flex gap-2">
         <button
-          onClick={handleEmojify}
-          disabled={isLoading}
-          className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          onClick={() => handleInlineEdit("Add emojis to this text")}
+          disabled={disabled}
+          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          {isLoading ? "Emojifying..." : "Emojify"}
+          {isLoading ? "Loading..." : "Add emojis"}
+        </button>
+        <button
+          onClick={() => handleInlineEdit("Make the text twice as long")}
+          disabled={disabled}
+          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          {isLoading ? "Loading..." : "Make text longer"}
         </button>
       </div>
     </div>
