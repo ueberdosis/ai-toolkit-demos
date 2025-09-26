@@ -29,7 +29,6 @@ export default function Page() {
       if (!editor) return;
 
       const { toolName, input, toolCallId } = toolCall;
-      console.log("toolCall", toolCall);
 
       // Use the AI Toolkit to execute the tool
       const toolkit = getAiToolkit(editor);
