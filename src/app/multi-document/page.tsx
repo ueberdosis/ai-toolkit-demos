@@ -193,7 +193,7 @@ export default function Page() {
   });
 
   const [input, setInput] = useState(
-    "Create two documents, one with a short poem and another with a short story about Tiptap"
+    "Create 2 docs, one with a short poem and another with a short story about Tiptap"
   );
 
   return (
