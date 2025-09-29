@@ -27,7 +27,8 @@ interface Document {
 const initialDocuments: Document[] = [
   {
     name: "Document 1",
-    content: "<h1>Document 1</h1><p>This is the content of the first document.</p>",
+    content:
+      "<h1>Document 1</h1><p>This is the content of the first document.</p>",
   },
 ];
 
@@ -41,8 +42,8 @@ export default function Page() {
 
   /**
    * Find a document by name
-   * @param documentName 
-   * @returns 
+   * @param documentName
+   * @returns
    */
   const findDocument = (documentName: string) => {
     return documents.find((doc) => doc.name === documentName);
@@ -141,36 +142,22 @@ export default function Page() {
   const handleToolCall = (toolCall: {
     toolName: string;
     input: unknown;
-    toolCallId: string;
-  }): {
-    tool: string;
-    toolCallId: string;
-    output: string;
-  } => {
+  }): string => {
     const editor = editorRef.current;
-    if (!editor) return { tool: "", toolCallId: "", output: "" };
+    if (!editor) return "";
 
-    const { toolName, input, toolCallId } = toolCall;
-    console.log("toolCall", toolCall);
+    const { toolName, input } = toolCall;
 
     if (toolName === "createDocument") {
-      const output = createDocument(
-        (input as { documentName: string }).documentName
-      );
-      return { tool: toolName, toolCallId, output: output };
+      return createDocument((input as { documentName: string }).documentName);
     } else if (toolName === "listDocuments") {
-      const output = listDocuments();
-      return { tool: toolName, toolCallId, output: output };
+      return listDocuments();
     } else if (toolName === "setActiveDocument") {
-      const output = setActiveDocument(
+      return setActiveDocument(
         (input as { documentName: string }).documentName
       );
-      return { tool: toolName, toolCallId, output: output };
     } else if (toolName === "deleteDocument") {
-      const output = deleteDocument(
-        (input as { documentName: string }).documentName
-      );
-      return { tool: toolName, toolCallId, output: output };
+      return deleteDocument((input as { documentName: string }).documentName);
     }
 
     // Use the AI Toolkit to execute the tool
@@ -180,7 +167,7 @@ export default function Page() {
       input,
     });
 
-    return { tool: toolName, toolCallId, output: result.output };
+    return result.output;
   };
 
   /**
@@ -194,9 +181,13 @@ export default function Page() {
     transport: new DefaultChatTransport({ api: "/api/multi-document" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
-      const result = handleToolCallRef.current(toolCall);
-      if (result.tool !== "") {
-        addToolResult(result);
+      const output = handleToolCallRef.current(toolCall);
+      if (output) {
+        addToolResult({
+          tool: toolCall.toolName,
+          toolCallId: toolCall.toolCallId,
+          output,
+        });
       }
     },
   });
@@ -207,7 +198,9 @@ export default function Page() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">AI agent with multiple documents</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        AI agent with multiple documents
+      </h1>
 
       <div className="mb-6">
         <div className="flex flex-wrap gap-2">
