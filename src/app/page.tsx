@@ -65,6 +65,21 @@ export default function Home() {
               </Link>
             </div>
           </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold mb-4">Advanced use cases</h2>
+            <p className="text-gray-600 mb-4">
+              AI agents that can work with multiple documents simultaneously, reading and editing content across different files.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link 
+                href="/multi-document"
+                className="inline-block bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors"
+              >
+                Multi-document AI Agent
+              </Link>
+            </div>
+          </div>
         </div>
         
         <div className="mt-8 text-sm text-gray-500">
