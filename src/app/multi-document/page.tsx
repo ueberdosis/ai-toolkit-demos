@@ -177,7 +177,7 @@ export default function Page() {
   const handleToolCallRef = useRef(handleToolCall);
   handleToolCallRef.current = handleToolCall;
 
-  const { messages, sendMessage, addToolResult } = useChat({
+  const { messages, sendMessage, addToolResult, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/multi-document" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
@@ -207,7 +207,9 @@ export default function Page() {
           {documents.map((doc) => (
             <button
               key={doc.name}
-              disabled={doc.name === activeDocumentName}
+              disabled={
+                status === "streaming" || doc.name === activeDocumentName
+              }
               className={`px-4 py-2 rounded-full border text-sm font-medium ${
                 doc.name === activeDocumentName
                   ? "bg-blue-500 text-white border-blue-500 cursor-default"
