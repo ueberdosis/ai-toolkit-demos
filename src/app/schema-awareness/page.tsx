@@ -57,7 +57,8 @@ const CustomAlertExtension = Node.create({
       tag: "div",
       name: "Alert Box",
       description: `A highlighted box used to display important information, warnings, or tips to the user.
-It can have inline content inside like text and formatting tags.`,
+It can have inline content inside like text and formatting tags.
+It can NOT contain a paragraph tag or any other block element inside.`,
       attributes: [
         {
           attr: "data-alert",
