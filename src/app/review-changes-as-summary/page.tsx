@@ -1,10 +1,10 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import { Decoration } from "@tiptap/pm/view";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
@@ -44,7 +44,7 @@ export default function Page() {
   });
 
   const [input, setInput] = useState(
-    "Replace the last paragraph with a short story about Tiptap"
+    "Replace the last paragraph with a short story about Tiptap",
   );
   const [isComparing, setIsComparing] = useState(false);
 
@@ -164,12 +164,14 @@ export default function Page() {
           <h2 className="text-xl font-semibold mb-4">Reviewing changes</h2>
           <div className="flex gap-4">
             <button
+              type="button"
               onClick={stopComparing}
               className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
             >
               Accept all
             </button>
             <button
+              type="button"
               onClick={() => {
                 toolkit.rejectAllChanges();
                 stopComparing();

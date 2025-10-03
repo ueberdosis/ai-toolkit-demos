@@ -1,10 +1,10 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import { Decoration } from "@tiptap/pm/view";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
@@ -108,7 +108,7 @@ export default function Page() {
   });
 
   const [input, setInput] = useState(
-    "Replace the last paragraph with a short story about Tiptap"
+    "Replace the last paragraph with a short story about Tiptap",
   );
 
   if (!editor) return null;
@@ -170,6 +170,7 @@ export default function Page() {
           <h2 className="text-xl font-semibold mb-4">Reviewing changes</h2>
           <div className="flex gap-4">
             <button
+              type="button"
               ref={acceptButtonRef}
               onClick={() => {
                 const toolkit = getAiToolkit(editor);
@@ -185,6 +186,7 @@ export default function Page() {
               Accept all
             </button>
             <button
+              type="button"
               ref={rejectButtonRef}
               onClick={() => {
                 const toolkit = getAiToolkit(editor);

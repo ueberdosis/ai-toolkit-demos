@@ -1,0 +1,71 @@
+/* Alert Box Styles */
+.tiptap div[data-alert] {
+  padding: 1rem;
+  padding-left: 2.5rem;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  border-left: 4px solid;
+  position: relative;
+}
+
+/* Info (default) */
+.tiptap div[data-alert][data-type='info'],
+.tiptap div[data-alert]:not([data-type]) {
+  background-color: #e6f3ff;
+  border-left-color: #0066cc;
+  color: #003d7a;
+}
+
+/* Warning */
+.tiptap div[data-alert][data-type='warning'] {
+  background-color: #fff8e1;
+  border-left-color: #ff9800;
+  color: #e65100;
+}
+
+/* Error */
+.tiptap div[data-alert][data-type='error'] {
+  background-color: #ffebee;
+  border-left-color: #f44336;
+  color: #c62828;
+}
+
+/* Success */
+.tiptap div[data-alert][data-type='success'] {
+  background-color: #e8f5e8;
+  border-left-color: #4caf50;
+  color: #2e7d32;
+}
+
+/* Icon before alert */
+.tiptap div[data-alert]::before {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  top: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* Info (default) icon */
+.tiptap div[data-alert][data-type='info']::before,
+.tiptap div[data-alert]:not([data-type])::before {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%230066cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>');
+}
+
+/* Warning icon */
+.tiptap div[data-alert][data-type='warning']::before {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ff9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="m12 17 .01 0"/></svg>');
+}
+
+/* Error icon */
+.tiptap div[data-alert][data-type='error']::before {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23f44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>');
+}
+
+/* Success icon */
+.tiptap div[data-alert][data-type='success']::before {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%234caf50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>');
+}

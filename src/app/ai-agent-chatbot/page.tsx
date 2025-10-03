@@ -1,14 +1,14 @@
 "use client";
 
+import { useChat } from "@ai-sdk/react";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
-import { useChat } from "@ai-sdk/react";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { useRef, useState } from "react";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 
 export default function Page() {
   const editor = useEditor({
@@ -42,7 +42,7 @@ export default function Page() {
   });
 
   const [input, setInput] = useState(
-    "Replace the last paragraph with a short story about Tiptap"
+    "Replace the last paragraph with a short story about Tiptap",
   );
 
   if (!editor) return null;

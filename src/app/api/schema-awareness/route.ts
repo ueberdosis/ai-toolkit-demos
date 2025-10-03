@@ -19,11 +19,18 @@ export async function POST(req: Request) {
     }
   }
 
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const {
+    messages,
+    schemaAwareness,
+  }: { messages: UIMessage[]; schemaAwareness: string } = await req.json();
 
   const result = streamText({
     model: openai("gpt-5"),
-    system: "You are an assistant that can edit rich text documents.",
+    system: `You are an assistant that can edit rich text documents.
+
+Rule: In your response to the user, do not include the HTML content of the tool calls you execute.
+
+${schemaAwareness}`,
     messages: convertToModelMessages(messages),
     tools: toolDefinitions(),
     providerOptions: {

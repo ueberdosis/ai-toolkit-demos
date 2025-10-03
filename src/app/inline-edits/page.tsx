@@ -2,8 +2,8 @@
 
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useState } from "react";
 import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import { useState } from "react";
 
 export default function Page() {
   const editor = useEditor({
@@ -76,6 +76,7 @@ export default function Page() {
 
       <div className="flex gap-2">
         <button
+          type="button"
           onClick={() => editSelection("Add emojis to this text")}
           disabled={disabled}
           className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
@@ -83,6 +84,7 @@ export default function Page() {
           {isLoading ? "Loading..." : "Add emojis"}
         </button>
         <button
+          type="button"
           onClick={() => editSelection("Make the text twice as long")}
           disabled={disabled}
           className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"

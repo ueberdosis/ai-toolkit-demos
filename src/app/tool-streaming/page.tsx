@@ -1,14 +1,14 @@
 "use client";
 
+import { useChat } from "@ai-sdk/react";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
-import { useChat } from "@ai-sdk/react";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useRef, useState } from "react";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 
 export default function Page() {
   const editor = useEditor({
@@ -46,7 +46,7 @@ export default function Page() {
   });
 
   const [input, setInput] = useState(
-    "Insert, at the end of the document, a long story with 10 paragraphs about Tiptap"
+    "Insert, at the end of the document, a long story with 10 paragraphs about Tiptap",
   );
 
   // While the tool streaming is in progress, we need to update the document
@@ -82,7 +82,7 @@ export default function Page() {
       toolName,
       input: part.input,
     });
-  }, [addToolResult, editor, messages]);
+  }, [editor, messages]);
 
   if (!editor) return null;
 

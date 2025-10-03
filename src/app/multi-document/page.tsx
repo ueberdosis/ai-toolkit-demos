@@ -1,14 +1,14 @@
 "use client";
 
+import { useChat } from "@ai-sdk/react";
+import { type Editor, EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
-import { useChat } from "@ai-sdk/react";
-import { Editor, EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useRef, useState } from "react";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 
 /**
  * One of the documents available in the app. Each
@@ -64,8 +64,8 @@ export default function Page() {
     const content = editor.getHTML();
     setDocuments((documents) =>
       documents.map((doc) =>
-        doc.name === activeDocumentName ? { ...doc, content } : doc
-      )
+        doc.name === activeDocumentName ? { ...doc, content } : doc,
+      ),
     );
   };
 
@@ -104,7 +104,7 @@ export default function Page() {
       return `Document does not exist. Active document is still "${activeDocumentName}"`;
     }
     setDocuments((documents) =>
-      documents.filter((doc) => doc.name !== documentName)
+      documents.filter((doc) => doc.name !== documentName),
     );
     return `Deleted document "${documentName}".`;
   };
@@ -154,7 +154,7 @@ export default function Page() {
       return listDocuments();
     } else if (toolName === "setActiveDocument") {
       return setActiveDocument(
-        (input as { documentName: string }).documentName
+        (input as { documentName: string }).documentName,
       );
     } else if (toolName === "deleteDocument") {
       return deleteDocument((input as { documentName: string }).documentName);
@@ -193,7 +193,7 @@ export default function Page() {
   });
 
   const [input, setInput] = useState(
-    "Create 2 docs, one with a short poem and another with a short story about Tiptap"
+    "Create 2 docs, one with a short poem and another with a short story about Tiptap",
   );
 
   return (
@@ -206,6 +206,7 @@ export default function Page() {
         <div className="flex flex-wrap gap-2">
           {documents.map((doc) => (
             <button
+              type="button"
               key={doc.name}
               disabled={
                 status === "streaming" || doc.name === activeDocumentName
@@ -228,7 +229,9 @@ export default function Page() {
           <EditorComponent
             key={activeDocument.name}
             initialContent={activeDocument.content}
-            onEditorInitialized={(editor) => (editorRef.current = editor)}
+            onEditorInitialized={(editor) => {
+              editorRef.current = editor;
+            }}
           />
         )}
       </div>

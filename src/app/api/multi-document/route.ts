@@ -1,8 +1,8 @@
 import { openai } from "@ai-sdk/openai";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
-import { convertToModelMessages, streamText, tool, UIMessage } from "ai";
-import { rateLimit, getIp } from "@/lib/rate-limit";
+import { convertToModelMessages, streamText, tool, type UIMessage } from "ai";
 import { z } from "zod";
+import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   // Rate limiting
@@ -46,7 +46,8 @@ export async function POST(req: Request) {
         inputSchema: z.object({}),
       }),
       setActiveDocument: tool({
-        description: "Switch to a specific document, so that it becomes the active document",
+        description:
+          "Switch to a specific document, so that it becomes the active document",
         inputSchema: z.object({
           documentName: z.string(),
         }),
