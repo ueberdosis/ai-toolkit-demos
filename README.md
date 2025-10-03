@@ -7,7 +7,7 @@ This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with 
 3. **Review Changes as Summary** (`/review-changes-as-summary`) - Preview and approve AI-inserted changes using suggestions as a summary
 4. **Chatbot with Tool Streaming** (`/tool-streaming`) - Chat with an AI that can read and edit Tiptap documents using tool streaming
 5. **Multi-document AI Agent** (`/multi-document`) - An AI agent that can read and edit multiple Tiptap documents at once
-6. **Schema Awareness** (`/schema-awareness`) - An AI agent with schema awareness enabled. It understands and generates custom elements and extensions.
+6. **Schema Awareness** (`/schema-awareness`) - An AI agent with schema awareness enabled. It understands custom nodes and marks.
 
 ## Tech Stack
 
