@@ -46,7 +46,7 @@ export default function Page() {
   });
 
   const [input, setInput] = useState(
-    "Insert, at the end of the document, a long story with 10 paragraphs about Tiptap",
+    "Insert, at the end of the document, a long story with 5 paragraphs about Tiptap",
   );
 
   // While the tool streaming is in progress, we need to update the document
