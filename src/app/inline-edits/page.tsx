@@ -31,8 +31,7 @@ export default function Page() {
 
     // Use the AI Toolkit to get the selection in HTML format
     const selection = toolkit.getHtmlSelection();
-
-    setIsLoading(true);
+    const selectionPosition = editor.state.selection;
 
     // Call the API endpoint to get the edited HTML content
     const response = await fetch("/api/inline-edits", {
@@ -57,8 +56,7 @@ export default function Page() {
     }
 
     // Use the AI Toolkit to stream HTML into the selection
-    await toolkit.streamHtml(readableStream, { position: "selection" });
-    setIsLoading(false);
+    await toolkit.streamHtml(readableStream, { position: selectionPosition });
   };
 
   const disabled = selectionIsEmpty || isLoading;
