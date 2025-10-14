@@ -1,4 +1,4 @@
-import { anthropic } from "@ai-sdk/anthropic";
+import { openai } from "@ai-sdk/openai";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
@@ -22,10 +22,15 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const result = streamText({
-    model: anthropic("claude-sonnet-4-5"),
+    model: openai("gpt-5"),
     system: "You are an assistant that can edit rich text documents.",
     messages: convertToModelMessages(messages),
     tools: toolDefinitions(),
+    providerOptions: {
+      openai: {
+        reasoningEffort: "minimal",
+      },
+    },
   });
 
   return result.toUIMessageStreamResponse();
