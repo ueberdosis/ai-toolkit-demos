@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   }: { messages: UIMessage[]; schemaAwareness: string } = await req.json();
 
   const result = streamText({
-    model: openai("gpt-5"),
+    model: anthropic("claude-sonnet-4-5"),
     system: `You are an assistant that can edit rich text documents.
 
 Rule: In your response to the user, do not include the HTML content of the tool calls you execute.
@@ -33,11 +33,6 @@ Rule: In your response to the user, do not include the HTML content of the tool 
 ${schemaAwareness}`,
     messages: convertToModelMessages(messages),
     tools: toolDefinitions(),
-    providerOptions: {
-      openai: {
-        reasoningEffort: "minimal",
-      },
-    },
   });
 
   return result.toUIMessageStreamResponse();

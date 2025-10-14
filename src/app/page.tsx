@@ -95,8 +95,9 @@ export default function Home() {
         <div className="mt-8 text-sm text-gray-500">
           <p>
             Make sure to set your{" "}
-            <code className="bg-gray-200 px-1 rounded">OPENAI_API_KEY</code>{" "}
-            environment variable to use these demos.
+            <code className="bg-gray-200 px-1 rounded">OPENAI_API_KEY</code> and{" "}
+            <code className="bg-gray-200 px-1 rounded">ANTHROPIC_API_KEY</code>{" "}
+            environment variables to use these demos.
           </p>
         </div>
       </div>

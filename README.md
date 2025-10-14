@@ -30,6 +30,7 @@ This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with 
    Create a `.env.local` file in the root directory and add your API keys:
    ```bash
    OPENAI_API_KEY=your-api-key-here
+   ANTHROPIC_API_KEY=your-api-key-here
    
    # Upstash Redis for rate limiting (optional but recommended)
    UPSTASH_REDIS_REST_URL=your_upstash_redis_rest_url_here

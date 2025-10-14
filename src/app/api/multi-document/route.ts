@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import { convertToModelMessages, streamText, tool, type UIMessage } from "ai";
 import { z } from "zod";
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const result = streamText({
-    model: openai("gpt-5"),
+    model: anthropic("claude-sonnet-4-5"),
     system: `You are an assistant that can edit rich text documents. 
     You have access multiple documents and can switch between them. 
     At any point in time, the 'active document' is the document that is open in the editor.
@@ -58,11 +58,6 @@ export async function POST(req: Request) {
           documentName: z.string(),
         }),
       }),
-    },
-    providerOptions: {
-      openai: {
-        reasoningEffort: "minimal",
-      },
     },
   });
 
