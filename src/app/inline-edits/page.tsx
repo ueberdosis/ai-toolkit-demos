@@ -1,14 +1,15 @@
 "use client";
 
-import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
+import {EditorContent, useEditor, useEditorState} from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
-import { useState } from "react";
+import { useState} from "react";
+import {AiCursorDecoration} from "@/app/inline-edits/AiCursorDecoration";
 
 export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, AiToolkit],
+    extensions: [StarterKit, AiToolkit, AiCursorDecoration],
     content: `<p>Select some text and click the "Add emojis" button to add emojis to your selection.</p>
 <p></p>
 <p>This is another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>
@@ -56,7 +57,13 @@ export default function Page() {
     }
 
     // Use the AI Toolkit to stream HTML into the selection
-    await toolkit.streamHtml(readableStream, { position: selectionPosition });
+    await toolkit.streamHtml(readableStream, { position: selectionPosition, onChunkInserted: e => {
+      const transaction = editor.state.tr.setMeta('AiCursorDecoration', {pos: e.range.to, range: e.range})
+      editor.view.dispatch(transaction)
+    } });
+
+      const transaction = editor.state.tr.setMeta('AiCursorDecoration', {})
+      editor.view.dispatch(transaction)
   };
 
   const disabled = selectionIsEmpty || isLoading;

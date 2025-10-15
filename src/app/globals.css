@@ -17,3 +17,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes cursor-blink {
+    0% {
+        opacity: 0;
+    }
+}
+
+
+.tiptap-ai-cursor::after {
+    content: '';
+    border-right: 1px solid red;
+    border-left: 1px solid red;
+    /*animation: cursor-blink 1.5s steps(2) infinite;*/
+}
