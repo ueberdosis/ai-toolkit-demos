@@ -20,14 +20,14 @@ export const AiCursorDecoration = Extension.create({
                 },
                 apply(tr, value) {
                     if (tr.getMeta("AiCursorDecoration")) {
-                        const {pos, range} = tr.getMeta("AiCursorDecoration")
+                        const {pos} = tr.getMeta("AiCursorDecoration")
 
                         if( !pos ) {
                             return { decorations: DecorationSet.empty }
                         }
 
                         return { decorations: DecorationSet.create(tr.doc, [
-                                Decoration.widget(range.to-1, () => {
+                                Decoration.widget(pos-1, () => {
                                     const element = document.createElement('span')
                                     element.classList.add('tiptap-ai-cursor')
 

@@ -1,102 +1,33 @@
 "use client";
 
-import {EditorContent, useEditor, useEditorState} from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
-import { useState} from "react";
-import {AiCursorDecoration} from "@/app/inline-edits/AiCursorDecoration";
+import TiptapCollabProvider from "@tiptap-pro/provider";
+import { useEffect, useState } from "react";
+import Editor from "@/app/inline-edits/editor";
 
 export default function Page() {
-  const editor = useEditor({
-    immediatelyRender: false,
-    extensions: [StarterKit, AiToolkit, AiCursorDecoration],
-    content: `<p>Select some text and click the "Add emojis" button to add emojis to your selection.</p>
-<p></p>
-<p>This is another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>
-<p>This is yet another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>`,
-  });
+  const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
 
-  // Show a loading state when the AI is generating content
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Disable the buttons when the selection is empty
-  const selectionIsEmpty = useEditorState({
-    editor,
-    selector: (snapshot) => snapshot.editor?.state.selection.empty ?? true,
-  });
-
-  if (!editor) return null;
-
-  const editSelection = async (userRequest: string) => {
-    const toolkit = getAiToolkit(editor);
-
-    // Use the AI Toolkit to get the selection in HTML format
-    const selection = toolkit.getHtmlSelection();
-    const selectionPosition = editor.state.selection;
-
-    // Call the API endpoint to get the edited HTML content
-    const response = await fetch("/api/inline-edits", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userRequest,
-        selection,
+  useEffect(() => {
+    setProvider(
+      new TiptapCollabProvider({
+        appId: String(process.env.NEXT_PUBLIC_TIPTAP_APP_ID),
+        token: String(process.env.NEXT_PUBLIC_TIPTAP_APP_JWT),
+        name: "ai-cursor-test1",
       }),
-    });
+    );
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    return () => {
+      provider?.destroy();
+    };
+  }, []);
 
-    // The response is a stream of HTML content
-    const readableStream = response.body;
-    if (!readableStream) {
-      throw new Error("No response body");
-    }
-
-    // Use the AI Toolkit to stream HTML into the selection
-    await toolkit.streamHtml(readableStream, { position: selectionPosition, onChunkInserted: e => {
-      const transaction = editor.state.tr.setMeta('AiCursorDecoration', {pos: e.range.to, range: e.range})
-      editor.view.dispatch(transaction)
-    } });
-
-      const transaction = editor.state.tr.setMeta('AiCursorDecoration', {})
-      editor.view.dispatch(transaction)
-  };
-
-  const disabled = selectionIsEmpty || isLoading;
+  if (!provider) return null;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Inline edits demo</h1>
 
-      <div className="mb-6">
-        <EditorContent
-          editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-[200px]"
-        />
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => editSelection("Add emojis to this text")}
-          disabled={disabled}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
-          {isLoading ? "Loading..." : "Add emojis"}
-        </button>
-        <button
-          type="button"
-          onClick={() => editSelection("Make the text twice as long")}
-          disabled={disabled}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
-          {isLoading ? "Loading..." : "Make text longer"}
-        </button>
-      </div>
+      <Editor provider={provider}></Editor>
     </div>
   );
 }
