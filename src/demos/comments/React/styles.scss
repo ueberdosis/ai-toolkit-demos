@@ -162,10 +162,9 @@
 
 /* Comments & Threads */
 body {
-  overflow: hidden;
 
   .main {
-    height: 100vh;
+    height: 80vh;
     overflow: auto;
   }
 
@@ -424,7 +423,7 @@ body {
   padding: 1rem;
   width: 15rem;
   position: sticky;
-  height: 100vh;
+  height: 80vh;
   top: 0;
   width: 20rem;
 
