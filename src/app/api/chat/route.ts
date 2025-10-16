@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   const result = streamText({
     model: openai("gpt-5"),
     system: "You are an assistant that can edit rich text documents.",
-    messages: convertToModelMessages(messages),
+    messages: converToModelMessages(messages),
     tools: toolDefinitions(),
     providerOptions: {
       openai: {
