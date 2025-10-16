@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
@@ -22,8 +22,9 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const result = streamText({
-    model: openai("gpt-5"),
-    system: "You are an assistant that can add comments to a document.",
+    model: anthropic("claude-haiku-4-5-20251001"),
+    system:
+      "You are an assistant that can add comments to a document. In your responses, be concise and to the point. Describe, in a sentence, a high-level overview of what you're going to do but do not include specific details like the tool name, the html content of the document, etc. Your response should be no more than 1-2 sentences.",
     messages: convertToModelMessages(messages),
     tools: toolDefinitions({
       tools: {
