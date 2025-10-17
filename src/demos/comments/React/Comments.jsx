@@ -94,6 +94,11 @@ export default () => {
       }),
       NodeViewExtension,
     ],
+    editorProps: {
+      attributes: {
+        spellcheck: false,
+      },
+    },
   });
 
   const { threads = [], createThread } = useThreads(provider, editor, user);
