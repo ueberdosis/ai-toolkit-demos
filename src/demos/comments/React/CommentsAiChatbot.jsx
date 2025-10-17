@@ -38,7 +38,7 @@ export function CommentsAiChatbot({ editor }) {
   return (
     <>
       <h2 className="text-xl font-semibold mb-2">AI Chat Assistant</h2>
-      <div className="mb-4 min-h-8">
+      <div className="mb-4">
         {messages?.map((message) => (
           <div key={message.id} className="bg-gray-100 p-4 rounded-lg mb-2">
             <strong className="text-blue-600">{message.role}</strong>
