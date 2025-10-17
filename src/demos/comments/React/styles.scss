@@ -112,6 +112,7 @@
 
   p {
     word-break: break-all;
+    margin-bottom: 0.5rem;
   }
 
   /* Give a remote user a caret */
@@ -482,6 +483,7 @@ body {
 
     &[data-type='inline'] {
       border-bottom: 2px dashed var(--yellow-contrast);
+      background-color: var(--yellow-light);
 
       &:hover,
       &[data-state='selected'],
