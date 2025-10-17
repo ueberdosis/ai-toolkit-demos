@@ -6,24 +6,24 @@ import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { AiToolkit } from "@tiptap-pro/ai-toolkit";
 import {
   CommentsKit,
   hoverOffThread,
   hoverThread,
 } from "@tiptap-pro/extension-comments";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
-
 import { fromBase64String } from "../demo-setup.ts";
 import { initialContent } from "../initialContent.ts";
+import { CommentsAiChatbot } from "./CommentsAiChatbot.jsx";
 import { ThreadsList } from "./components/ThreadsList.jsx";
 import { ThreadsProvider } from "./context.jsx";
 import { NodeViewExtension } from "./extensions.jsx";
 import { useThreads } from "./hooks/useThreads.jsx";
 import { useUser } from "./hooks/useUser.jsx";
-import { AiToolkit } from "@tiptap-pro/ai-toolkit";
 
 const doc = new Y.Doc();
 
@@ -41,7 +41,7 @@ const initialBinary = fromBase64String(initialContent);
 
 Y.applyUpdate(provider.document, initialBinary);
 
-export default ({ onEditorReady }) => {
+export default () => {
   const [showUnresolved, setShowUnresolved] = useState(true);
   const [selectedThread, setSelectedThread] = useState(null);
   const threadsRef = useRef([]);
@@ -95,13 +95,6 @@ export default ({ onEditorReady }) => {
       NodeViewExtension,
     ],
   });
-
-  // Call onEditorReady when editor is ready
-  useEffect(() => {
-    if (editor && onEditorReady) {
-      onEditorReady(editor);
-    }
-  }, [editor, onEditorReady]);
 
   const { threads = [], createThread } = useThreads(provider, editor, user);
 
@@ -182,9 +175,37 @@ export default ({ onEditorReady }) => {
       threads={threads}
     >
       <div
-        className="col-group"
+        className="col-group divide-x divide-gray-200"
         data-viewmode={showUnresolved ? "open" : "resolved"}
       >
+        <div className="sidebar">
+          <div className="sidebar-options">
+            <div className="option-group">
+              <div className="label-large">Comments</div>
+              <div className="switch-group">
+                <label>
+                  <input
+                    type="radio"
+                    name="thread-state"
+                    onChange={() => setShowUnresolved(true)}
+                    checked={showUnresolved}
+                  />
+                  Open
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="thread-state"
+                    onChange={() => setShowUnresolved(false)}
+                    checked={!showUnresolved}
+                  />
+                  Resolved
+                </label>
+              </div>
+            </div>
+            <ThreadsList provider={provider} threads={filteredThreads} />
+          </div>
+        </div>
         <div className="main">
           <div className="control-group">
             <div className="button-group">
@@ -218,32 +239,7 @@ export default ({ onEditorReady }) => {
           <EditorContent editor={editor} />
         </div>
         <div className="sidebar">
-          <div className="sidebar-options">
-            <div className="option-group">
-              <div className="label-large">Comments</div>
-              <div className="switch-group">
-                <label>
-                  <input
-                    type="radio"
-                    name="thread-state"
-                    onChange={() => setShowUnresolved(true)}
-                    checked={showUnresolved}
-                  />
-                  Open
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="thread-state"
-                    onChange={() => setShowUnresolved(false)}
-                    checked={!showUnresolved}
-                  />
-                  Resolved
-                </label>
-              </div>
-            </div>
-            <ThreadsList provider={provider} threads={filteredThreads} />
-          </div>
+          <CommentsAiChatbot editor={editor} />
         </div>
       </div>
     </ThreadsProvider>

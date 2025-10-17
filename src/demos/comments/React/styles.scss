@@ -164,12 +164,12 @@
 body {
 
   .main {
-    height: 80vh;
+    height: 100vh;
     overflow: auto;
   }
 
   .sidebar {
-    width: 20rem;
+    width: 16rem;
 
     @media (max-width: 540px) {
       padding-bottom: 0;
@@ -417,15 +417,14 @@ body {
 }
 
 .sidebar {
-  border-left: 1px solid var(--gray-3);
   flex-grow: 0;
   flex-shrink: 0;
   padding: 1rem;
   width: 15rem;
   position: sticky;
-  height: 80vh;
+  height: 100vh;
+  overflow-y: auto;
   top: 0;
-  width: 20rem;
 
   @media (max-width: 540px) {
     border-bottom: 1px solid var(--gray-3);
