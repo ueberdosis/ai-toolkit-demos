@@ -1,51 +1,64 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from "react";
 
-import { useThreadsState } from '../context.jsx'
-import { CommentCard } from './CommentCard.jsx'
-import { ThreadCard } from './ThreadCard.jsx'
-import { ThreadComposer } from './ThreadComposer.jsx'
+import { useThreadsState } from "../context.jsx";
+import { CommentCard } from "./CommentCard.jsx";
+import { ThreadCard } from "./ThreadCard.jsx";
+import { ThreadComposer } from "./ThreadComposer.jsx";
 
 export const ThreadsListItem = ({ thread, provider, active, open }) => {
-  const { onClickThread, deleteThread, onHoverThread, onLeaveThread, resolveThread, unresolveThread } =
-    useThreadsState()
-  const classNames = ['threadsList--item']
+  const {
+    onClickThread,
+    deleteThread,
+    onHoverThread,
+    onLeaveThread,
+    resolveThread,
+    unresolveThread,
+  } = useThreadsState();
+  const classNames = ["threadsList--item"];
 
   if (active || open) {
-    classNames.push('threadsList--item--active')
+    classNames.push("threadsList--item--active");
   }
 
-  const comments = useMemo(() => provider.getThreadComments(thread.id, true), [provider, thread])
+  const comments = useMemo(
+    () => provider.getThreadComments(thread.id, true),
+    [provider, thread],
+  );
 
-  const firstComment = comments?.[0]
+  const firstComment = comments?.[0];
 
   const handleDeleteClick = useCallback(() => {
-    deleteThread(thread.id)
-  }, [thread.id, deleteThread])
+    deleteThread(thread.id);
+  }, [thread.id, deleteThread]);
 
   const handleResolveClick = useCallback(() => {
-    resolveThread(thread.id)
-  }, [thread.id, resolveThread])
+    resolveThread(thread.id);
+  }, [thread.id, resolveThread]);
 
   const handleUnresolveClick = useCallback(() => {
-    unresolveThread(thread.id)
-  }, [thread.id, unresolveThread])
+    unresolveThread(thread.id);
+  }, [thread.id, unresolveThread]);
 
   const editComment = useCallback(
     (commentId, val) => {
-      provider.updateComment(thread.id, commentId, { content: val })
+      provider.updateComment(thread.id, commentId, { content: val });
     },
     [provider, thread.id],
-  )
+  );
 
   const deleteComment = useCallback(
-    commentId => {
-      provider.deleteComment(thread.id, commentId, { deleteContent: true })
+    (commentId) => {
+      provider.deleteComment(thread.id, commentId, { deleteContent: true });
     },
     [provider, thread.id],
-  )
+  );
 
   return (
-    <div onMouseEnter={() => onHoverThread(thread.id)} onMouseLeave={() => onLeaveThread()}>
+    // biome-ignore lint/a11y/noStaticElementInteractions: demo code
+    <div
+      onMouseEnter={() => onHoverThread(thread.id)}
+      onMouseLeave={() => onLeaveThread()}
+    >
       <ThreadCard
         id={thread.id}
         active={active}
@@ -74,26 +87,27 @@ export const ThreadsListItem = ({ thread, provider, active, open }) => {
 
             {thread.resolvedAt ? (
               <div className="hint">
-                💡 Resolved at {new Date(thread.resolvedAt).toLocaleDateString()}{' '}
+                💡 Resolved at{" "}
+                {new Date(thread.resolvedAt).toLocaleDateString()}{" "}
                 {new Date(thread.resolvedAt).toLocaleTimeString()}
               </div>
             ) : null}
 
             <div className="comments-group">
-              {comments.map(comment => (
+              {comments.map((comment) => (
                 <CommentCard
                   key={comment.id}
                   name={comment.data.userName}
                   content={comment.deletedAt ? null : comment.content}
                   createdAt={comment.createdAt}
                   deleted={comment.deletedAt}
-                  onEdit={val => {
+                  onEdit={(val) => {
                     if (val) {
-                      editComment(comment.id, val)
+                      editComment(comment.id, val);
                     }
                   }}
                   onDelete={() => {
-                    deleteComment(comment.id)
+                    deleteComment(comment.id);
                   }}
                   showActions={true}
                 />
@@ -113,20 +127,21 @@ export const ThreadsListItem = ({ thread, provider, active, open }) => {
               content={firstComment.content}
               createdAt={firstComment.createdAt}
               deleted={firstComment.deletedAt}
-              onEdit={val => {
+              onEdit={(val) => {
                 if (val) {
-                  editComment(firstComment.id, val)
+                  editComment(firstComment.id, val);
                 }
               }}
             />
             <div className="comments-count">
-              <label>
-                {Math.max(0, comments.length - 1) || 0} {(comments.length - 1 || 0) === 1 ? 'reply' : 'replies'}
-              </label>
+              <span>
+                {Math.max(0, comments.length - 1) || 0}{" "}
+                {(comments.length - 1 || 0) === 1 ? "reply" : "replies"}
+              </span>
             </div>
           </div>
         ) : null}
       </ThreadCard>
     </div>
-  )
-}
+  );
+};

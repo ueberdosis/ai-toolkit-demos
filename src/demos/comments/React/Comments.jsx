@@ -2,7 +2,6 @@ import "./styles.scss";
 
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
-import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -55,7 +54,6 @@ export default () => {
       StarterKit.configure({
         undoRedo: false,
       }),
-      Image,
       Collaboration.configure({
         document: doc,
       }),

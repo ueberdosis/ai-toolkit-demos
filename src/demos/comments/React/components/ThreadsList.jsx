@@ -1,16 +1,16 @@
-import { useThreadsState } from '../context.jsx'
-import { ThreadsListItem } from './ThreadsListItem.jsx'
+import { useThreadsState } from "../context.jsx";
+import { ThreadsListItem } from "./ThreadsListItem.jsx";
 
 export const ThreadsList = ({ provider, threads }) => {
-  const { selectedThreads, selectedThread } = useThreadsState()
+  const { selectedThreads, selectedThread } = useThreadsState();
 
   if (threads.length === 0) {
-    return <label className="label">No threads.</label>
+    return <span className="label">No threads.</span>;
   }
 
   return (
     <div className="threads-group">
-      {threads.map(t => (
+      {threads.map((t) => (
         <ThreadsListItem
           key={t.id}
           thread={t}
@@ -20,5 +20,5 @@ export const ThreadsList = ({ provider, threads }) => {
         />
       ))}
     </div>
-  )
-}
+  );
+};

@@ -19,7 +19,6 @@
     "@tiptap-pro/provider": "^3.3.0",
     "@tiptap/extension-collaboration": "^3.7.2",
     "@tiptap/extension-collaboration-caret": "^3.7.2",
-    "@tiptap/extension-image": "^3.7.2",
     "@tiptap/extension-placeholder": "^3.7.2",
     "@tiptap/extensions": "^3.7.0",
     "@tiptap/react": "^3.5.0",
