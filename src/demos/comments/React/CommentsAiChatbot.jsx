@@ -23,8 +23,6 @@ export function CommentsAiChatbot({ editor }) {
       if (!editor) return;
 
       const { toolName, input, toolCallId } = toolCall;
-      console.log("toolName", toolName);
-      console.log("input", input);
 
       // Use the AI Toolkit to execute the tool
       const toolkit = getAiToolkit(editor);
@@ -32,8 +30,6 @@ export function CommentsAiChatbot({ editor }) {
         toolName,
         input,
       });
-
-      console.log("result.output", result.output)
 
       addToolResult({ tool: toolName, toolCallId, output: result.output });
     },
