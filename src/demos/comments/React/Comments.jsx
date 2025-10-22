@@ -27,12 +27,9 @@ import { useUser } from "./hooks/useUser.jsx";
 
 const doc = new Y.Doc();
 
-const isDev = true;
-const id = isDev ? "dev" : uuid();
-
 const provider = new TiptapCollabProvider({
   appId: "7j9y6m10",
-  name: `tiptap-comments-demo/${id}`,
+  name: `tiptap-comments-demo/${uuid()}`,
   document: doc,
 });
 
