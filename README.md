@@ -8,6 +8,7 @@ This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with 
 4. **Chatbot with Tool Streaming** (`/tool-streaming`) - Chat with an AI that can read and edit Tiptap documents using tool streaming
 5. **Multi-document AI Agent** (`/multi-document`) - An AI agent that can read and edit multiple Tiptap documents at once
 6. **Schema Awareness** (`/schema-awareness`) - An AI agent with schema awareness enabled. It understands custom nodes and marks.
+7. **Comments** (`/comments`) - Add comments to the document using the AI Toolkit. Integrates with the Comments extension.
 
 ## Tech Stack
 
@@ -57,6 +58,10 @@ This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with 
 - Accept or reject changes individually or in bulk
 - Custom styling for suggestions (red for deletions, green for insertions)
 - Halt conversation until user reviews changes
+
+### Comments (`/comments`)
+- Add comments to the document using the AI Toolkit
+- Integrates with the Comments extension
 
 ## Usage
 

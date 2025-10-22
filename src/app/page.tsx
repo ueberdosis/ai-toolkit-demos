@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+// add comments button
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -50,6 +52,7 @@ export default function Home() {
               >
                 Review changes as summary
               </Link>
+
             </div>
           </div>
 
@@ -87,6 +90,21 @@ export default function Home() {
                 className="inline-block bg-pink-500 text-white px-6 py-3 rounded-lg hover:bg-pink-600 transition-colors"
               >
                 Schema awareness
+              </Link>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold mb-4">Integrations with other extensions</h2>
+            <p className="text-gray-600 mb-4">
+              Integrations with other Tiptap extensions that can be used to enhance the AI Toolkit.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href="/comments"
+                className="inline-block bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Comments
               </Link>
             </div>
           </div>
