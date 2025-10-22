@@ -35,11 +35,6 @@ export async function POST(req: Request) {
         readSelection: false,
       },
     }),
-    providerOptions: {
-      openai: {
-        reasoningEffort: "minimal",
-      },
-    },
   });
 
   return result.toUIMessageStreamResponse();
