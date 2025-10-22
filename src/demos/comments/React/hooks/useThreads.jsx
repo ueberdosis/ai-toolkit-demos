@@ -1,41 +1,41 @@
-import { subscribeToThreads } from '@tiptap-pro/extension-comments'
-import { useCallback, useEffect, useState } from 'react'
+import { subscribeToThreads } from "@tiptap-pro/extension-comments";
+import { useCallback, useEffect, useState } from "react";
 
 export const useThreads = (provider, editor, user) => {
-  const [threads, setThreads] = useState()
+  const [threads, setThreads] = useState();
 
   useEffect(() => {
     if (provider) {
       const unsubscribe = subscribeToThreads({
         provider,
-        callback: currentThreads => {
-          setThreads(currentThreads)
+        callback: (currentThreads) => {
+          setThreads(currentThreads);
         },
-      })
+      });
 
       return () => {
-        unsubscribe()
-      }
+        unsubscribe();
+      };
     }
-  }, [provider])
+  }, [provider]);
 
   const createThread = useCallback(() => {
-    const input = window.prompt('Comment content')
+    const input = window.prompt("Comment content");
 
     if (!input) {
-      return
+      return;
     }
 
     if (!editor) {
-      return
+      return;
     }
 
     editor
       .chain()
       .focus()
       .setThread({ content: input, commentData: { userName: user.name } })
-      .run()
-  }, [editor, user])
+      .run();
+  }, [editor, user]);
 
-  return { threads, createThread }
-}
+  return { threads, createThread };
+};

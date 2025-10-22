@@ -8,7 +8,7 @@ import { useRef, useState } from "react";
 
 export function CommentsAiChatbot({ editor }) {
   const [input, setInput] = useState(
-    "Add a comment to the first sentence of the last paragraph, that says 'well done'"
+    "Add a comment to the first sentence of the last paragraph, that says 'well done'",
   );
 
   // Fixes issue: https://github.com/vercel/ai/issues/8148
@@ -52,7 +52,7 @@ export function CommentsAiChatbot({ editor }) {
           </div>
         ))}
       </div>
-      
+
       <form
         onSubmit={(e) => {
           e.preventDefault();

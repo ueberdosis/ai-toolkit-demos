@@ -1,33 +1,41 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState } from "react";
 
-export const CommentCard = ({ name, createdAt, deleted, content, onEdit, onDelete, showActions = false }) => {
-  const [isComposing, setIsComposing] = useState(false)
-  const [composeValue, setComposeValue] = useState(content)
+export const CommentCard = ({
+  name,
+  createdAt,
+  deleted,
+  content,
+  onEdit,
+  onDelete,
+  showActions = false,
+}) => {
+  const [isComposing, setIsComposing] = useState(false);
+  const [composeValue, setComposeValue] = useState(content);
 
   const handleSubmit = useCallback(
-    e => {
-      e.preventDefault()
+    (e) => {
+      e.preventDefault();
 
       if (onEdit) {
-        setIsComposing(false)
+        setIsComposing(false);
 
-        onEdit(composeValue)
+        onEdit(composeValue);
       }
     },
     [composeValue, onEdit],
-  )
+  );
 
-  const commentWrapperClass = ['comment']
+  const commentWrapperClass = ["comment"];
 
   if (deleted) {
-    commentWrapperClass.push('deleted')
+    commentWrapperClass.push("deleted");
   }
 
   return (
-    <div className={commentWrapperClass.join(' ')}>
+    <div className={commentWrapperClass.join(" ")}>
       <div className="label-group">
-        <label>{name}</label>
-        <label>{new Date(createdAt).toLocaleTimeString()}</label>
+        <span>{name}</span>
+        <span>{new Date(createdAt).toLocaleTimeString()}</span>
       </div>
 
       {deleted && (
@@ -43,11 +51,11 @@ export const CommentCard = ({ name, createdAt, deleted, content, onEdit, onDelet
             <div className="button-group">
               <button
                 type="button"
-                onClick={e => {
-                  e.preventDefault()
-                  e.stopPropagation()
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
 
-                  setIsComposing(true)
+                  setIsComposing(true);
                 }}
               >
                 Edit
@@ -55,11 +63,11 @@ export const CommentCard = ({ name, createdAt, deleted, content, onEdit, onDelet
               {onDelete ? (
                 <button
                   type="button"
-                  onClick={e => {
-                    e.preventDefault()
-                    e.stopPropagation()
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                    onDelete()
+                    onDelete();
                   }}
                 >
                   Delete
@@ -73,13 +81,21 @@ export const CommentCard = ({ name, createdAt, deleted, content, onEdit, onDelet
       {isComposing && !deleted ? (
         <div className="comment-edit">
           <form onSubmit={handleSubmit}>
-            <textarea type="text" onChange={e => setComposeValue(e.currentTarget.value)} value={composeValue} />
+            <textarea
+              type="text"
+              onChange={(e) => setComposeValue(e.currentTarget.value)}
+              value={composeValue}
+            />
             <div className="flex-row">
               <div className="button-group">
                 <button type="reset" onClick={() => setIsComposing(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="primary" disabled={!composeValue.length || composeValue === content}>
+                <button
+                  type="submit"
+                  className="primary"
+                  disabled={!composeValue.length || composeValue === content}
+                >
                   Accept
                 </button>
               </div>
@@ -88,5 +104,5 @@ export const CommentCard = ({ name, createdAt, deleted, content, onEdit, onDelet
         </div>
       ) : null}
     </div>
-  )
-}
+  );
+};

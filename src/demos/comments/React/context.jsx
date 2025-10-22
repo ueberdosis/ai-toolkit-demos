@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext } from 'react'
+import { createContext, useCallback, useContext } from "react";
 
 export const ThreadsContext = createContext({
   threads: [],
@@ -12,7 +12,7 @@ export const ThreadsContext = createContext({
   onUpdateComment: () => null,
   onHoverThread: () => null,
   onLeaveThread: () => null,
-})
+});
 
 export const ThreadsProvider = ({
   children,
@@ -29,18 +29,18 @@ export const ThreadsProvider = ({
   setSelectedThread = () => null,
 }) => {
   const handleThreadClick = useCallback(
-    threadId => {
-      setSelectedThread(currentThreadId => {
+    (threadId) => {
+      setSelectedThread((currentThreadId) => {
         if (currentThreadId !== threadId) {
-          onClickThread(threadId)
-          setSelectedThread(threadId)
+          onClickThread(threadId);
+          setSelectedThread(threadId);
         }
 
-        return currentThreadId !== threadId ? threadId : null
-      })
+        return currentThreadId !== threadId ? threadId : null;
+      });
     },
     [onClickThread, setSelectedThread],
-  )
+  );
 
   const providerValue = {
     threads,
@@ -54,11 +54,15 @@ export const ThreadsProvider = ({
     onUpdateComment,
     onHoverThread,
     onLeaveThread,
-  }
+  };
 
-  return <ThreadsContext.Provider value={providerValue}>{children}</ThreadsContext.Provider>
-}
+  return (
+    <ThreadsContext.Provider value={providerValue}>
+      {children}
+    </ThreadsContext.Provider>
+  );
+};
 
 export const useThreadsState = () => {
-  return useContext(ThreadsContext)
-}
+  return useContext(ThreadsContext);
+};

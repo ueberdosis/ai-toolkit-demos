@@ -1,17 +1,17 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState } from "react";
 
-import { useUser } from '../hooks/useUser.jsx'
+import { useUser } from "../hooks/useUser.jsx";
 
 export const ThreadComposer = ({ threadId, provider }) => {
-  const user = useUser()
-  const [comment, setComment] = useState('')
+  const user = useUser();
+  const [comment, setComment] = useState("");
 
   const handleSubmit = useCallback(
-    e => {
-      e.preventDefault()
+    (e) => {
+      e.preventDefault();
 
       if (!comment) {
-        return
+        return;
       }
 
       if (provider) {
@@ -20,17 +20,21 @@ export const ThreadComposer = ({ threadId, provider }) => {
           createdAt: Date.now(),
           updatedAt: Date.now(),
           data: { userName: user.name },
-        })
+        });
 
-        setComment('')
+        setComment("");
       }
     },
     [comment, provider, threadId, user.name],
-  )
+  );
 
   return (
     <form onSubmit={handleSubmit}>
-      <textarea placeholder="Reply to thread …" onChange={e => setComment(e.currentTarget.value)} value={comment} />
+      <textarea
+        placeholder="Reply to thread …"
+        onChange={(e) => setComment(e.currentTarget.value)}
+        value={comment}
+      />
       <div className="flex-row">
         <div className="button-group">
           <button type="submit" className="primary" disabled={!comment.length}>
@@ -39,5 +43,5 @@ export const ThreadComposer = ({ threadId, provider }) => {
         </div>
       </div>
     </form>
-  )
-}
+  );
+};

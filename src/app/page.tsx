@@ -52,7 +52,6 @@ export default function Home() {
               >
                 Review changes as summary
               </Link>
-
             </div>
           </div>
 
@@ -95,9 +94,12 @@ export default function Home() {
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Integrations with other extensions</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Integrations with other extensions
+            </h2>
             <p className="text-gray-600 mb-4">
-              Integrations with other Tiptap extensions that can be used to enhance the AI Toolkit.
+              Integrations with other Tiptap extensions that can be used to
+              enhance the AI Toolkit.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
