@@ -61,7 +61,7 @@ export default function Page() {
 
     // Use the AI Toolkit to stream HTML into the selection
     await toolkit.streamHtml(readableStream, { position: selectionPosition });
-    
+
     setIsLoading(false);
   };
 
