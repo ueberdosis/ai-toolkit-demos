@@ -261,7 +261,7 @@ body {
               display: none;
             }
 
-            label {
+            span {
               display: inherit;
             }
           }
@@ -321,7 +321,7 @@ body {
     gap: 0.125rem;
   }
 
-  label {
+  span {
     color: var(--gray-5);
     font-size: 0.75rem;
     font-weight: 400;
