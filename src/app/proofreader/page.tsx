@@ -8,6 +8,42 @@ import "./proofreader.css";
 
 const INITIAL_CONTENT = `<h1>Grammar Check Demo</h1><p>This is a excelent editor for writng documents. It have many feature's that makes it very powerfull.</p>`;
 
+// Helper: Process streaming response and yield parsed JSON objects
+async function* processStreamResponse(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+) {
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+
+    for (const line of lines) {
+      if (!line.trim()) continue;
+
+      try {
+        yield JSON.parse(line);
+      } catch (parseError) {
+        console.debug("Parse error (incomplete JSON):", parseError);
+      }
+    }
+  }
+}
+
+// Helper: Filter out invalid changes
+function filterValidChanges(
+  changes: Array<{ insert: string; delete: string }>,
+) {
+  return changes.filter(
+    (change) => change.insert?.trim() && change.delete?.trim(),
+  );
+}
+
 export default function Page() {
   // Editor for Changes Mode
   const editorChanges = useEditor({
@@ -69,50 +105,30 @@ export default function Page() {
         throw new Error("No reader available");
       }
 
-      const decoder = new TextDecoder();
-      let buffer = "";
       let previousChangeCount = 0;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      // Process streaming response using helper function
+      for await (const parsed of processStreamResponse(reader)) {
+        if (parsed.changes && Array.isArray(parsed.changes)) {
+          const allChanges = parsed.changes;
+          const currentChangeCount = allChanges.length;
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-        for (const line of lines) {
-          if (!line.trim()) continue;
+          // Only process if we have new changes
+          if (currentChangeCount > previousChangeCount) {
+            const validChanges = filterValidChanges(allChanges);
 
-          try {
-            const parsed = JSON.parse(line);
-            if (parsed.changes && Array.isArray(parsed.changes)) {
-              const allChanges = parsed.changes;
-              const currentChangeCount = allChanges.length;
+            if (validChanges.length > 0) {
+              // Apply ALL accumulated valid changes
+              // setHtmlSuggestions handles diff detection internally
+              toolkit.setHtmlSuggestions({ changes: validChanges });
 
-              // Only process if we have new changes
-              if (currentChangeCount > previousChangeCount) {
-                // Filter invalid from ALL accumulated changes
-                const validChanges = allChanges.filter(
-                  (change: { insert: string; delete: string }) =>
-                    change.insert?.trim() && change.delete?.trim(),
-                );
-
-                if (validChanges.length > 0) {
-                  // Apply ALL accumulated valid changes
-                  // setHtmlSuggestions handles diff detection internally
-                  toolkit.setHtmlSuggestions({ changes: validChanges });
-
-                  // Activate review mode on first suggestion
-                  if (previousChangeCount === 0) {
-                    setReviewStateChanges({ isReviewing: true });
-                  }
-                }
-
-                previousChangeCount = currentChangeCount;
+              // Activate review mode on first suggestion
+              if (previousChangeCount === 0) {
+                setReviewStateChanges({ isReviewing: true });
               }
             }
-          } catch (parseError) {
-            console.debug("Parse error (incomplete JSON):", parseError);
+
+            previousChangeCount = currentChangeCount;
           }
         }
       }

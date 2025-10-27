@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   const { html } = await req.json();
 
   const result = streamObject({
-    model: openai("gpt-5-mini"),
+    model: openai("gpt-4o-mini"),
     prompt: `Fix all spelling and grammar errors in the HTML below. Return a list of specific changes that need to be made.
 
 For each error found:
