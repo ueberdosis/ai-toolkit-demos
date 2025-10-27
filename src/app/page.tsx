@@ -90,6 +90,12 @@ export default function Home() {
               >
                 Schema awareness
               </Link>
+              <Link
+                href="/set-html-suggestions"
+                className="inline-block bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-colors"
+              >
+                Proofreader
+              </Link>
             </div>
           </div>
 
