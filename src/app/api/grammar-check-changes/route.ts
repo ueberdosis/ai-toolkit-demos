@@ -43,32 +43,5 @@ ${html}`,
     }),
   });
 
-  // Stream partial objects as newline-delimited JSON
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const partial of result.partialObjectStream) {
-          // Filter out invalid changes
-          if (partial.changes && Array.isArray(partial.changes)) {
-            partial.changes = partial.changes.filter((change) => change?.insert?.trim() && change?.delete?.trim());
-          }
-
-          const json = `${JSON.stringify(partial)}\n`;
-          controller.enqueue(encoder.encode(json));
-        }
-        controller.close();
-      } catch (error) {
-        console.error("Stream error:", error);
-        controller.error(error);
-      }
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "application/x-ndjson",
-      "Transfer-Encoding": "chunked",
-    },
-  });
+  return result.toTextStreamResponse();
 }
