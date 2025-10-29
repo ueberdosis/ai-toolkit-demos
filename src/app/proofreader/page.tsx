@@ -9,7 +9,11 @@ import { z } from "zod";
 
 import "./proofreader.css";
 
-const INITIAL_CONTENT = `<h1>Grammar Check Demo</h1><p>This is a excelent editor for writng documents. It have many feature's that makes it very powerfull.</p>`;
+const INITIAL_CONTENT = `<h1>Grammar Check Demo</h1>
+<p>This is a excelent editor for writng documents. It have many feature's that makes it very powerfull.
+Users can easyly create content, but sometimes they makes small mistake's that are hard to notice.
+The tool also help you to edit faster and more effeciently, althou it not always perfect.
+Its interface are simple, but it contain option's that may confuse new user’s at first.</p>`;
 
 // Helper: Filter out invalid changes
 function filterValidChanges(
