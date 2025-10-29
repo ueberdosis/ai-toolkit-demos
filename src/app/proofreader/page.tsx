@@ -35,9 +35,7 @@ export default function Page() {
   const editorRef = useRef(editor);
   editorRef.current = editor;
 
-  const [reviewState, setReviewState] = useState({
-    isReviewing: false,
-  });
+  const [isReviewing, setIsReviewing] = useState(false);
   const [hasAccepted, setHasAccepted] = useState(false);
 
   const { submit, isLoading, object } = useObject({
@@ -51,7 +49,7 @@ export default function Page() {
       ),
     }),
     onFinish: () => {
-      setReviewState({ isReviewing: true });
+      setIsReviewing(true);
     },
   });
 
@@ -95,7 +93,7 @@ export default function Page() {
           />
         </div>
 
-        {!reviewState.isReviewing && (
+        {!isReviewing && (
           <button
             type="button"
             onClick={checkGrammar}
@@ -106,7 +104,7 @@ export default function Page() {
           </button>
         )}
 
-        {reviewState.isReviewing && (
+        {isReviewing && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <h3 className="text-lg font-semibold mb-2">Review suggestions</h3>
             <p className="text-gray-600 mb-4 text-sm">
@@ -119,7 +117,7 @@ export default function Page() {
                   const toolkit = getAiToolkit(editor);
                   toolkit.applyAllSuggestions();
                   setHasAccepted(true);
-                  setReviewState({ isReviewing: false });
+                  setIsReviewing(false);
                 }}
                 className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
               >
@@ -130,7 +128,7 @@ export default function Page() {
                 onClick={() => {
                   const toolkit = getAiToolkit(editor);
                   toolkit.setSuggestions([]);
-                  setReviewState({ isReviewing: false });
+                  setIsReviewing(false);
                 }}
                 className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
               >
