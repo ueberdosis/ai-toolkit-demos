@@ -3,6 +3,9 @@ import { streamObject } from "ai";
 import { z } from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
+// Prevent abuse by limiting input size (100KB limit)
+const MAX_HTML_LENGTH = 100 * 1024; // 100KB
+
 export async function POST(req: Request) {
   // Rate limiting
   if (process.env.UPSTASH_REDIS_REST_URL) {
@@ -19,7 +22,39 @@ export async function POST(req: Request) {
     }
   }
 
-  const { html } = await req.json();
+  // Parse and validate request body
+  let body: { html?: unknown };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response("Invalid JSON in request body", {
+      status: 400,
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    });
+  }
+
+  const { html } = body;
+
+  // Validate html parameter exists and is a string
+  if (!html || typeof html !== "string") {
+    return new Response("Missing or invalid 'html' parameter. Expected a non-empty string.", {
+      status: 400,
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    });
+  }
+
+  if (html.length > MAX_HTML_LENGTH) {
+    return new Response(`HTML content too large. Maximum allowed size is ${MAX_HTML_LENGTH} characters.`, {
+      status: 413,
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    });
+  }
 
   const result = streamObject({
     model: openai("gpt-4o-mini"),
