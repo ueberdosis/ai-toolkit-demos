@@ -23,8 +23,12 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: anthropic("claude-haiku-4-5-20251001"),
-    system:
-      "You are an assistant that can add comments to a document. In your responses, be concise and to the point. Describe, in a sentence, a high-level overview of what you're going to do but do not include specific details like the tool name, the html content of the document, etc. Your response should be no more than 1-2 sentences.",
+    system: `
+You are an assistant that can add comments to a rich text document. 
+In your responses, be concise and to the point. However, the content of the comments you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
+Rule: In your responses, do not give any details of the tool calls.
+Rule: In your responses, do not give any details of the HTML content of the document. Just briefly explain what you're going to do (in a sentence or less).
+`,
     messages: convertToModelMessages(messages),
     tools: toolDefinitions({
       tools: {

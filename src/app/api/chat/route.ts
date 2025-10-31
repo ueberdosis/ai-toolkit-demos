@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
@@ -22,15 +22,15 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const result = streamText({
-    model: openai("gpt-5"),
-    system: "You are an assistant that can edit rich text documents.",
+    model: anthropic("claude-haiku-4-5-20251001"),
+    system: `
+You are an assistant that can edit rich text documents. 
+In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
+Rule: In your responses, do not give any details of the tool calls.
+Rule: In your responses, do not give any details of the HTML content of the document. Just briefly explain what you're going to do (in a sentence or less).
+`,
     messages: convertToModelMessages(messages),
     tools: toolDefinitions(),
-    providerOptions: {
-      openai: {
-        reasoningEffort: "minimal",
-      },
-    },
   });
 
   return result.toUIMessageStreamResponse();

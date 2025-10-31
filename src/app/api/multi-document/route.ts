@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import { convertToModelMessages, streamText, tool, type UIMessage } from "ai";
 import { z } from "zod";
@@ -23,13 +23,17 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const result = streamText({
-    model: openai("gpt-5"),
+    model: anthropic("claude-haiku-4-5-20251001"),
     system: `You are an assistant that can edit rich text documents. 
     You have access multiple documents and can switch between them. 
     At any point in time, the 'active document' is the document that is open in the editor.
     When you call the tools to read and edit the document, they will read and edit the active document.
     To read and edit another document, you should use the tools to switch to that document and then read and edit it.
     Before making any edits, you should always list the documents and see which is the active document.
+
+    In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
+    Rule: In your responses, do not give any details of the tool calls.
+    Rule: In your responses, do not give any details of the HTML content of the document. Just briefly explain what you're going to do (in a sentence or less).
     `,
     messages: convertToModelMessages(messages),
     tools: {
@@ -58,11 +62,6 @@ export async function POST(req: Request) {
           documentName: z.string(),
         }),
       }),
-    },
-    providerOptions: {
-      openai: {
-        reasoningEffort: "minimal",
-      },
     },
   });
 

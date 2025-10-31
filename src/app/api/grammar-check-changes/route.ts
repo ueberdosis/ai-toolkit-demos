@@ -39,21 +39,27 @@ export async function POST(req: Request) {
 
   // Validate html parameter exists and is a string
   if (!html || typeof html !== "string") {
-    return new Response("Missing or invalid 'html' parameter. Expected a non-empty string.", {
-      status: 400,
-      headers: {
-        "Content-Type": "text/plain",
+    return new Response(
+      "Missing or invalid 'html' parameter. Expected a non-empty string.",
+      {
+        status: 400,
+        headers: {
+          "Content-Type": "text/plain",
+        },
       },
-    });
+    );
   }
 
   if (html.length > MAX_HTML_LENGTH) {
-    return new Response(`HTML content too large. Maximum allowed size is ${MAX_HTML_LENGTH} characters.`, {
-      status: 413,
-      headers: {
-        "Content-Type": "text/plain",
+    return new Response(
+      `HTML content too large. Maximum allowed size is ${MAX_HTML_LENGTH} characters.`,
+      {
+        status: 413,
+        headers: {
+          "Content-Type": "text/plain",
+        },
       },
-    });
+    );
   }
 
   const result = streamObject({

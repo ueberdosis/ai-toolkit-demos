@@ -13,7 +13,7 @@
     "@ai-sdk/anthropic": "^2.0.25",
     "@ai-sdk/openai": "^2.0.23",
     "@ai-sdk/react": "^2.0.30",
-    "@tiptap-pro/ai-toolkit": "^3.0.0-alpha.29",
+    "@tiptap-pro/ai-toolkit": "^3.0.0-alpha.30",
     "@tiptap-pro/ai-toolkit-ai-sdk": "^3.0.0-alpha.12",
     "@tiptap-pro/extension-comments": "^3.3.0",
     "@tiptap-pro/provider": "^3.3.0",

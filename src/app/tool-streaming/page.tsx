@@ -22,7 +22,7 @@ export default function Page() {
   editorRef.current = editor;
 
   const { messages, sendMessage, addToolResult } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
+    transport: new DefaultChatTransport({ api: "/api/tool-streaming" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
       const editor = editorRef.current;
