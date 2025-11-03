@@ -17,7 +17,7 @@ export default function Home() {
               A simple AI agent that can read and edit Tiptap documents using
               the AI Toolkit and Vercel AI SDK.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
               <Link
                 href="/ai-agent-chatbot"
                 className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
@@ -39,7 +39,7 @@ export default function Home() {
               Preview and approve AI-inserted changes using suggestions with
               customizable rendering.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
               <Link
                 href="/review-changes"
                 className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
@@ -61,7 +61,7 @@ export default function Home() {
               Select text in the editor and use AI to transform it with emojis
               or other modifications through streaming.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
               <Link
                 href="/inline-edits"
                 className="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
@@ -77,7 +77,7 @@ export default function Home() {
               AI agents that can work with multiple documents simultaneously,
               reading and editing content across different files.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
               <Link
                 href="/multi-document"
                 className="inline-block bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors"
@@ -96,6 +96,12 @@ export default function Home() {
               >
                 Proofreader
               </Link>
+              <Link
+                href="/selection-awareness"
+                className="inline-block bg-cyan-500 text-white px-6 py-3 rounded-lg hover:bg-cyan-600 transition-colors"
+              >
+                Selection awareness
+              </Link>
             </div>
           </div>
 
@@ -107,7 +113,7 @@ export default function Home() {
               Integrations with other Tiptap extensions that can be used to
               enhance the AI Toolkit.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
               <Link
                 href="/comments"
                 className="inline-block bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors"
