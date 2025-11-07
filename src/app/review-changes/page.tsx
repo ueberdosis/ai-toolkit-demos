@@ -35,7 +35,7 @@ export default function Page() {
   const acceptButtonRef = useRef<HTMLButtonElement>(null);
   const rejectButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { messages, sendMessage, addToolResult } = useChat({
+  const { messages, sendMessage, addToolOutput } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
@@ -102,7 +102,7 @@ export default function Page() {
         });
       } else {
         // Continue the conversation
-        addToolResult({ tool: toolName, toolCallId, output: result.output });
+        addToolOutput({ tool: toolName, toolCallId, output: result.output });
       }
     },
   });
@@ -175,7 +175,7 @@ export default function Page() {
               onClick={() => {
                 const toolkit = getAiToolkit(editor);
                 toolkit.applyAllSuggestions();
-                addToolResult(reviewState);
+                addToolOutput(reviewState);
                 return setReviewState({
                   ...reviewState,
                   isReviewing: false,
@@ -191,7 +191,7 @@ export default function Page() {
               onClick={() => {
                 const toolkit = getAiToolkit(editor);
                 toolkit.setSuggestions([]);
-                addToolResult({
+                addToolOutput({
                   ...reviewState,
                   output:
                     "The changes were rejected. Ask the user why, and what you can do to improve them.",

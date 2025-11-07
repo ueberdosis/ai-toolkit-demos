@@ -15,7 +15,7 @@ export function CommentsAiChatbot({ editor }) {
   const editorRef = useRef(editor);
   editorRef.current = editor;
 
-  const { messages, sendMessage, addToolResult } = useChat({
+  const { messages, sendMessage, addToolOutput } = useChat({
     transport: new DefaultChatTransport({ api: "/api/comments" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
@@ -31,7 +31,7 @@ export function CommentsAiChatbot({ editor }) {
         input,
       });
 
-      addToolResult({ tool: toolName, toolCallId, output: result.output });
+      addToolOutput({ tool: toolName, toolCallId, output: result.output });
     },
   });
 
