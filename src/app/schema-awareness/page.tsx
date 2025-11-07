@@ -133,7 +133,7 @@ export default function Page() {
   const schemaAwarenessRef = useRef(schemaAwareness);
   schemaAwarenessRef.current = schemaAwareness;
 
-  const { messages, sendMessage, addToolResult } = useChat({
+  const { messages, sendMessage, addToolOutput } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/schema-awareness",
       body: () => ({ schemaAwareness: schemaAwarenessRef.current }),
@@ -152,7 +152,7 @@ export default function Page() {
         input,
       });
 
-      addToolResult({ tool: toolName, toolCallId, output: result.output });
+      addToolOutput({ tool: toolName, toolCallId, output: result.output });
     },
   });
 

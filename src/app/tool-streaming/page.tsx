@@ -21,7 +21,7 @@ export default function Page() {
   const editorRef = useRef(editor);
   editorRef.current = editor;
 
-  const { messages, sendMessage, addToolResult } = useChat({
+  const { messages, sendMessage, addToolOutput } = useChat({
     transport: new DefaultChatTransport({ api: "/api/tool-streaming" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
@@ -41,7 +41,7 @@ export default function Page() {
         hasFinished: true,
       });
 
-      addToolResult({ tool: toolName, toolCallId, output: result.output });
+      addToolOutput({ tool: toolName, toolCallId, output: result.output });
     },
   });
 

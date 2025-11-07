@@ -177,13 +177,13 @@ export default function Page() {
   const handleToolCallRef = useRef(handleToolCall);
   handleToolCallRef.current = handleToolCall;
 
-  const { messages, sendMessage, addToolResult, status } = useChat({
+  const { messages, sendMessage, addToolOutput, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/multi-document" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
       const output = handleToolCallRef.current(toolCall);
       if (output) {
-        addToolResult({
+        addToolOutput({
           tool: toolCall.toolName,
           toolCallId: toolCall.toolCallId,
           output,

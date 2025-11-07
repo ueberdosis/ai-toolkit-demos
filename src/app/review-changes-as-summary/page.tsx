@@ -23,7 +23,7 @@ export default function Page() {
   const editorRef = useRef(editor);
   editorRef.current = editor;
 
-  const { messages, sendMessage, addToolResult, status } = useChat({
+  const { messages, sendMessage, addToolOutput, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
@@ -39,7 +39,7 @@ export default function Page() {
         input,
       });
 
-      addToolResult({ tool: toolName, toolCallId, output: result.output });
+      addToolOutput({ tool: toolName, toolCallId, output: result.output });
     },
   });
 
