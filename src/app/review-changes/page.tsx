@@ -194,7 +194,7 @@ export default function Page() {
                 addToolResult({
                   ...reviewState,
                   output:
-                    "The changes were rejected. Ask the user why, and what you can do to improve them.",
+                    "The changes you made were rejected by the user. Do not edit the document again. Ask the user why, and what you can do to improve them.",
                 });
                 return setReviewState({
                   ...reviewState,
