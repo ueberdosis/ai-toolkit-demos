@@ -60,7 +60,14 @@ export default function Page() {
     }
 
     // Use the AI Toolkit to stream HTML into the selection
-    await toolkit.streamHtml(readableStream, { position: selectionPosition });
+    await toolkit.streamHtml(readableStream, {
+      position: selectionPosition,
+      // Update the selection during streaming so that the selection always
+      // spans the generated content
+      onChunkInserted(event) {
+        editor.commands.setTextSelection(event.range);
+      },
+    });
 
     setIsLoading(false);
   };
