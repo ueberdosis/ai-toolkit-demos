@@ -1,10 +1,7 @@
 import { anthropic } from "@ai-sdk/anthropic";
 
 // import { openai } from "@ai-sdk/openai";
-import {
-  getServerAiToolkit,
-  TiptapCloudStorage,
-} from "@tiptap-pro/ai-toolkit";
+import { getServerAiToolkit, TiptapCloudStorage } from "@tiptap-pro/ai-toolkit";
 import { serverToolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
@@ -52,7 +49,7 @@ Under no circumstances should you give any details of the tool calls or the JSON
 After you finish your work, give a small summary of what you did in one sentence.
 </rules>
 
-${serverAiToolkit.getTools()}
+${serverAiToolkit.getSchemaAwarenessPrompt()}
 `,
     messages: convertToModelMessages(messages),
     tools: serverAiToolkit.getTools(),
