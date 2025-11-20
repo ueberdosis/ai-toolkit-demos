@@ -46,27 +46,23 @@ export async function POST(req: Request) {
       apiSecret: process.env.REST_API_SECRET!,
     }),
   });
-  if (global.activeNodeRange) {
-    serverAiToolkit.setActiveNodeRange({
-      nodeRange: global.activeNodeRange,
-    });
-  }
 
   const result = streamText({
     // model: anthropic("claude-haiku-4-5-20251001"),
     model: openai("gpt-5.1"),
     system: `
 You are an assistant that can edit rich text documents. 
+<rules>
 In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
-Rule: In your responses, do not give any details of the tool calls.
-Rule: In your responses, do not give any details of the JSON content of the document. Just briefly explain what you're going to do (in a sentence or less).
+Before every action you take, you should briefly explain what you're going to do in one sentence, without giving any details of the tool calls or the JSON content of the document.
+Under no circumstances should you give any details of the tool calls or the JSON content of the document. Just give a high-level overview of what you're going to do, as if you were a writer.
+After you finish your work, give a small summary of what you did in one sentence.
+</rules>
+
 ${serverAiToolkit.getTools()}
 `,
     messages: convertToModelMessages(messages),
     tools: serverAiToolkit.getTools(),
-    onFinish: () => {
-      global.activeNodeRange = serverAiToolkit.getActiveNodeRange();
-    },
   });
 
   return result.toUIMessageStreamResponse();
