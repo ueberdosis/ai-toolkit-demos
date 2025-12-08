@@ -4,8 +4,9 @@ import { useChat } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { type Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import { AiToolkit } from "@tiptap-pro/ai-toolkit";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
+import { getSchemaAwarenessData } from "@tiptap-pro/server-ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
@@ -78,7 +79,7 @@ export default function Page() {
       api: "/api/server-ai-toolkit",
       body: () => ({
         schemaAwarenessData: editorRef.current
-          ? getAiToolkit(editorRef.current).getJsonSchemaAwarenessData()
+          ? getSchemaAwarenessData(editorRef.current)
           : null,
       }),
     }),

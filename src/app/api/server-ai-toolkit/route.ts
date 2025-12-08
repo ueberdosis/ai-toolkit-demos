@@ -1,8 +1,11 @@
-import { anthropic } from "@ai-sdk/anthropic";
+// import { anthropic } from "@ai-sdk/anthropic";
 
-// import { openai } from "@ai-sdk/openai";
-import { getServerAiToolkit, TiptapCloudStorage } from "@tiptap-pro/ai-toolkit";
+import { openai } from "@ai-sdk/openai";
 import { serverToolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
+import {
+  getServerAiToolkit,
+  TiptapCloudStorage,
+} from "@tiptap-pro/server-ai-toolkit";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
@@ -38,8 +41,8 @@ export async function POST(req: Request) {
   });
 
   const result = streamText({
-    model: anthropic("claude-haiku-4-5-20251001"),
-    // model: openai("gpt-5.1"),
+    // model: anthropic("claude-haiku-4-5-20251001"),
+    model: openai("gpt-5.1"),
     system: `
 You are an assistant that can edit rich text documents. 
 <rules>
