@@ -34,9 +34,8 @@ Rule: In your responses, do not give any details of the HTML content of the docu
       tools: {
         editThreads: true,
         getThreads: true,
-        applyPatch: false,
-        insertContent: false,
-        readSelection: false,
+        tiptapEdit: false,
+        tiptapReadSelection: false,
       },
     }),
   });
