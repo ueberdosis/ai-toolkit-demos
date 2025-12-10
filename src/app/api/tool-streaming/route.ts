@@ -22,15 +22,21 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const result = streamText({
-    model: openai("gpt-5.1"),
+    model: openai("gpt-5-mini"),
     system: `
 You are an assistant that can edit rich text documents. 
 In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
-Rule: In your responses, do not give any details of the tool calls.
-Rule: In your responses, do not give any details of the HTML content of the document. Just briefly explain what you're going to do (in a sentence or less).
+Before calling any tools, summarize you're going to do (in a sentence or less), as a high-level view of the task, like a human writer would describe it.
+Rule: In your responses, do not give any details of the tool calls
+Rule: In your responses, do not give any details of the HTML content of the document.
 `,
     messages: convertToModelMessages(messages),
     tools: toolDefinitions(),
+    providerOptions: {
+      openai: {
+        reasoningEffort: "minimal",
+      },
+    },
   });
 
   return result.toUIMessageStreamResponse();
