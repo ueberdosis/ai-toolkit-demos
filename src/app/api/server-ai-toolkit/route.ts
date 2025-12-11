@@ -6,7 +6,12 @@ import {
   getServerAiToolkit,
   TiptapCloudStorage,
 } from "@tiptap-pro/server-ai-toolkit";
-import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import {
+  convertToModelMessages,
+  stepCountIs,
+  streamText,
+  type UIMessage,
+} from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -43,18 +48,14 @@ export async function POST(req: Request) {
   const result = streamText({
     // model: anthropic("claude-haiku-4-5-20251001"),
     model: openai("gpt-5-mini"),
+    // Allow the model to call tools up to 10 times
+    stopWhen: stepCountIs(10),
     system: `
 You are an assistant that can edit rich text documents. 
-<rules>
 In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
-Before every action you take, you should briefly explain what you're going to do in one sentence, without giving any details of the tool calls or the JSON content of the document.
-In you responses to the user, never give any details of the tool calls or the JSON content of the document. Just give a high-level overview of what you're going to do, as if you were a writer.
-In your responses to the user, never mention the hashes of the nodes.
-After editing content, do not repeat the content you generated in your response.
-After you finish your work:
-1. If you called a tool that edits the document more than once, read the document again and review your work to make sure you didn't miss anything. Otherwise, skip this step.
-2. Give a small summary of what you did in one sentence.
-</rules>
+Before calling any tools, summarize you're going to do (in a sentence or less), as a high-level view of the task, like a human writer would describe it.
+Rule: In your responses, do not give any details of the tool calls
+Rule: In your responses, do not give any details of the HTML content of the document.
 
 ${serverAiToolkit.getSchemaAwarenessPrompt()}
 `,

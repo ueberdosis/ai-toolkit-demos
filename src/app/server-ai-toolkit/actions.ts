@@ -24,4 +24,3 @@ export async function getTiptapCloudCredentials() {
     throw new Error("Failed to generate Tiptap Cloud token");
   }
 }
-
