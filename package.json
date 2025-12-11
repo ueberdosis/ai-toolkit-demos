@@ -17,7 +17,7 @@
     "@tiptap-pro/ai-toolkit-ai-sdk": "3.0.0-alpha.21",
     "@tiptap-pro/extension-comments": "^3.3.0",
     "@tiptap-pro/provider": "^3.3.0",
-    "@tiptap-pro/server-ai-toolkit": "3.0.0-alpha.1",
+    "@tiptap-pro/server-ai-toolkit": "3.0.0-alpha.2",
     "@tiptap/extension-collaboration": "^3.7.2",
     "@tiptap/extension-collaboration-caret": "^3.7.2",
     "@tiptap/extension-placeholder": "^3.7.2",

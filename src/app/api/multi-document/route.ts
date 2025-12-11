@@ -1,9 +1,9 @@
 import { anthropic } from "@ai-sdk/anthropic";
+import { openai } from "@ai-sdk/openai";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import { convertToModelMessages, streamText, tool, type UIMessage } from "ai";
 import { z } from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
-import { openai } from "@ai-sdk/openai";
 
 export async function POST(req: Request) {
   // Rate limiting
