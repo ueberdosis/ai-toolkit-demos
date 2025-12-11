@@ -14,7 +14,7 @@
     "@ai-sdk/openai": "^2.0.80",
     "@ai-sdk/react": "^2.0.109",
     "@tiptap-pro/ai-toolkit": "3.0.0-alpha.47",
-    "@tiptap-pro/ai-toolkit-ai-sdk": "3.0.0-alpha.20",
+    "@tiptap-pro/ai-toolkit-ai-sdk": "3.0.0-alpha.21",
     "@tiptap-pro/extension-comments": "^3.3.0",
     "@tiptap-pro/provider": "^3.3.0",
     "@tiptap-pro/server-ai-toolkit": "3.0.0-alpha.1",
