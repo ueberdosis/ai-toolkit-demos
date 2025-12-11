@@ -154,7 +154,6 @@ export default function Page() {
       >
         Reset content
       </button>
-      <pre className="text-xs">{JSON.stringify(messages, null, 2)}</pre>
     </div>
   );
 }

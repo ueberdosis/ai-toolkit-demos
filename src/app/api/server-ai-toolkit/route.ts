@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     // model: anthropic("claude-haiku-4-5-20251001"),
-    model: openai("gpt-5.1"),
+    model: openai("gpt-5-mini"),
     system: `
 You are an assistant that can edit rich text documents. 
 <rules>
@@ -60,6 +60,11 @@ ${serverAiToolkit.getSchemaAwarenessPrompt()}
 `,
     messages: convertToModelMessages(messages),
     tools: serverAiToolkit.getTools(),
+    providerOptions: {
+      openai: {
+        reasoningEffort: "minimal",
+      },
+    },
   });
 
   return result.toUIMessageStreamResponse();
