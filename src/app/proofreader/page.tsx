@@ -43,7 +43,6 @@ export default function Page() {
   // Stream partial results as they arrive
   useEffect(() => {
     if (!editor || !operations) return;
-    console.log(operations);
 
     const toolkit = getAiToolkit(editor);
     toolkit.proofreaderWorkflow({

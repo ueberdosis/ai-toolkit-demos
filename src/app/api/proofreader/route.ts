@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { proofreaderWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
+import { createProofreaderWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
 import { streamObject } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
@@ -20,7 +20,9 @@ export async function POST(req: Request) {
   }
   const { nodes } = await req.json();
 
-  const workflow = proofreaderWorkflow();
+  // Create and configure the proofreader workflow (with the default settings).
+  // It includes the ready-to-use system prompt and the output schema.
+  const workflow = createProofreaderWorkflow();
 
   const result = streamObject({
     model: openai("gpt-5-mini"),
@@ -31,7 +33,10 @@ export async function POST(req: Request) {
       nodes,
       task: "Correct all grammar and spelling mistakes",
     }),
+    // Ensure the output follows the schema.
     schema: workflow.zodOutputSchema,
+    // If you use gpt-5-mini, set the reasoning effort to minimal to improve the
+    // response time.
     providerOptions: {
       openai: {
         reasoningEffort: "minimal",
