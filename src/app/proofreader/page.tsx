@@ -28,7 +28,7 @@ export default function Page() {
 
   const [isReviewing, setIsReviewing] = useState(false);
   const [hasAccepted, setHasAccepted] = useState(false);
-  const [workflowId, setWorkflowId] = useState<string | null>(null);
+  const [workflowId, setWorkflowId] = useState("");
 
   const { submit, isLoading, object } = useObject({
     api: "/api/proofreader",
