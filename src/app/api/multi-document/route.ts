@@ -1,4 +1,3 @@
-import { anthropic } from "@ai-sdk/anthropic";
 import { openai } from "@ai-sdk/openai";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import { convertToModelMessages, streamText, tool, type UIMessage } from "ai";
