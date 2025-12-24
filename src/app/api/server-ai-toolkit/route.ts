@@ -4,6 +4,7 @@ import { openai } from "@ai-sdk/openai";
 import { serverToolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import {
   getServerAiToolkit,
+  type SchemaAwarenessData,
   TiptapCloudStorage,
 } from "@tiptap-pro/server-ai-toolkit";
 import {
@@ -33,15 +34,16 @@ export async function POST(req: Request) {
   const {
     messages,
     schemaAwarenessData,
-  }: { messages: UIMessage[]; schemaAwarenessData: any } = await req.json();
+  }: { messages: UIMessage[]; schemaAwarenessData: SchemaAwarenessData } =
+    await req.json();
 
   const serverAiToolkit = getServerAiToolkit({
     schemaAwarenessData,
     tools: serverToolDefinitions(),
     storage: new TiptapCloudStorage({
       documentIdentifier: "tiptap-server-ai-toolkit-1",
-      appId: process.env.TIPTAP_CLOUD_APP_ID!,
-      apiSecret: process.env.REST_API_SECRET!,
+      appId: process.env.TIPTAP_CLOUD_APP_ID,
+      apiSecret: process.env.REST_API_SECRET,
     }),
   });
 
