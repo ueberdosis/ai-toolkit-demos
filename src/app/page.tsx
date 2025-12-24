@@ -72,6 +72,23 @@ export default function Home() {
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold mb-4">Workflows</h2>
+            <p className="text-gray-600 mb-4">
+              Scenarios where the AI model has a single, well-defined task.
+              Built-in workflows include ready-to-use prompts and methods to
+              execute and apply edits to the Tiptap Editor.
+            </p>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
+              <Link
+                href="/proofreader"
+                className="inline-block bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-colors"
+              >
+                Proofreader
+              </Link>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-2xl font-semibold mb-4">Advanced use cases</h2>
             <p className="text-gray-600 mb-4">
               AI agents that can work with multiple documents simultaneously,
@@ -89,12 +106,6 @@ export default function Home() {
                 className="inline-block bg-pink-500 text-white px-6 py-3 rounded-lg hover:bg-pink-600 transition-colors"
               >
                 Schema awareness
-              </Link>
-              <Link
-                href="/proofreader"
-                className="inline-block bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-colors"
-              >
-                Proofreader
               </Link>
               <Link
                 href="/selection-awareness"
