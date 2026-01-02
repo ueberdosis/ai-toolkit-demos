@@ -28,7 +28,7 @@ export default function Page() {
 
   if (!editor) return null;
 
-  const editSelection = async (userRequest: string) => {
+  const editSelection = async (task: string) => {
     setIsLoading(true);
 
     const toolkit = getAiToolkit(editor);
@@ -38,14 +38,14 @@ export default function Page() {
     const selectionPosition = editor.state.selection;
 
     // Call the API endpoint to get the edited HTML content
-    const response = await fetch("/api/inline-edits", {
+    const response = await fetch("/api/insert-content-workflow", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userRequest,
-        selection,
+        task,
+        replace: selection,
       }),
     });
 
@@ -76,7 +76,7 @@ export default function Page() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Inline edits demo</h1>
+      <h1 className="text-3xl font-bold mb-6">Insert content workflow demo</h1>
 
       <div className="mb-6">
         <EditorContent

@@ -56,22 +56,6 @@ export default function Home() {
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Inline edits</h2>
-            <p className="text-gray-600 mb-4">
-              Select text in the editor and use AI to transform it with emojis
-              or other modifications through streaming.
-            </p>
-            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
-              <Link
-                href="/inline-edits"
-                className="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
-              >
-                Inline edits demo
-              </Link>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-2xl font-semibold mb-4">Workflows</h2>
             <p className="text-gray-600 mb-4">
               Scenarios where the AI model has a single, well-defined task.
@@ -80,6 +64,12 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
               <Link
+                href="/insert-content-workflow"
+                className="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                Insert content
+              </Link>
+              <Link
                 href="/proofreader"
                 className="inline-block bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-colors"
               >
@@ -87,6 +77,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
+
 
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-2xl font-semibold mb-4">Advanced use cases</h2>
