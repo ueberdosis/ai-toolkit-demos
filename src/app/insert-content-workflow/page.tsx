@@ -12,7 +12,6 @@ export default function Page() {
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit, Selection],
     content: `<p>Select some text and click the "Add emojis" button to add emojis to your selection.</p>
-<p></p>
 <p>This is another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>
 <p>This is yet another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>`,
   });
