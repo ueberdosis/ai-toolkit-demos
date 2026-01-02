@@ -4,7 +4,11 @@ import { useChat } from "@ai-sdk/react";
 import { Decoration } from "@tiptap/pm/view";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import {
+  AiToolkit,
+  getAiToolkit,
+  type SuggestionFeedbackEvent,
+} from "@tiptap-pro/ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
@@ -30,6 +34,8 @@ export default function Page() {
     tool: "",
     toolCallId: "",
     output: "",
+    // Feedback events collected from user actions
+    feedbackEvents: [] as SuggestionFeedbackEvent[],
   });
 
   const acceptButtonRef = useRef<HTMLButtonElement>(null);
@@ -63,7 +69,17 @@ export default function Page() {
                   element.className =
                     "ml-2 bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600";
                   element.addEventListener("click", () => {
-                    toolkit.applySuggestion(options.suggestion.id);
+                    const result = toolkit.applySuggestion(
+                      options.suggestion.id,
+                    );
+                    // Collect feedback events using functional update
+                    setReviewState((prev) => ({
+                      ...prev,
+                      feedbackEvents: [
+                        ...prev.feedbackEvents,
+                        ...result.aiFeedback.events,
+                      ],
+                    }));
                     if (toolkit.getSuggestions().length === 0) {
                       acceptButtonRef.current?.click();
                     }
@@ -78,7 +94,17 @@ export default function Page() {
                   element.className =
                     "ml-2 bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600";
                   element.addEventListener("click", () => {
-                    toolkit.removeSuggestion(options.suggestion.id);
+                    const result = toolkit.rejectSuggestion(
+                      options.suggestion.id,
+                    );
+                    // Collect feedback events using functional update
+                    setReviewState((prev) => ({
+                      ...prev,
+                      feedbackEvents: [
+                        ...prev.feedbackEvents,
+                        ...result.aiFeedback.events,
+                      ],
+                    }));
                     if (toolkit.getSuggestions().length === 0) {
                       rejectButtonRef.current?.click();
                     }
@@ -99,6 +125,7 @@ export default function Page() {
           tool: toolName,
           toolCallId,
           output: result.output,
+          feedbackEvents: [],
         });
       } else {
         // Continue the conversation
@@ -174,11 +201,24 @@ export default function Page() {
               ref={acceptButtonRef}
               onClick={() => {
                 const toolkit = getAiToolkit(editor);
-                toolkit.applyAllSuggestions();
-                addToolOutput(reviewState);
-                return setReviewState({
+                const result = toolkit.applyAllSuggestions();
+                // Combine all feedback events (previous + new)
+                const allFeedbackEvents = [
+                  ...reviewState.feedbackEvents,
+                  ...result.aiFeedback.events,
+                ];
+                // Combine original output with feedback in XML tags
+                const outputWithFeedback = `${reviewState.output}\n\n<user_feedback>\n${JSON.stringify(allFeedbackEvents)}\n</user_feedback>`;
+                addToolOutput({
+                  tool: reviewState.tool,
+                  toolCallId: reviewState.toolCallId,
+                  output: outputWithFeedback,
+                });
+                // Reset feedback events and close review UI
+                setReviewState({
                   ...reviewState,
                   isReviewing: false,
+                  feedbackEvents: [],
                 });
               }}
               className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
@@ -190,15 +230,26 @@ export default function Page() {
               ref={rejectButtonRef}
               onClick={() => {
                 const toolkit = getAiToolkit(editor);
-                toolkit.setSuggestions([]);
+                const result = toolkit.rejectAllSuggestions();
+                // Combine all feedback events (previous + new)
+                const allFeedbackEvents = [
+                  ...reviewState.feedbackEvents,
+                  ...result.aiFeedback.events,
+                ];
+                // Combine rejection message with feedback in XML tags
+                const rejectionMessage =
+                  "Some changes you made were rejected by the user. Do not edit the document again. Ask the user why, and what you can do to improve them.";
+                const outputWithFeedback = `${rejectionMessage}\n\n<user_feedback>\n${JSON.stringify(allFeedbackEvents)}\n</user_feedback>`;
                 addToolOutput({
-                  ...reviewState,
-                  output:
-                    "The changes you made were rejected by the user. Do not edit the document again. Ask the user why, and what you can do to improve them.",
+                  tool: reviewState.tool,
+                  toolCallId: reviewState.toolCallId,
+                  output: outputWithFeedback,
                 });
-                return setReviewState({
+                // Reset feedback events and close review UI
+                setReviewState({
                   ...reviewState,
                   isReviewing: false,
+                  feedbackEvents: [],
                 });
               }}
               className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600"

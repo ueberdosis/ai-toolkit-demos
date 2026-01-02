@@ -4,7 +4,11 @@ import { useChat } from "@ai-sdk/react";
 import { Decoration } from "@tiptap/pm/view";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import {
+  AiToolkit,
+  getAiToolkit,
+  type SuggestionFeedbackEvent,
+} from "@tiptap-pro/ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
@@ -32,6 +36,9 @@ export default function Page() {
 
       const { toolName, input, toolCallId } = toolCall;
 
+      // Reset feedback events when a new tool call starts
+      setReviewState((prev) => ({ ...prev, feedbackEvents: [] }));
+
       // Use the AI Toolkit to execute the tool
       const toolkit = getAiToolkit(editor);
       const result = toolkit.executeTool({
@@ -46,7 +53,10 @@ export default function Page() {
   const [input, setInput] = useState(
     "Replace the last paragraph with a short story about Tiptap",
   );
-  const [isComparing, setIsComparing] = useState(false);
+  const [reviewState, setReviewState] = useState({
+    isComparing: false,
+    feedbackEvents: [] as SuggestionFeedbackEvent[],
+  });
 
   if (!editor) return null;
 
@@ -54,10 +64,10 @@ export default function Page() {
 
   function stopComparing() {
     toolkit.stopComparingDocuments();
-    setIsComparing(false);
+    setReviewState({ isComparing: false, feedbackEvents: [] });
   }
 
-  const showReviewUI = isComparing && status === "ready";
+  const showReviewUI = reviewState.isComparing && status === "ready";
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -92,7 +102,14 @@ export default function Page() {
           onSubmit={(e) => {
             e.preventDefault();
 
-            if (isComparing) return;
+            if (reviewState.isComparing) return;
+
+            // Build message text with feedback if available
+            let messageText = input.trim();
+            if (reviewState.feedbackEvents.length > 0) {
+              const feedbackOutput = JSON.stringify(reviewState.feedbackEvents);
+              messageText = `${messageText}\n\n<user_feedback>${feedbackOutput}</user_feedback>`;
+            }
 
             toolkit.startComparingDocuments({
               displayOptions: {
@@ -107,7 +124,16 @@ export default function Page() {
                       element.className =
                         "ml-2 bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600";
                       element.addEventListener("click", () => {
-                        toolkit.acceptChange(options.suggestion.id);
+                        const result = toolkit.acceptChange(
+                          options.suggestion.id,
+                        );
+                        setReviewState((prev) => ({
+                          ...prev,
+                          feedbackEvents: [
+                            ...prev.feedbackEvents,
+                            ...result.aiFeedback.events,
+                          ],
+                        }));
                         if (toolkit.getSuggestions().length === 0) {
                           stopComparing();
                         }
@@ -122,7 +148,16 @@ export default function Page() {
                       element.className =
                         "ml-2 bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600";
                       element.addEventListener("click", () => {
-                        toolkit.rejectChange(options.suggestion.id);
+                        const result = toolkit.rejectChange(
+                          options.suggestion.id,
+                        );
+                        setReviewState((prev) => ({
+                          ...prev,
+                          feedbackEvents: [
+                            ...prev.feedbackEvents,
+                            ...result.aiFeedback.events,
+                          ],
+                        }));
                         if (toolkit.getSuggestions().length === 0) {
                           stopComparing();
                         }
@@ -133,17 +168,18 @@ export default function Page() {
                 },
               },
             });
-            setIsComparing(true);
+            setReviewState((prev) => ({ ...prev, isComparing: true }));
 
-            if (input.trim()) {
-              sendMessage({ text: input });
+            if (messageText) {
+              sendMessage({ text: messageText });
               setInput("");
+              setReviewState((prev) => ({ ...prev, feedbackEvents: [] }));
             }
           }}
           className="flex gap-2"
         >
           <input
-            disabled={isComparing}
+            disabled={reviewState.isComparing}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="flex-1 border border-gray-300 rounded-lg px-4 py-2 disabled:bg-gray-100"
@@ -151,7 +187,7 @@ export default function Page() {
           />
           <button
             type="submit"
-            disabled={isComparing}
+            disabled={reviewState.isComparing}
             className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400"
           >
             Send
@@ -165,7 +201,19 @@ export default function Page() {
           <div className="flex gap-4">
             <button
               type="button"
-              onClick={stopComparing}
+              onClick={() => {
+                const result = toolkit.acceptAllChanges();
+                // Collect all feedback events
+                const allFeedbackEvents = [
+                  ...reviewState.feedbackEvents,
+                  ...result.aiFeedback.events,
+                ];
+                setReviewState({
+                  isComparing: false,
+                  feedbackEvents: allFeedbackEvents,
+                });
+                toolkit.stopComparingDocuments();
+              }}
               className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
             >
               Accept all
@@ -173,8 +221,17 @@ export default function Page() {
             <button
               type="button"
               onClick={() => {
-                toolkit.rejectAllChanges();
-                stopComparing();
+                const result = toolkit.rejectAllChanges();
+                // Collect all feedback events
+                const allFeedbackEvents = [
+                  ...reviewState.feedbackEvents,
+                  ...result.aiFeedback.events,
+                ];
+                setReviewState({
+                  isComparing: false,
+                  feedbackEvents: allFeedbackEvents,
+                });
+                toolkit.stopComparingDocuments();
               }}
               className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600"
             >
