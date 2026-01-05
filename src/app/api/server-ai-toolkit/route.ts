@@ -1,5 +1,3 @@
-// import { anthropic } from "@ai-sdk/anthropic";
-
 import { openai } from "@ai-sdk/openai";
 import { serverToolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import {
@@ -43,9 +41,7 @@ export async function POST(req: Request) {
   });
 
   const agent = new ToolLoopAgent({
-    // model: anthropic("claude-haiku-4-5-20251001"),
     model: openai("gpt-5-mini"),
-    // Allow the model to call tools up to 10 times
     instructions: `
 You are an assistant that can edit rich text documents. 
 In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
