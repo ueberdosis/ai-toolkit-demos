@@ -47,6 +47,7 @@ export async function POST(req: Request) {
         description: "Create a new document",
         inputSchema: z.object({
           documentName: z.string(),
+          content: z.string().describe("The HTML content of the document"),
         }),
       }),
       listDocuments: tool({
