@@ -1,6 +1,11 @@
 import { openai } from "@ai-sdk/openai";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
-import { convertToModelMessages, streamText, tool, type UIMessage } from "ai";
+import {
+  createAgentUIStreamResponse,
+  ToolLoopAgent,
+  tool,
+  type UIMessage,
+} from "ai";
 import { z } from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
@@ -22,9 +27,9 @@ export async function POST(req: Request) {
 
   const { messages }: { messages: UIMessage[] } = await req.json();
 
-  const result = streamText({
+  const agent = new ToolLoopAgent({
     model: openai("gpt-5-mini"),
-    system: `You are an assistant that can edit rich text documents. 
+    instructions: `You are an assistant that can edit rich text documents. 
     You have access multiple documents and can switch between them. 
     At any point in time, the 'active document' is the document that is open in the editor.
     When you call the tools to read and edit the document, they will read and edit the active document.
@@ -36,7 +41,6 @@ export async function POST(req: Request) {
     Rule: In your responses, do not give any details of the tool calls.
     Rule: In your responses, do not give any details of the HTML content of the document.
     `,
-    messages: convertToModelMessages(messages),
     tools: {
       ...toolDefinitions(),
       createDocument: tool({
@@ -71,5 +75,8 @@ export async function POST(req: Request) {
     },
   });
 
-  return result.toUIMessageStreamResponse();
+  return createAgentUIStreamResponse({
+    agent,
+    uiMessages: messages,
+  });
 }
