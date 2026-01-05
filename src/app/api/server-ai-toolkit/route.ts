@@ -7,11 +7,7 @@ import {
   type SchemaAwarenessData,
   TiptapCloudStorage,
 } from "@tiptap-pro/server-ai-toolkit";
-import {
-  createAgentUIStreamResponse,
-  ToolLoopAgent,
-  type UIMessage,
-} from "ai";
+import { createAgentUIStreamResponse, ToolLoopAgent, type UIMessage } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
