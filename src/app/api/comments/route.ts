@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const agent = new ToolLoopAgent({
-    model: anthropic("claude-haiku-4-5-20251001"),
+    model: anthropic("claude-haiku-4-5"),
     instructions: `
 You are an assistant that can add comments to a rich text document. 
 In your responses, be concise and to the point. However, the content of the comments you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
