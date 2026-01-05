@@ -1,6 +1,6 @@
 import { openai } from "@ai-sdk/openai";
 import { createProofreaderWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
-import { streamObject } from "ai";
+import { Output, streamText } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   // It includes the ready-to-use system prompt and the output schema.
   const workflow = createProofreaderWorkflow();
 
-  const result = streamObject({
+  const result = streamText({
     model: openai("gpt-5-mini"),
     // System prompt
     system: workflow.systemPrompt,
@@ -33,8 +33,7 @@ export async function POST(req: Request) {
       nodes,
       task: "Correct all grammar and spelling mistakes",
     }),
-    // Ensure the output follows the schema.
-    schema: workflow.zodOutputSchema,
+    output: Output.object({ schema: workflow.zodOutputSchema }),
     // If you use gpt-5-mini, set the reasoning effort to minimal to improve the
     // response time.
     providerOptions: {
