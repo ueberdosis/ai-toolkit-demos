@@ -24,7 +24,7 @@ This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with 
 
 1. **Install dependencies:**
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. **Set up environment variables:**
@@ -40,7 +40,7 @@ This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with 
 
 3. **Run the development server:**
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
 4. **Open your browser:**
