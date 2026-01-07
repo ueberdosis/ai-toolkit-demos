@@ -37,7 +37,7 @@ export default function Page() {
       const { toolName, input, toolCallId } = toolCall;
 
       // Reset feedback events when a new tool call starts
-      setReviewState((prev) => ({ ...prev, feedbackEvents: [] }));
+      setReviewState((prev) => ({ ...prev, userFeedback: [] }));
 
       // Use the AI Toolkit to execute the tool
       const toolkit = getAiToolkit(editor);
@@ -55,7 +55,7 @@ export default function Page() {
   );
   const [reviewState, setReviewState] = useState({
     isComparing: false,
-    feedbackEvents: [] as SuggestionFeedbackEvent[],
+    userFeedback: [] as SuggestionFeedbackEvent[],
   });
 
   if (!editor) return null;
@@ -106,8 +106,8 @@ export default function Page() {
 
             // Build message text with feedback if available
             let messageText = input.trim();
-            if (reviewState.feedbackEvents.length > 0) {
-              const feedbackOutput = JSON.stringify(reviewState.feedbackEvents);
+            if (reviewState.userFeedback.length > 0) {
+              const feedbackOutput = JSON.stringify(reviewState.userFeedback);
               messageText += `\n\n<user_feedback>${feedbackOutput}</user_feedback>`;
             }
 
@@ -129,8 +129,8 @@ export default function Page() {
                         );
                         setReviewState((prev) => ({
                           ...prev,
-                          feedbackEvents: [
-                            ...prev.feedbackEvents,
+                          userFeedback: [
+                            ...prev.userFeedback,
                             ...result.aiFeedback.events,
                           ],
                         }));
@@ -153,8 +153,8 @@ export default function Page() {
                         );
                         setReviewState((prev) => ({
                           ...prev,
-                          feedbackEvents: [
-                            ...prev.feedbackEvents,
+                          userFeedback: [
+                            ...prev.userFeedback,
                             ...result.aiFeedback.events,
                           ],
                         }));
@@ -173,7 +173,7 @@ export default function Page() {
             if (messageText) {
               sendMessage({ text: messageText });
               setInput("");
-              setReviewState((prev) => ({ ...prev, feedbackEvents: [] }));
+              setReviewState((prev) => ({ ...prev, userFeedback: [] }));
             }
           }}
           className="flex gap-2"
@@ -204,13 +204,13 @@ export default function Page() {
               onClick={() => {
                 const result = toolkit.acceptAllSuggestions();
                 // Collect all feedback events
-                const allFeedbackEvents = [
-                  ...reviewState.feedbackEvents,
+                const userFeedback = [
+                  ...reviewState.userFeedback,
                   ...result.aiFeedback.events,
                 ];
                 setReviewState({
                   isComparing: false,
-                  feedbackEvents: allFeedbackEvents,
+                  userFeedback,
                 });
                 toolkit.stopComparingDocuments();
               }}
@@ -223,13 +223,13 @@ export default function Page() {
               onClick={() => {
                 const result = toolkit.rejectAllSuggestions();
                 // Collect all feedback events
-                const allFeedbackEvents = [
-                  ...reviewState.feedbackEvents,
+                const userFeedback = [
+                  ...reviewState.userFeedback,
                   ...result.aiFeedback.events,
                 ];
                 setReviewState({
                   isComparing: false,
-                  feedbackEvents: allFeedbackEvents,
+                  userFeedback,
                 });
                 toolkit.stopComparingDocuments();
               }}

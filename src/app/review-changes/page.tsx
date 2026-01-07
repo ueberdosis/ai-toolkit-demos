@@ -35,7 +35,7 @@ export default function Page() {
     toolCallId: "",
     output: "",
     // Feedback events collected from user actions
-    feedbackEvents: [] as SuggestionFeedbackEvent[],
+    userFeedback: [] as SuggestionFeedbackEvent[],
   });
 
   const acceptButtonRef = useRef<HTMLButtonElement>(null);
@@ -75,8 +75,8 @@ export default function Page() {
                     // Collect feedback events using functional update
                     setReviewState((prev) => ({
                       ...prev,
-                      feedbackEvents: [
-                        ...prev.feedbackEvents,
+                      userFeedback: [
+                        ...prev.userFeedback,
                         ...result.aiFeedback.events,
                       ],
                     }));
@@ -100,8 +100,8 @@ export default function Page() {
                     // Collect feedback events using functional update
                     setReviewState((prev) => ({
                       ...prev,
-                      feedbackEvents: [
-                        ...prev.feedbackEvents,
+                      userFeedback: [
+                        ...prev.userFeedback,
                         ...result.aiFeedback.events,
                       ],
                     }));
@@ -125,7 +125,7 @@ export default function Page() {
           tool: toolName,
           toolCallId,
           output: result.output,
-          feedbackEvents: [],
+          userFeedback: [],
         });
       } else {
         // Continue the conversation
@@ -133,7 +133,6 @@ export default function Page() {
       }
     },
   });
-
 
   const [input, setInput] = useState(
     "Replace the last paragraph with a short story about Tiptap",
@@ -204,22 +203,30 @@ export default function Page() {
                 const toolkit = getAiToolkit(editor);
                 const result = toolkit.acceptAllSuggestions();
                 // Combine all feedback events (previous + new)
-                const allFeedbackEvents = [
-                  ...reviewState.feedbackEvents,
+                const userFeedback = [
+                  ...reviewState.userFeedback,
                   ...result.aiFeedback.events,
                 ];
-                // Combine original output with feedback in XML tags
-                const outputWithFeedback = `${reviewState.output}\n\n<user_feedback>\n${JSON.stringify(allFeedbackEvents)}\n</user_feedback>`;
+                let output = reviewState.output;
+
+                // Add feedback to tool output if there are any changes that were not accepted
+                if (
+                  userFeedback.length > 0 &&
+                  userFeedback.some((event) => !event.accepted)
+                ) {
+                  output += `\n\n<user_feedback>\n${JSON.stringify(userFeedback)}\n</user_feedback>`;
+                }
+
                 addToolOutput({
                   tool: reviewState.tool,
                   toolCallId: reviewState.toolCallId,
-                  output: outputWithFeedback,
+                  output,
                 });
                 // Reset feedback events and close review UI
                 setReviewState({
                   ...reviewState,
                   isReviewing: false,
-                  feedbackEvents: [],
+                  userFeedback: [],
                 });
               }}
               className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
@@ -233,14 +240,14 @@ export default function Page() {
                 const toolkit = getAiToolkit(editor);
                 const result = toolkit.rejectAllSuggestions();
                 // Combine all feedback events (previous + new)
-                const allFeedbackEvents = [
-                  ...reviewState.feedbackEvents,
+                const userFeedback = [
+                  ...reviewState.userFeedback,
                   ...result.aiFeedback.events,
                 ];
                 // Combine rejection message with feedback in XML tags
                 const rejectionMessage =
-                  "Some changes you made were rejected by the user. Do not edit the document again. Ask the user why, and what you can do to improve them.";
-                const outputWithFeedback = `${rejectionMessage}\n\n<user_feedback>\n${JSON.stringify(allFeedbackEvents)}\n</user_feedback>`;
+                  "Some changes you made were rejected by the user. Ask the user why, and what you can do to improve them.";
+                const outputWithFeedback = `${rejectionMessage}\n\n<user_feedback>\n${JSON.stringify(userFeedback)}\n</user_feedback>`;
                 addToolOutput({
                   tool: reviewState.tool,
                   toolCallId: reviewState.toolCallId,
@@ -250,7 +257,7 @@ export default function Page() {
                 setReviewState({
                   ...reviewState,
                   isReviewing: false,
-                  feedbackEvents: [],
+                  userFeedback: [],
                 });
               }}
               className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600"
