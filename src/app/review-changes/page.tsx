@@ -69,7 +69,7 @@ export default function Page() {
                   element.className =
                     "ml-2 bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600";
                   element.addEventListener("click", () => {
-                    const result = toolkit.applySuggestion(
+                    const result = toolkit.acceptSuggestion(
                       options.suggestion.id,
                     );
                     // Collect feedback events using functional update
@@ -133,6 +133,7 @@ export default function Page() {
       }
     },
   });
+
 
   const [input, setInput] = useState(
     "Replace the last paragraph with a short story about Tiptap",
@@ -201,7 +202,7 @@ export default function Page() {
               ref={acceptButtonRef}
               onClick={() => {
                 const toolkit = getAiToolkit(editor);
-                const result = toolkit.applyAllSuggestions();
+                const result = toolkit.acceptAllSuggestions();
                 // Combine all feedback events (previous + new)
                 const allFeedbackEvents = [
                   ...reviewState.feedbackEvents,

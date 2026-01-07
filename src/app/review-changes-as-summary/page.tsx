@@ -64,7 +64,7 @@ export default function Page() {
 
   function stopComparing() {
     toolkit.stopComparingDocuments();
-    setReviewState({ isComparing: false, feedbackEvents: [] });
+    setReviewState((prev) => ({ ...prev, isComparing: false }));
   }
 
   const showReviewUI = reviewState.isComparing && status === "ready";
@@ -108,7 +108,7 @@ export default function Page() {
             let messageText = input.trim();
             if (reviewState.feedbackEvents.length > 0) {
               const feedbackOutput = JSON.stringify(reviewState.feedbackEvents);
-              messageText = `${messageText}\n\n<user_feedback>${feedbackOutput}</user_feedback>`;
+              messageText += `\n\n<user_feedback>${feedbackOutput}</user_feedback>`;
             }
 
             toolkit.startComparingDocuments({
@@ -124,7 +124,7 @@ export default function Page() {
                       element.className =
                         "ml-2 bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600";
                       element.addEventListener("click", () => {
-                        const result = toolkit.acceptChange(
+                        const result = toolkit.acceptSuggestion(
                           options.suggestion.id,
                         );
                         setReviewState((prev) => ({
@@ -148,7 +148,7 @@ export default function Page() {
                       element.className =
                         "ml-2 bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600";
                       element.addEventListener("click", () => {
-                        const result = toolkit.rejectChange(
+                        const result = toolkit.rejectSuggestion(
                           options.suggestion.id,
                         );
                         setReviewState((prev) => ({
@@ -202,7 +202,7 @@ export default function Page() {
             <button
               type="button"
               onClick={() => {
-                const result = toolkit.acceptAllChanges();
+                const result = toolkit.acceptAllSuggestions();
                 // Collect all feedback events
                 const allFeedbackEvents = [
                   ...reviewState.feedbackEvents,
@@ -221,7 +221,7 @@ export default function Page() {
             <button
               type="button"
               onClick={() => {
-                const result = toolkit.rejectAllChanges();
+                const result = toolkit.rejectAllSuggestions();
                 // Collect all feedback events
                 const allFeedbackEvents = [
                   ...reviewState.feedbackEvents,
@@ -240,6 +240,8 @@ export default function Page() {
           </div>
         </div>
       )}
+      <pre>{JSON.stringify(messages, null, 2)}</pre>
+      <pre>{JSON.stringify(reviewState, null, 2)}</pre>
     </div>
   );
 }
