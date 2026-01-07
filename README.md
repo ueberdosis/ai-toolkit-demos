@@ -3,12 +3,15 @@
 This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with a list of demos:
 
 1. **AI Agent Chatbot** (`/ai-agent-chatbot`) - A simple AI agent that can read and edit Tiptap documents
-2. **Review Changes** (`/review-changes`) - Preview and approve AI-inserted changes using suggestions
-3. **Review Changes as Summary** (`/review-changes-as-summary`) - Preview and approve AI-inserted changes using suggestions as a summary
-4. **Chatbot with Tool Streaming** (`/tool-streaming`) - Chat with an AI that can read and edit Tiptap documents using tool streaming
-5. **Multi-document AI Agent** (`/multi-document`) - An AI agent that can read and edit multiple Tiptap documents at once
-6. **Schema Awareness** (`/schema-awareness`) - An AI agent with schema awareness enabled. It understands custom nodes and marks.
-7. **Comments** (`/comments`) - Add comments to the document using the AI Toolkit. Integrates with the Comments extension.
+2. **Chatbot with Tool Streaming** (`/tool-streaming`) - Chat with an AI that can read and edit Tiptap documents using tool streaming
+3. **Review Changes** (`/review-changes`) - Preview and approve AI-inserted changes using suggestions
+4. **Review Changes as Summary** (`/review-changes-as-summary`) - Preview and approve AI-inserted changes using suggestions as a summary
+5. **Insert Content** (`/insert-content-workflow`) - A workflow where the AI model has a single, well-defined task to insert content
+6. **Proofreader** (`/proofreader`) - A workflow for proofreading documents using built-in prompts and methods
+7. **Multi-document AI Agent** (`/multi-document`) - An AI agent that can read and edit multiple Tiptap documents at once
+8. **Schema Awareness** (`/schema-awareness`) - An AI agent with schema awareness enabled. It understands custom nodes and marks.
+9. **Selection Awareness** (`/selection-awareness`) - An AI agent that is aware of the current selection in the editor
+10. **Comments** (`/comments`) - Add comments to the document using the AI Toolkit. Integrates with the Comments extension.
 
 ## Tech Stack
 
@@ -58,6 +61,21 @@ This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with 
 - Accept or reject changes individually or in bulk
 - Custom styling for suggestions (red for deletions, green for insertions)
 - Halt conversation until user reviews changes
+
+### Insert Content (`/insert-content-workflow`)
+- A workflow where the AI model has a single, well-defined task to insert content
+- Uses built-in workflows with ready-to-use prompts and methods
+- Executes and applies edits directly to the Tiptap Editor
+
+### Proofreader (`/proofreader`)
+- A workflow for proofreading documents
+- Uses built-in prompts and methods for document correction
+- Applies edits directly to the Tiptap Editor
+
+### Selection Awareness (`/selection-awareness`)
+- An AI agent that is aware of the current selection in the editor
+- Can work with selected text specifically
+- Understands context around the user's selection
 
 ### Comments (`/comments`)
 - Add comments to the document using the AI Toolkit

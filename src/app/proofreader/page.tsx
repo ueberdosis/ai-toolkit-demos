@@ -96,7 +96,7 @@ export default function Page() {
               type="button"
               onClick={() => {
                 const toolkit = getAiToolkit(editor);
-                toolkit.applyAllSuggestions();
+                toolkit.acceptAllSuggestions();
                 setHasAccepted(true);
                 setIsReviewing(false);
               }}
