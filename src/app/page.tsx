@@ -103,12 +103,6 @@ export default function Home() {
               >
                 Selection awareness
               </Link>
-              <Link
-                href="/server-ai-toolkit"
-                className="inline-block bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors"
-              >
-                Server AI Toolkit
-              </Link>
             </div>
           </div>
 

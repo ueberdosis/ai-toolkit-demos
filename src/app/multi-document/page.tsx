@@ -74,7 +74,7 @@ export default function Page() {
    * @param documentName The name of the new document
    * @returns A message indicating the result of the operation
    */
-  const createDocument = (documentName: string) => {
+  const createDocument = (documentName: string, content: string) => {
     saveActiveDocument();
     const existingDocument = findDocument(documentName);
     if (existingDocument) {
@@ -83,7 +83,7 @@ export default function Page() {
     }
     const newDocument = {
       name: documentName,
-      content: "<p></p>",
+      content: content,
     };
     setDocuments((documents) => [...documents, newDocument]);
     setActiveDocumentName(documentName);
@@ -149,7 +149,14 @@ export default function Page() {
     const { toolName, input } = toolCall;
 
     if (toolName === "createDocument") {
-      return createDocument((input as { documentName: string }).documentName);
+      const createDocumentInput = input as {
+        documentName: string;
+        content: string;
+      };
+      return createDocument(
+        createDocumentInput.documentName,
+        createDocumentInput.content,
+      );
     } else if (toolName === "listDocuments") {
       return listDocuments();
     } else if (toolName === "setActiveDocument") {
@@ -186,7 +193,7 @@ export default function Page() {
         addToolOutput({
           tool: toolCall.toolName,
           toolCallId: toolCall.toolCallId,
-          output,
+          output: output as unknown as undefined,
         });
       }
     },
