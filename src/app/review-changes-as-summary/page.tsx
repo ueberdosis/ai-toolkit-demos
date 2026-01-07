@@ -240,8 +240,6 @@ export default function Page() {
           </div>
         </div>
       )}
-      <pre>{JSON.stringify(messages, null, 2)}</pre>
-      <pre>{JSON.stringify(reviewState, null, 2)}</pre>
     </div>
   );
 }
