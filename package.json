@@ -10,7 +10,7 @@
     "lint:fix": "biome check --write && tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.2",
+    "@ai-sdk/anthropic": "^3.0.8",
     "@ai-sdk/openai": "^3.0.2",
     "@ai-sdk/react": "^3.0.7",
     "@tiptap-pro/ai-toolkit": "3.0.0-alpha.49",
