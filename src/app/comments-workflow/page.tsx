@@ -38,8 +38,12 @@ export default function Page() {
     content: INITIAL_CONTENT,
   });
 
-  const [task, setTask] = useState("Add a helpful comment suggesting improvements to this document");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [task, setTask] = useState(
+    "Add a helpful comment suggesting improvements to this document"
+  );
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [resultMessage, setResultMessage] = useState("");
 
   const { submit, isLoading, object } = useObject({
@@ -68,7 +72,9 @@ export default function Page() {
     });
 
     if (result.success && result.docChanged) {
-      setResultMessage(`Applied ${result.operations.length} comment operation(s)`);
+      setResultMessage(
+        `Applied ${result.operations.length} comment operation(s)`
+      );
     }
   }, [operations, editor]);
 
@@ -100,7 +106,10 @@ export default function Page() {
       </div>
 
       <div className="mb-4">
-        <label htmlFor="task" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="task"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           Comment Task
         </label>
         <input
@@ -136,4 +145,3 @@ export default function Page() {
     </div>
   );
 }
-
