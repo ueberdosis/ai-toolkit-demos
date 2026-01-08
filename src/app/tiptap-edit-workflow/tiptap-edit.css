@@ -1,0 +1,29 @@
+/* Tiptap Edit Workflow Demo Styles */
+
+.tiptap {
+  outline: none;
+}
+
+.tiptap h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.tiptap p {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+/* Suggestion styles */
+[data-suggestion] {
+  background-color: rgba(34, 197, 94, 0.2);
+  border-radius: 2px;
+}
+
+[data-suggestion-diff] {
+  background-color: rgba(239, 68, 68, 0.2);
+  text-decoration: line-through;
+  border-radius: 2px;
+}
+

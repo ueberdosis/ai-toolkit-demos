@@ -1,0 +1,28 @@
+/* Comments Workflow Demo Styles */
+
+.tiptap {
+  outline: none;
+}
+
+.tiptap h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.tiptap p {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+/* Thread marker styles */
+[data-inline-thread] {
+  background-color: rgba(251, 191, 36, 0.3);
+  border-bottom: 2px solid rgb(251, 191, 36);
+  cursor: pointer;
+}
+
+[data-inline-thread]:hover {
+  background-color: rgba(251, 191, 36, 0.5);
+}
+
