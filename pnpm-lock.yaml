@@ -18,8 +18,8 @@ importers:
         specifier: ^3.0.7
         version: 3.0.7(react@19.2.3)(zod@4.3.5)
       '@tiptap-pro/ai-toolkit':
-        specifier: 3.0.0-alpha.51
-        version: 3.0.0-alpha.51(@tiptap-pro/extension-comments@3.3.0(@hocuspocus/provider@3.4.3(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(yjs@13.6.29))(@tiptap-pro/provider@3.3.0(@hocuspocus/provider@3.4.3(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29))(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0))(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29)
+        specifier: 3.0.0-alpha.52
+        version: 3.0.0-alpha.52(@tiptap-pro/extension-comments@3.3.0(@hocuspocus/provider@3.4.3(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(yjs@13.6.29))(@tiptap-pro/provider@3.3.0(@hocuspocus/provider@3.4.3(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29))(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0))(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29)
       '@tiptap-pro/ai-toolkit-ai-sdk':
         specifier: 3.0.0-alpha.24
         version: 3.0.0-alpha.24(zod@4.3.5)
@@ -646,8 +646,8 @@ packages:
   '@tiptap-pro/ai-toolkit-tool-definitions@3.0.0-alpha.22':
     resolution: {integrity: sha512-TTBR1gxma8iwzk16BLV1SGTyyR9BDNnamBAVgPkVugY/KSbZO4O+rJggxH0WSNz/qayHnrqzIqquVJNAXIlqlQ==}
 
-  '@tiptap-pro/ai-toolkit@3.0.0-alpha.51':
-    resolution: {integrity: sha512-P+6JlTewEVcKdEEfG8D0WdgA2yr5ggfr2lKgbwVq35sqW7arHji29C68dtuH7ShnlfCsllQy1uh794sFez2NHw==}
+  '@tiptap-pro/ai-toolkit@3.0.0-alpha.52':
+    resolution: {integrity: sha512-PehG9R4rnJhUUTLTIFQIKS2BHD2OHFyaMSlI23drLTWmNc8uloYJ2VC71mhLvJDuiF9/zGlz5Mwj6HUJICDBKA==}
     peerDependencies:
       '@tiptap-pro/extension-comments': ^3.0.0
       '@tiptap/core': ^3.0.1
@@ -1818,7 +1818,7 @@ snapshots:
     dependencies:
       zod: 4.3.5
 
-  '@tiptap-pro/ai-toolkit@3.0.0-alpha.51(@tiptap-pro/extension-comments@3.3.0(@hocuspocus/provider@3.4.3(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(yjs@13.6.29))(@tiptap-pro/provider@3.3.0(@hocuspocus/provider@3.4.3(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29))(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0))(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29)':
+  '@tiptap-pro/ai-toolkit@3.0.0-alpha.52(@tiptap-pro/extension-comments@3.3.0(@hocuspocus/provider@3.4.3(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(yjs@13.6.29))(@tiptap-pro/provider@3.3.0(@hocuspocus/provider@3.4.3(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29))(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0))(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29)':
     dependencies:
       '@tiptap/core': 3.14.0(@tiptap/pm@3.14.0)
       '@tiptap/pm': 3.14.0
