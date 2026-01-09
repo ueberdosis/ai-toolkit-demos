@@ -10,7 +10,7 @@ import StarterKit from "@tiptap/starter-kit";
 import {
   AiToolkit,
   getAiToolkit,
-  threadsWorkflowOutputSchema,
+  editThreadsWorkflowOutputSchema,
 } from "@tiptap-pro/ai-toolkit";
 import {
   CommentsKit,
@@ -118,7 +118,7 @@ export default function Page() {
 
   const { submit, isLoading } = useObject({
     api: "/api/comments-workflow",
-    schema: threadsWorkflowOutputSchema,
+    schema: editThreadsWorkflowOutputSchema,
     onFinish: (result) => {
       if (!result.object) {
         setResultMessage("No operations to apply");

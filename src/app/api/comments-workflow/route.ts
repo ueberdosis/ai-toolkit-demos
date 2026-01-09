@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { createThreadsWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
+import { createEditThreadsWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
 import { Output, streamText } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
   // Create and configure the Threads workflow (with the default settings).
   // It includes the ready-to-use system prompt and the output schema.
-  const workflow = createThreadsWorkflow();
+  const workflow = createEditThreadsWorkflow();
 
   const result = streamText({
     model: openai("gpt-5-mini"),
