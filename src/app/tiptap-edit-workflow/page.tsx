@@ -26,7 +26,9 @@ export default function Page() {
   });
 
   const [workflowId, setWorkflowId] = useState("");
-  const [task, setTask] = useState("Make the text more formal and professional, but do not change the title");
+  const [task, setTask] = useState(
+    "Make the text more formal and professional, but do not change the title",
+  );
 
   const { submit, isLoading, object } = useObject({
     api: "/api/tiptap-edit-workflow",
@@ -67,7 +69,10 @@ export default function Page() {
       </div>
 
       <div className="mb-4">
-        <label htmlFor="task" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="task"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           Editing Task
         </label>
         <input
@@ -91,4 +96,3 @@ export default function Page() {
     </div>
   );
 }
-
