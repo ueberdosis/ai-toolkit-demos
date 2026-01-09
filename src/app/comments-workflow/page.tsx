@@ -9,8 +9,8 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
   AiToolkit,
-  getAiToolkit,
   editThreadsWorkflowOutputSchema,
+  getAiToolkit,
 } from "@tiptap-pro/ai-toolkit";
 import {
   CommentsKit,
