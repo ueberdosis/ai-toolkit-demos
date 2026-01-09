@@ -1,0 +1,16 @@
+/* Tiptap Edit Workflow Demo Styles */
+
+.tiptap {
+  outline: none;
+}
+
+.tiptap h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.tiptap p {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}

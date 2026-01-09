@@ -75,6 +75,18 @@ export default function Home() {
               >
                 Proofreader
               </Link>
+              <Link
+                href="/tiptap-edit-workflow"
+                className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Tiptap Edit
+              </Link>
+              <Link
+                href="/comments-workflow"
+                className="inline-block bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
+              >
+                Comments
+              </Link>
             </div>
           </div>
 
