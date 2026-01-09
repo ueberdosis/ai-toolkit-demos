@@ -19,9 +19,9 @@ import * as Y from "yjs";
 import { fromBase64String } from "../../demos/comments/demo-setup.ts";
 import { initialContent } from "../../demos/comments/initialContent.ts";
 import { ThreadsProvider } from "../../demos/comments/React/context.jsx";
-import { NodeViewExtension } from "../../demos/comments/React/extensions.jsx";
 import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
 import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
+import { ThreadsList } from "../../demos/comments/React/components/ThreadsList.jsx";
 import "../../demos/comments/React/styles.scss";
 import "../../demos/style.scss";
 
@@ -38,6 +38,7 @@ const initialBinary = fromBase64String(initialContent);
 Y.applyUpdate(provider.document, initialBinary);
 
 export default function Page() {
+  const [showUnresolved, setShowUnresolved] = useState(true);
   const [selectedThread, setSelectedThread] = useState(null);
   const threadsRef = useRef([]);
   const [selection, setSelection] = useState(null);
@@ -89,7 +90,6 @@ export default function Page() {
       Placeholder.configure({
         placeholder: "Write a text to add comments …",
       }),
-      NodeViewExtension,
     ],
     editorProps: {
       attributes: {
@@ -202,6 +202,10 @@ export default function Page() {
     return null;
   }
 
+  const filteredThreads = threads.filter((t) =>
+    showUnresolved ? !t.resolvedAt : !!t.resolvedAt,
+  );
+
   return (
     <ThreadsProvider
       onClickThread={selectThreadInEditor}
@@ -216,67 +220,82 @@ export default function Page() {
       setSelectedThread={setSelectedThread}
       threads={threads}
     >
-      <div className="main">
-        <div className="control-group">
-          <div className="flex-row">
-            <div className="button-group">
-              <button
-                type="button"
-                onClick={createThread}
-                disabled={!selection || selection.empty}
-              >
-                Add comment
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  editor
-                    .chain()
-                    .focus()
-                    .setImage({ src: "https://placehold.co/800x500" })
-                    .run()
-                }
-              >
-                Add image
-              </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().insertNodeView().run()}
-              >
-                Add node view
-              </button>
+      <div
+        className="col-group divide-x divide-gray-200"
+        data-viewmode={showUnresolved ? "open" : "resolved"}
+      >
+        <div className="sidebar">
+          <div className="sidebar-options">
+            <div className="option-group">
+              <div className="label-large">Comments</div>
+              <div className="switch-group">
+                <label>
+                  <input
+                    type="radio"
+                    name="thread-state"
+                    onChange={() => setShowUnresolved(true)}
+                    checked={showUnresolved}
+                  />
+                  Open
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="thread-state"
+                    onChange={() => setShowUnresolved(false)}
+                    checked={!showUnresolved}
+                  />
+                  Resolved
+                </label>
+              </div>
             </div>
-            <div className="button-group" style={{ gap: "0.5rem", alignItems: "center" }}>
-              <input
-                type="text"
-                value={task}
-                onChange={(e) => setTask(e.target.value)}
-                placeholder="Enter task for managing comments..."
-                style={{
-                  padding: "0.25rem 0.625rem",
-                  borderRadius: "0.375rem",
-                  border: "1px solid var(--gray-3)",
-                  fontSize: "0.75rem",
-                  minWidth: "300px",
-                }}
-              />
-              <button
-                type="button"
-                onClick={manageComments}
-                disabled={isLoading || !task.trim()}
-                className={isLoading || !task.trim() ? "" : "is-active"}
-              >
-                {isLoading ? "Processing..." : "Run Comments Workflow"}
-              </button>
-            </div>
+            <ThreadsList provider={provider} threads={filteredThreads} />
           </div>
         </div>
-        {(status === "success" || status === "error") && resultMessage && (
-          <div className={`hint ${status === "error" ? "error" : ""}`} style={{ margin: "0 1.5rem" }}>
-            {resultMessage}
+        <div className="main">
+          <div className="control-group">
+            <div className="flex-row">
+              <div className="button-group">
+                <button
+                  type="button"
+                  onClick={createThread}
+                  disabled={!selection || selection.empty}
+                >
+                  Add comment
+                </button>
+              </div>
+              <div className="button-group" style={{ gap: "0.5rem", alignItems: "center" }}>
+                <input
+                  type="text"
+                  value={task}
+                  onChange={(e) => setTask(e.target.value)}
+                  placeholder="Enter task for managing comments..."
+                  style={{
+                    padding: "0.25rem 0.625rem",
+                    borderRadius: "0.375rem",
+                    border: "1px solid var(--gray-3)",
+                    fontSize: "0.75rem",
+                    minWidth: "300px",
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={manageComments}
+                  disabled={isLoading || !task.trim()}
+                  className={isLoading || !task.trim() ? "" : "is-active"}
+                >
+                  {isLoading ? "Processing..." : "Run Comments Workflow"}
+                </button>
+              </div>
+            </div>
           </div>
-        )}
-        <EditorContent editor={editor} />
+          {(status === "success" || status === "error") && resultMessage && (
+            <div className={`hint ${status === "error" ? "error" : ""}`} style={{ margin: "0 1.5rem" }}>
+              {resultMessage}
+            </div>
+          )}
+          <EditorContent editor={editor} />
+        </div>
       </div>
     </ThreadsProvider>
   );
