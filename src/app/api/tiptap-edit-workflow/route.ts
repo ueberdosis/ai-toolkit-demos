@@ -42,7 +42,6 @@ export async function POST(req: Request) {
       },
     },
   });
-  console.log(await result.text)
 
   return result.toTextStreamResponse();
 }
