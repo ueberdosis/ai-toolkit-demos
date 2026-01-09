@@ -1,27 +1,32 @@
 "use client";
 
+import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
 import Placeholder from "@tiptap/extension-placeholder";
+import type { Selection } from "@tiptap/pm/state";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { experimental_useObject as useObject } from "@ai-sdk/react";
-import { AiToolkit, getAiToolkit, threadsWorkflowOutputSchema } from "@tiptap-pro/ai-toolkit";
+import {
+  AiToolkit,
+  getAiToolkit,
+  threadsWorkflowOutputSchema,
+} from "@tiptap-pro/ai-toolkit";
 import {
   CommentsKit,
   hoverOffThread,
   hoverThread,
 } from "@tiptap-pro/extension-comments";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
-import { fromBase64String } from "../../demos/comments/demo-setup.ts";
-import { initialContent } from "../../demos/comments/initialContent.ts";
+import { fromBase64String } from "../../demos/comments/demo-setup";
+import { initialContent } from "../../demos/comments/initialContent";
+import { ThreadsList } from "../../demos/comments/React/components/ThreadsList.jsx";
 import { ThreadsProvider } from "../../demos/comments/React/context.jsx";
 import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
 import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
-import { ThreadsList } from "../../demos/comments/React/components/ThreadsList.jsx";
 import "../../demos/comments/React/styles.scss";
 import "../../demos/style.scss";
 
@@ -39,11 +44,16 @@ Y.applyUpdate(provider.document, initialBinary);
 
 export default function Page() {
   const [showUnresolved, setShowUnresolved] = useState(true);
-  const [selectedThread, setSelectedThread] = useState(null);
-  const threadsRef = useRef([]);
-  const [selection, setSelection] = useState(null);
-  const [task, setTask] = useState("Add helpful comments suggesting improvements to this document");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [selectedThread, setSelectedThread] = useState<string | null>(null);
+  // biome-ignore lint/suspicious/noExplicitAny: Interop with js file
+  const threadsRef = useRef<any[]>([]);
+  const [selection, setSelection] = useState<Selection | null>(null);
+  const [task, setTask] = useState(
+    "Add short, example comments suggesting improvements to sentences in this document",
+  );
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [resultMessage, setResultMessage] = useState("");
 
   const user = useUser();
@@ -69,7 +79,7 @@ export default function Page() {
       }),
       CommentsKit.configure({
         provider,
-        onClickThread: (threadId) => {
+        onClickThread: (threadId: string | null) => {
           const isResolved = threadsRef.current.find(
             (t) => t.id === threadId,
           )?.resolvedAt;
@@ -93,6 +103,7 @@ export default function Page() {
     ],
     editorProps: {
       attributes: {
+        // @ts-expect-error - disable spellcheck
         spellcheck: false,
       },
     },
@@ -101,46 +112,43 @@ export default function Page() {
   const { threads = [], createThread } = useThreads(provider, editor, user);
 
   threadsRef.current = threads;
+  const editorRef = useRef(editor);
+  editorRef.current = editor;
 
-  const { submit, isLoading, object } = useObject({
+  const { submit, isLoading } = useObject({
     api: "/api/comments-workflow",
     schema: threadsWorkflowOutputSchema,
     onFinish: (result) => {
-      if (result.error) {
-        setStatus("error");
-        setResultMessage("An error occurred while processing comments.");
-      } else {
-        setStatus("success");
-        setResultMessage("Comments processed successfully!");
+      if (!result.object) {
+        setResultMessage("No operations to apply");
+        return;
+      }
+
+      const editor = editorRef.current;
+      if (!editor) return;
+
+      const toolkit = getAiToolkit(editor);
+      const workflowResult = toolkit.editThreadsWorkflow({
+        operations: result.object.operations,
+      });
+
+      if (workflowResult.docChanged) {
+        setResultMessage(
+          `Applied ${workflowResult.operations.length} comment operation(s)`,
+        );
       }
     },
   });
 
-  const operations = object?.operations ?? [];
-
-  // Apply operations as they arrive
-  useEffect(() => {
-    if (!editor || operations.length === 0) return;
-
-    const toolkit = getAiToolkit(editor);
-    const result = toolkit.editThreadsWorkflow({
-      operations,
-    });
-
-    if (result.docChanged) {
-      setResultMessage(`Applied ${result.operations.length} comment operation(s)`);
-    }
-  }, [operations, editor]);
-
   const selectThreadInEditor = useCallback(
-    (threadId) => {
+    (threadId: string) => {
       editor.chain().selectThread({ id: threadId }).run();
     },
     [editor],
   );
 
   const deleteThread = useCallback(
-    (threadId) => {
+    (threadId: string) => {
       provider.deleteThread(threadId);
       editor.commands.removeThread({ id: threadId });
     },
@@ -148,21 +156,26 @@ export default function Page() {
   );
 
   const resolveThread = useCallback(
-    (threadId) => {
+    (threadId: string) => {
       editor.commands.resolveThread({ id: threadId });
     },
     [editor],
   );
 
   const unresolveThread = useCallback(
-    (threadId) => {
+    (threadId: string) => {
       editor.commands.unresolveThread({ id: threadId });
     },
     [editor],
   );
 
   const updateComment = useCallback(
-    (threadId, commentId, content, metaData) => {
+    (
+      threadId: string,
+      commentId: string,
+      content: string,
+      metaData: Record<string, string>,
+    ) => {
       editor.commands.updateComment({
         threadId,
         id: commentId,
@@ -174,7 +187,7 @@ export default function Page() {
   );
 
   const onHoverThread = useCallback(
-    (threadId) => {
+    (threadId: number) => {
       hoverThread(editor, [threadId]);
     },
     [editor],
@@ -202,21 +215,32 @@ export default function Page() {
     return null;
   }
 
-  const filteredThreads = threads.filter((t) =>
+  // biome-ignore lint/suspicious/noExplicitAny: Interop with js file
+  const filteredThreads = threads.filter((t: any) =>
     showUnresolved ? !t.resolvedAt : !!t.resolvedAt,
   );
 
   return (
     <ThreadsProvider
+      // @ts-expect-error - Interop with js file
       onClickThread={selectThreadInEditor}
+      // @ts-expect-error - Interop with js file
       onDeleteThread={deleteThread}
+      // @ts-expect-error - Interop with js file
       onHoverThread={onHoverThread}
+      // @ts-expect-error - Interop with js file
       onLeaveThread={onLeaveThread}
+      // @ts-expect-error - Interop with js file
       onResolveThread={resolveThread}
+      // @ts-expect-error - Interop with js file
       onUpdateComment={updateComment}
+      // @ts-expect-error - Interop with js file
       onUnresolveThread={unresolveThread}
+      // @ts-expect-error - Interop with js file
       selectedThreads={editor.storage.comments.focusedThreads}
+      // @ts-expect-error - Interop with js file
       selectedThread={selectedThread}
+      // @ts-expect-error - Interop with js file
       setSelectedThread={setSelectedThread}
       threads={threads}
     >
@@ -264,7 +288,10 @@ export default function Page() {
                   Add comment
                 </button>
               </div>
-              <div className="button-group" style={{ gap: "0.5rem", alignItems: "center" }}>
+              <div
+                className="button-group"
+                style={{ gap: "0.5rem", alignItems: "center" }}
+              >
                 <input
                   type="text"
                   value={task}
@@ -290,7 +317,10 @@ export default function Page() {
             </div>
           </div>
           {(status === "success" || status === "error") && resultMessage && (
-            <div className={`hint ${status === "error" ? "error" : ""}`} style={{ margin: "0 1.5rem" }}>
+            <div
+              className={`hint ${status === "error" ? "error" : ""}`}
+              style={{ margin: "0 1.5rem" }}
+            >
               {resultMessage}
             </div>
           )}
