@@ -25,17 +25,12 @@ export default function Page() {
     content: INITIAL_CONTENT,
   });
 
-  const [isReviewing, setIsReviewing] = useState(false);
-  const [hasAccepted, setHasAccepted] = useState(false);
   const [workflowId, setWorkflowId] = useState("");
-  const [task, setTask] = useState("Make the text more formal and professional");
+  const [task, setTask] = useState("Make the text more formal and professional, but do not change the title");
 
   const { submit, isLoading, object } = useObject({
     api: "/api/tiptap-edit-workflow",
     schema: tiptapEditWorkflowOutputSchema,
-    onFinish: () => {
-      setIsReviewing(true);
-    },
   });
 
   const operations = object?.operations ?? [];
@@ -48,9 +43,6 @@ export default function Page() {
     toolkit.tiptapEditWorkflow({
       operations,
       workflowId,
-      reviewOptions: {
-        mode: "preview",
-      },
     });
   }, [operations, workflowId, editor]);
 
@@ -88,50 +80,14 @@ export default function Page() {
         />
       </div>
 
-      {!isReviewing && (
-        <button
-          type="button"
-          onClick={editDocument}
-          disabled={isLoading || hasAccepted || !task.trim()}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed w-full"
-        >
-          {isLoading ? "Editing..." : "Edit Document"}
-        </button>
-      )}
-
-      {isReviewing && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h3 className="text-lg font-semibold mb-2">Review changes</h3>
-          <p className="text-gray-600 mb-4 text-sm">
-            Changes are highlighted in the document above.
-          </p>
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => {
-                const toolkit = getAiToolkit(editor);
-                toolkit.acceptAllSuggestions();
-                setHasAccepted(true);
-                setIsReviewing(false);
-              }}
-              className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-            >
-              Accept all
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const toolkit = getAiToolkit(editor);
-                toolkit.setSuggestions([]);
-                setIsReviewing(false);
-              }}
-              className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-            >
-              Reject all
-            </button>
-          </div>
-        </div>
-      )}
+      <button
+        type="button"
+        onClick={editDocument}
+        disabled={isLoading || !task.trim()}
+        className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed w-full"
+      >
+        {isLoading ? "Editing..." : "Edit Document"}
+      </button>
     </div>
   );
 }
