@@ -13,9 +13,9 @@
     "@ai-sdk/anthropic": "^3.0.8",
     "@ai-sdk/openai": "^3.0.7",
     "@ai-sdk/react": "^3.0.7",
-    "@tiptap-pro/ai-toolkit": "3.0.0-alpha.52",
-    "@tiptap-pro/ai-toolkit-ai-sdk": "3.0.0-alpha.24",
-    "@tiptap-pro/ai-toolkit-tool-definitions": "3.0.0-alpha.22",
+    "@tiptap-pro/ai-toolkit": "file:/Users/arnaugomez/work/tiptap-pro/packages/ai-toolkit",
+    "@tiptap-pro/ai-toolkit-ai-sdk": "file:/Users/arnaugomez/work/tiptap-pro/packages/ai-toolkit-ai-sdk",
+    "@tiptap-pro/ai-toolkit-tool-definitions": "file:/Users/arnaugomez/work/tiptap-pro/packages/ai-toolkit-tool-definitions",
     "@tiptap-pro/extension-comments": "^3.3.0",
     "@tiptap-pro/provider": "^3.3.0",
     "@tiptap-pro/server-ai-toolkit": "3.0.0-alpha.2",
@@ -49,5 +49,5 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@10.21.0+sha512.da3337267e400fdd3d479a6c68079ac6db01d8ca4f67572083e722775a796788a7a9956613749e000fac20d424b594f7a791a5f4e2e13581c5ef947f26968a40"
+  "packageManager": "pnpm@10.27.0+sha512.72d699da16b1179c14ba9e64dc71c9a40988cbdc65c264cb0e489db7de917f20dcf4d64d8723625f2969ba52d4b7e2a1170682d9ac2a5dcaeaab732b7e16f04a"
 }
