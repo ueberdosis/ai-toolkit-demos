@@ -1,3 +1,17 @@
 /* Comments Workflow Demo Styles */
 /* Most styles are imported from the comments demo styles */
 
+.task-input {
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--gray-3);
+  font-size: 0.75rem;
+  width: 400px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .task-input {
+    width: 200px;
+  }
+}

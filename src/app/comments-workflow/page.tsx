@@ -29,6 +29,7 @@ import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
 import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
 import "../../demos/comments/React/styles.scss";
 import "../../demos/style.scss";
+import "./comments-workflow.css";
 
 const doc = new Y.Doc();
 
@@ -297,13 +298,7 @@ export default function Page() {
                   value={task}
                   onChange={(e) => setTask(e.target.value)}
                   placeholder="Enter task for managing comments..."
-                  style={{
-                    padding: "0.25rem 0.625rem",
-                    borderRadius: "0.375rem",
-                    border: "1px solid var(--gray-3)",
-                    fontSize: "0.75rem",
-                    minWidth: "300px",
-                  }}
+                  className="task-input"
                 />
                 <button
                   type="button"
