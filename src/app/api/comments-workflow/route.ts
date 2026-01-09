@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { createCommentsWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
+import { createThreadsWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
 import { Output, streamText } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
@@ -20,9 +20,9 @@ export async function POST(req: Request) {
   }
   const { nodes, threads, task } = await req.json();
 
-  // Create and configure the Comments workflow (with the default settings).
+  // Create and configure the Threads workflow (with the default settings).
   // It includes the ready-to-use system prompt and the output schema.
-  const workflow = createCommentsWorkflow();
+  const workflow = createThreadsWorkflow();
 
   const result = streamText({
     model: openai("gpt-5-mini"),

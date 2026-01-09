@@ -6,7 +6,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
-import { AiToolkit, getAiToolkit, commentsWorkflowOutputSchema } from "@tiptap-pro/ai-toolkit";
+import { AiToolkit, getAiToolkit, threadsWorkflowOutputSchema } from "@tiptap-pro/ai-toolkit";
 import {
   CommentsKit,
   hoverOffThread,
@@ -104,7 +104,7 @@ export default function Page() {
 
   const { submit, isLoading, object } = useObject({
     api: "/api/comments-workflow",
-    schema: commentsWorkflowOutputSchema,
+    schema: threadsWorkflowOutputSchema,
     onFinish: (result) => {
       if (result.error) {
         setStatus("error");
