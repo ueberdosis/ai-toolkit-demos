@@ -13,7 +13,7 @@ import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import "./suggestions.css";
 
 export default function Page() {
@@ -23,15 +23,10 @@ export default function Page() {
     content: `<h1>AI agent demo</h1><p>Ask the AI to improve this.</p>`,
   });
 
-  // Fixes issue: https://github.com/vercel/ai/issues/8148
-  const editorRef = useRef(editor);
-  editorRef.current = editor;
-
   const { messages, sendMessage, addToolOutput, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
-      const editor = editorRef.current;
       if (!editor) return;
 
       const { toolName, input, toolCallId } = toolCall;

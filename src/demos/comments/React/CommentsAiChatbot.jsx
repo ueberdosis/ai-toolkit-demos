@@ -4,22 +4,17 @@ import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 export function CommentsAiChatbot({ editor }) {
   const [input, setInput] = useState(
     "Add a comment to the first sentence of the last paragraph, that says 'well done'",
   );
 
-  // Fixes issue: https://github.com/vercel/ai/issues/8148
-  const editorRef = useRef(editor);
-  editorRef.current = editor;
-
   const { messages, sendMessage, addToolOutput } = useChat({
     transport: new DefaultChatTransport({ api: "/api/comments" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
-      const editor = editorRef.current;
       if (!editor) return;
 
       const { toolName, input, toolCallId } = toolCall;

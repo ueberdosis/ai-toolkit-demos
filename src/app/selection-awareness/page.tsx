@@ -9,7 +9,7 @@ import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import "./selection.css";
 
 export default function Page() {
@@ -22,15 +22,10 @@ export default function Page() {
 <p>This is yet another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>`,
   });
 
-  // Fixes issue: https://github.com/vercel/ai/issues/8148
-  const editorRef = useRef(editor);
-  editorRef.current = editor;
-
   const { messages, sendMessage, addToolOutput } = useChat({
     transport: new DefaultChatTransport({ api: "/api/selection-awareness" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
-      const editor = editorRef.current;
       if (!editor) return;
 
       const { toolName, input, toolCallId } = toolCall;

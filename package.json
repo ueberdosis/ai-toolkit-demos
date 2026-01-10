@@ -10,9 +10,9 @@
     "lint:fix": "biome check --write && tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.8",
+    "@ai-sdk/anthropic": "^3.0.9",
     "@ai-sdk/openai": "^3.0.7",
-    "@ai-sdk/react": "^3.0.7",
+    "@ai-sdk/react": "^3.0.29",
     "@tiptap-pro/ai-toolkit": "3.0.0-alpha.53",
     "@tiptap-pro/ai-toolkit-ai-sdk": "3.0.0-alpha.24",
     "@tiptap-pro/ai-toolkit-tool-definitions": "3.0.0-alpha.23",
@@ -30,7 +30,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@upstash/ratelimit": "^2.0.6",
     "@upstash/redis": "^1.35.3",
-    "ai": "^6.0.0",
+    "ai": "^6.0.27",
     "jsonwebtoken": "^9.0.2",
     "next": "^16.1.1",
     "react": "19.2.3",

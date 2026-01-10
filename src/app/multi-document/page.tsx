@@ -177,18 +177,11 @@ export default function Page() {
     return result.output;
   };
 
-  /**
-   * Reference to the handleToolCall function to avoid stale closure issues
-   * Fixes issue: https://github.com/vercel/ai/issues/8148
-   */
-  const handleToolCallRef = useRef(handleToolCall);
-  handleToolCallRef.current = handleToolCall;
-
   const { messages, sendMessage, addToolOutput, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/multi-document" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
-      const output = handleToolCallRef.current(toolCall);
+      const output = handleToolCall(toolCall);
       if (output) {
         addToolOutput({
           tool: toolCall.toolName,

@@ -122,10 +122,6 @@ export default function Page() {
       <p>Always use HTTPS when calling this endpoint. Store the returned JWT token securely and include it in the Authorization header for subsequent API calls.</p>`,
   });
 
-  // Fixes issue: https://github.com/vercel/ai/issues/8148
-  const editorRef = useRef(editor);
-  editorRef.current = editor;
-
   // Fixes issue: https://github.com/vercel/ai/issues/7819
   const schemaAwareness = editor
     ? getAiToolkit(editor).getHtmlSchemaAwareness()
@@ -140,7 +136,6 @@ export default function Page() {
     }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
-      const editor = editorRef.current;
       if (!editor) return;
 
       const { toolName, input, toolCallId } = toolCall;
