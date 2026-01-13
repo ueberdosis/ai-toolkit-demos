@@ -10,129 +10,130 @@ export default function Home() {
           Tiptap AI Toolkit demo
         </h1>
 
-        <div className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">AI agent chatbot</h2>
-            <p className="text-gray-600 mb-4">
-              A simple AI agent that can read and edit Tiptap documents using
-              the AI Toolkit and Vercel AI SDK.
-            </p>
-            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
-              <Link
-                href="/ai-agent-chatbot"
-                className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                AI agent chatbot
-              </Link>
-              <Link
-                href="/tool-streaming"
-                className="inline-block bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors"
-              >
-                Chatbot with tool streaming
-              </Link>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Review changes</h2>
-            <p className="text-gray-600 mb-4">
-              Preview and approve AI-inserted changes using suggestions with
-              customizable rendering.
-            </p>
-            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
-              <Link
-                href="/review-changes"
-                className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
-              >
-                Review changes
-              </Link>
-              <Link
-                href="/review-changes-as-summary"
-                className="inline-block bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
-              >
-                Review changes as summary
-              </Link>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Workflows</h2>
-            <p className="text-gray-600 mb-4">
-              Scenarios where the AI model has a single, well-defined task.
-              Built-in workflows include ready-to-use prompts and methods to
-              execute and apply edits to the Tiptap Editor.
-            </p>
-            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
-              <Link
-                href="/insert-content-workflow"
-                className="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
-              >
-                Insert content
-              </Link>
-              <Link
-                href="/proofreader"
-                className="inline-block bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-colors"
-              >
-                Proofreader
-              </Link>
-              <Link
-                href="/tiptap-edit-workflow"
-                className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Tiptap Edit
-              </Link>
-              <Link
-                href="/comments-workflow"
-                className="inline-block bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
-              >
-                Comments
-              </Link>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Advanced use cases</h2>
-            <p className="text-gray-600 mb-4">
-              AI agents that can work with multiple documents simultaneously,
-              reading and editing content across different files.
-            </p>
-            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
-              <Link
-                href="/multi-document"
-                className="inline-block bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors"
-              >
-                Multi-document AI Agent
-              </Link>
-              <Link
-                href="/schema-awareness"
-                className="inline-block bg-pink-500 text-white px-6 py-3 rounded-lg hover:bg-pink-600 transition-colors"
-              >
-                Schema awareness
-              </Link>
-              <Link
-                href="/selection-awareness"
-                className="inline-block bg-cyan-500 text-white px-6 py-3 rounded-lg hover:bg-cyan-600 transition-colors"
-              >
-                Selection awareness
-              </Link>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">
-              Integrations with other extensions
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+              AI Agents
             </h2>
-            <p className="text-gray-600 mb-4">
-              Integrations with other Tiptap extensions that can be used to
-              enhance the AI Toolkit.
+            <p className="text-gray-600 mb-6 text-center max-w-2xl mx-auto">
+              AI agents allow the AI model to choose from a set of tools to
+              perform tasks. They are more flexible and can be used to perform
+              more complex tasks.
             </p>
-            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
-              <Link
-                href="/comments"
-                className="inline-block bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors"
-              >
-                Comments
-              </Link>
+            <div className="space-y-4">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-semibold mb-3">AI Agent Chatbot</h3>
+                <p className="text-gray-600 mb-4">
+                  A simple AI agent that can read and edit Tiptap documents
+                  using the AI Toolkit and Vercel AI SDK.
+                </p>
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
+                  <Link
+                    href="/ai-agent-chatbot"
+                    className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    AI agent chatbot
+                  </Link>
+                  <Link
+                    href="/tool-streaming"
+                    className="inline-block bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors"
+                  >
+                    Chatbot with tool streaming
+                  </Link>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-semibold mb-3">Review Changes</h3>
+                <p className="text-gray-600 mb-4">
+                  Preview and approve AI-inserted changes using suggestions with
+                  customizable rendering.
+                </p>
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
+                  <Link
+                    href="/review-changes"
+                    className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    Review changes
+                  </Link>
+                  <Link
+                    href="/review-changes-as-summary"
+                    className="inline-block bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
+                  >
+                    Review changes as summary
+                  </Link>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-semibold mb-3">
+                  Advanced AI Agents
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  AI agents with advanced capabilities like multi-document
+                  support, schema awareness, and selection awareness.
+                </p>
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
+                  <Link
+                    href="/multi-document"
+                    className="inline-block bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors"
+                  >
+                    Multi-document AI Agent
+                  </Link>
+                  <Link
+                    href="/schema-awareness"
+                    className="inline-block bg-pink-500 text-white px-6 py-3 rounded-lg hover:bg-pink-600 transition-colors"
+                  >
+                    Schema awareness
+                  </Link>
+                  <Link
+                    href="/selection-awareness"
+                    className="inline-block bg-cyan-500 text-white px-6 py-3 rounded-lg hover:bg-cyan-600 transition-colors"
+                  >
+                    Selection awareness
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+              Workflows
+            </h2>
+            <p className="text-gray-600 mb-6 text-center max-w-2xl mx-auto">
+              Workflows are scenarios where the AI model has a single,
+              well-defined task. Built-in workflows include ready-to-use prompts
+              and methods to execute and apply edits to the Tiptap Editor.
+              Workflows are simpler and faster to implement than AI agent tools.
+            </p>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
+                <Link
+                  href="/insert-content-workflow"
+                  className="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
+                >
+                  Insert content
+                </Link>
+                <Link
+                  href="/proofreader"
+                  className="inline-block bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-colors"
+                >
+                  Proofreader
+                </Link>
+                <Link
+                  href="/tiptap-edit-workflow"
+                  className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Tiptap Edit
+                </Link>
+                <Link
+                  href="/comments-workflow"
+                  className="inline-block bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
+                >
+                  Comments
+                </Link>
+              </div>
             </div>
           </div>
         </div>

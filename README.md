@@ -1,17 +1,32 @@
 # Tiptap AI Toolkit Demos
 
-This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with a list of demos:
+This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities.
 
-1. **AI Agent Chatbot** (`/ai-agent-chatbot`) - A simple AI agent that can read and edit Tiptap documents
-2. **Chatbot with Tool Streaming** (`/tool-streaming`) - Chat with an AI that can read and edit Tiptap documents using tool streaming
-3. **Review Changes** (`/review-changes`) - Preview and approve AI-inserted changes using suggestions
-4. **Review Changes as Summary** (`/review-changes-as-summary`) - Preview and approve AI-inserted changes using suggestions as a summary
-5. **Insert Content** (`/insert-content-workflow`) - A workflow where the AI model has a single, well-defined task to insert content
-6. **Proofreader** (`/proofreader`) - A workflow for proofreading documents using built-in prompts and methods
-7. **Multi-document AI Agent** (`/multi-document`) - An AI agent that can read and edit multiple Tiptap documents at once
-8. **Schema Awareness** (`/schema-awareness`) - An AI agent with schema awareness enabled. It understands custom nodes and marks.
-9. **Selection Awareness** (`/selection-awareness`) - An AI agent that is aware of the current selection in the editor
-10. **Comments** (`/comments`) - Add comments to the document using the AI Toolkit. Integrates with the Comments extension.
+## AI Agents
+
+AI agents allow the AI model to choose from a set of tools to perform tasks. They are more flexible and can be used to perform more complex tasks.
+
+### AI Agent Chatbot
+- **AI Agent Chatbot** (`/ai-agent-chatbot`) - A simple AI agent that can read and edit Tiptap documents
+- **Chatbot with Tool Streaming** (`/tool-streaming`) - Chat with an AI that can read and edit Tiptap documents using tool streaming
+
+### Review Changes
+- **Review Changes** (`/review-changes`) - Preview and approve AI-inserted changes using suggestions
+- **Review Changes as Summary** (`/review-changes-as-summary`) - Preview and approve AI-inserted changes using suggestions as a summary
+
+### Advanced AI Agents
+- **Multi-document AI Agent** (`/multi-document`) - An AI agent that can read and edit multiple Tiptap documents at once
+- **Schema Awareness** (`/schema-awareness`) - An AI agent with schema awareness enabled. It understands custom nodes and marks.
+- **Selection Awareness** (`/selection-awareness`) - An AI agent that is aware of the current selection in the editor
+
+## Workflows
+
+Workflows are scenarios where the AI model has a single, well-defined task. Built-in workflows include ready-to-use prompts and methods to execute and apply edits to the Tiptap Editor. Workflows are simpler and faster to implement than AI agent tools.
+
+- **Insert Content** (`/insert-content-workflow`) - A workflow where the AI model has a single, well-defined task to insert content
+- **Proofreader** (`/proofreader`) - A workflow for proofreading documents using built-in prompts and methods
+- **Tiptap Edit** (`/tiptap-edit-workflow`) - A general-purpose workflow for making small and large edits to Tiptap documents
+- **Comments** (`/comments-workflow`) - A workflow for managing comments and threads in Tiptap documents
 
 ## Tech Stack
 
@@ -51,35 +66,43 @@ This is a Next.js project demonstrating the Tiptap AI Toolkit capabilities with 
 
 ## Features
 
-### AI Agent Chatbot (`/ai-agent-chatbot`)
+### AI Agents
+
+#### AI Agent Chatbot (`/ai-agent-chatbot`)
 - Chat with an AI that can read and edit Tiptap documents
 - Uses the Vercel AI SDK for streaming responses
 - Integrates with Tiptap AI Toolkit for document manipulation
 
-### Review Changes (`/review-changes`)
+#### Review Changes (`/review-changes`)
 - Preview AI-generated changes before applying them
 - Accept or reject changes individually or in bulk
 - Custom styling for suggestions (red for deletions, green for insertions)
 - Halt conversation until user reviews changes
 
-### Insert Content (`/insert-content-workflow`)
+#### Advanced AI Agents
+- **Multi-document AI Agent** - Work with multiple documents simultaneously
+- **Schema Awareness** - Understands custom nodes and marks in your schema
+- **Selection Awareness** - Works with selected text specifically, understanding context around the user's selection
+
+### Workflows
+
+#### Insert Content (`/insert-content-workflow`)
 - A workflow where the AI model has a single, well-defined task to insert content
 - Uses built-in workflows with ready-to-use prompts and methods
 - Executes and applies edits directly to the Tiptap Editor
 
-### Proofreader (`/proofreader`)
+#### Proofreader (`/proofreader`)
 - A workflow for proofreading documents
 - Uses built-in prompts and methods for document correction
 - Applies edits directly to the Tiptap Editor
 
-### Selection Awareness (`/selection-awareness`)
-- An AI agent that is aware of the current selection in the editor
-- Can work with selected text specifically
-- Understands context around the user's selection
+#### Tiptap Edit (`/tiptap-edit-workflow`)
+- A general-purpose workflow for making small and large edits to Tiptap documents
+- Uses built-in workflows with ready-to-use prompts and methods
 
-### Comments (`/comments`)
-- Add comments to the document using the AI Toolkit
-- Integrates with the Comments extension
+#### Comments (`/comments-workflow`)
+- A workflow for managing comments and threads in Tiptap documents
+- Uses built-in workflows with ready-to-use prompts and methods
 
 ## Usage
 
