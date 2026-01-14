@@ -26,7 +26,10 @@ export default function Page() {
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, Collaboration.configure({ document: doc })],
+    extensions: [
+      StarterKit.configure({ undoRedo: false }),
+      Collaboration.configure({ document: doc }),
+    ],
   });
 
   // Get JWT token and appId from server action
@@ -135,6 +138,7 @@ export default function Page() {
           Send
         </button>
       </form>
+      <pre>{JSON.stringify(messages, null, 2)}</pre>
     </div>
   );
 }
