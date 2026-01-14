@@ -136,6 +136,26 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+              Server AI Toolkit
+            </h2>
+            <p className="text-gray-600 mb-6 text-center max-w-2xl mx-auto">
+              Server-side AI toolkit demos that run AI operations on the server
+              for enhanced security and performance.
+            </p>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
+                <Link
+                  href="/server-ai-agent-chatbot"
+                  className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Server AI agent chatbot
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="mt-8 text-sm text-gray-500">
