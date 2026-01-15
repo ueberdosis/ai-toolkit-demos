@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       });
     }
   }
-  const { nodes } = await req.json();
+  const { content } = await req.json();
 
   // Create and configure the proofreader workflow (with the default settings).
   // It includes the ready-to-use system prompt and the output schema.
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     system: workflow.systemPrompt,
     // User message
     prompt: JSON.stringify({
-      nodes,
+      content,
       task: "Correct all grammar and spelling mistakes",
     }),
     output: Output.object({ schema: workflow.zodOutputSchema }),
