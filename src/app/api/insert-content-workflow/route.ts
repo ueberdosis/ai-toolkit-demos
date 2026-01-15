@@ -1,6 +1,7 @@
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { openai } from "@ai-sdk/openai";
 import { createInsertContentWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
-import { streamText } from "ai";
+import { streamText, wrapLanguageModel } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -25,8 +26,13 @@ export async function POST(req: Request) {
   // It includes the ready-to-use system prompt.
   const workflow = createInsertContentWorkflow();
 
-  const result = streamText({
+  const model = wrapLanguageModel({
     model: openai("gpt-5-mini"),
+    middleware: devToolsMiddleware(),
+  });
+
+  const result = streamText({
+    model,
     // System prompt
     system: workflow.systemPrompt,
     // User message with the task and content in a JSON object

@@ -58,9 +58,9 @@ export default function Page() {
 
   const checkGrammar = () => {
     const toolkit = getAiToolkit(editor);
-    const { nodes } = toolkit.tiptapRead();
+    const { content } = toolkit.tiptapRead();
     setWorkflowId(uuid());
-    submit({ nodes });
+    submit({ content });
   };
 
   return (

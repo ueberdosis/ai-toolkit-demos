@@ -7,15 +7,17 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "biome check",
-    "lint:fix": "biome check --write && tsc --noEmit"
+    "lint:fix": "biome check --write && tsc --noEmit",
+    "ai-sdk-devtools": "npx @ai-sdk/devtools"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.9",
+    "@ai-sdk/devtools": "^0.0.5",
     "@ai-sdk/openai": "^3.0.7",
     "@ai-sdk/react": "^3.0.29",
-    "@tiptap-pro/ai-toolkit": "3.0.0-alpha.56",
-    "@tiptap-pro/ai-toolkit-ai-sdk": "3.0.0-alpha.27",
-    "@tiptap-pro/ai-toolkit-tool-definitions": "3.0.0-alpha.26",
+    "@tiptap-pro/ai-toolkit": "file:/Users/arnaugomez/work/tiptap-pro/packages/ai-toolkit",
+    "@tiptap-pro/ai-toolkit-ai-sdk": "file:/Users/arnaugomez/work/tiptap-pro/packages/ai-toolkit-ai-sdk",
+    "@tiptap-pro/ai-toolkit-tool-definitions": "file:/Users/arnaugomez/work/tiptap-pro/packages/ai-toolkit-tool-definitions",
     "@tiptap-pro/extension-comments": "^3.3.0",
     "@tiptap-pro/provider": "^3.3.0",
     "@tiptap-pro/server-ai-toolkit": "3.0.0-alpha.2",

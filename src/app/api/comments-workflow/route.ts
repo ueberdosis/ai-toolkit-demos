@@ -1,6 +1,7 @@
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { openai } from "@ai-sdk/openai";
 import { createEditThreadsWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
-import { Output, streamText } from "ai";
+import { Output, streamText, wrapLanguageModel } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -24,8 +25,13 @@ export async function POST(req: Request) {
   // It includes the ready-to-use system prompt and the output schema.
   const workflow = createEditThreadsWorkflow();
 
-  const result = streamText({
+  const model = wrapLanguageModel({
     model: openai("gpt-5-mini"),
+    middleware: devToolsMiddleware(),
+  });
+
+  const result = streamText({
+    model,
     // System prompt
     system: workflow.systemPrompt,
     // User message
