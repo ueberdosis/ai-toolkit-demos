@@ -7,11 +7,11 @@ import {
 } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
+import { getToolDefinitions } from "@/lib/server-ai-toolkit/get-tool-definitions";
+import { updateDocument } from "@/lib/server-ai-toolkit/update-document";
 import { executeTool } from "./execute-tool";
 import { getDocument } from "./get-document";
 import { getSchemaAwarenessPrompt } from "./get-schema-awareness-prompt";
-import { getToolDefinitions } from "./get-tool-definitions";
-import { updateDocument } from "./update-document";
 
 export async function POST(req: Request) {
   // Rate limiting
