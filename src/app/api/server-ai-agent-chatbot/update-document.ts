@@ -1,5 +1,3 @@
-import { REST_API_SECRET, TIPTAP_CLOUD_APP_ID } from "./constants";
-
 /**
  * Updates a document in Tiptap Collaboration REST API
  */
@@ -7,14 +5,23 @@ export async function updateDocument(
   documentId: string,
   document: unknown,
 ): Promise<void> {
-  if (!TIPTAP_CLOUD_APP_ID || !REST_API_SECRET) {
+  const tiptapCloudAppId = process.env.TIPTAP_CLOUD_APP_ID;
+  const documentManagementApiSecret =
+    process.env.TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET;
+
+  if (!tiptapCloudAppId) {
+    console.warn("Missing TIPTAP_CLOUD_APP_ID, skipping update");
+    return;
+  }
+
+  if (!documentManagementApiSecret) {
     console.warn(
-      "Missing TIPTAP_CLOUD_APP_ID or REST_API_SECRET, skipping update",
+      "Missing TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET, skipping update",
     );
     return;
   }
 
-  const collabUrl = `https://${TIPTAP_CLOUD_APP_ID}.collab.tiptap.cloud/api/documents/${encodeURIComponent(
+  const collabUrl = `https://${tiptapCloudAppId}.collab.tiptap.cloud/api/documents/${encodeURIComponent(
     documentId,
   )}?format=json`;
 
@@ -23,7 +30,7 @@ export async function updateDocument(
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: REST_API_SECRET,
+        Authorization: documentManagementApiSecret,
       },
       body: JSON.stringify(document),
     });
@@ -35,7 +42,7 @@ export async function updateDocument(
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: REST_API_SECRET,
+            Authorization: documentManagementApiSecret,
           },
           body: JSON.stringify(document),
         });

@@ -1,4 +1,4 @@
-import { API_BASE_URL, APP_ID, JWT_TOKEN } from "./constants";
+import { getJwtToken } from "./get-ai-jwt-token";
 
 /**
  * Executes a tool via the Server AI Toolkit API
@@ -9,12 +9,20 @@ export async function executeTool(
   document: unknown,
   schemaAwarenessData: unknown,
 ): Promise<{ output: unknown; docChanged: boolean; document?: unknown }> {
-  const response = await fetch(`${API_BASE_URL}/v2/toolkit/execute-tool`, {
+  const apiBaseUrl =
+    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
+  const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
+
+  if (!appId) {
+    throw new Error("Missing TIPTAP_CLOUD_AI_APP_ID");
+  }
+
+  const response = await fetch(`${apiBaseUrl}/v2/toolkit/execute-tool`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${JWT_TOKEN}`,
-      "X-App-Id": APP_ID || "",
+      Authorization: `Bearer ${getJwtToken()}`,
+      "X-App-Id": appId,
     },
     body: JSON.stringify({
       toolName,

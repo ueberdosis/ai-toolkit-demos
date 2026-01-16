@@ -1,4 +1,4 @@
-import { API_BASE_URL, APP_ID, JWT_TOKEN } from "./constants";
+import { getJwtToken } from "./get-ai-jwt-token";
 
 /**
  * Gets the schema awareness prompt from the Server AI Toolkit API
@@ -6,14 +6,22 @@ import { API_BASE_URL, APP_ID, JWT_TOKEN } from "./constants";
 export async function getSchemaAwarenessPrompt(
   schemaAwarenessData: unknown,
 ): Promise<string> {
+  const apiBaseUrl =
+    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
+  const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
+
+  if (!appId) {
+    throw new Error("Missing TIPTAP_CLOUD_AI_APP_ID");
+  }
+
   const response = await fetch(
-    `${API_BASE_URL}/v2/toolkit/schema-awareness-prompt`,
+    `${apiBaseUrl}/v2/toolkit/schema-awareness-prompt`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${JWT_TOKEN}`,
-        "X-App-Id": APP_ID || "",
+        Authorization: `Bearer ${getJwtToken()}`,
+        "X-App-Id": appId,
       },
       body: JSON.stringify({
         schemaAwarenessData,

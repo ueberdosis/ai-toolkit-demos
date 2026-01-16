@@ -1,5 +1,5 @@
 import type z from "zod";
-import { API_BASE_URL, APP_ID, JWT_TOKEN } from "./constants";
+import { getJwtToken } from "./get-ai-jwt-token";
 
 /**
  * Gets tool definitions from the Server AI Toolkit API
@@ -11,12 +11,20 @@ export async function getToolDefinitions(schemaAwarenessData: unknown): Promise<
     inputSchema: z.core.JSONSchema.JSONSchema;
   }[]
 > {
-  const response = await fetch(`${API_BASE_URL}/v2/toolkit/tools`, {
+  const apiBaseUrl =
+    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
+  const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
+
+  if (!appId) {
+    throw new Error("Missing TIPTAP_CLOUD_AI_APP_ID");
+  }
+
+  const response = await fetch(`${apiBaseUrl}/v2/toolkit/tools`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${JWT_TOKEN}`,
-      "X-App-Id": APP_ID || "",
+      Authorization: `Bearer ${getJwtToken()}`,
+      "X-App-Id": appId,
     },
     body: JSON.stringify({
       schemaAwarenessData,

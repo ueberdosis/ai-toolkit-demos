@@ -1,14 +1,20 @@
-import { REST_API_SECRET, TIPTAP_CLOUD_APP_ID } from "./constants";
-
 /**
  * Retrieves a document from Tiptap Collaboration REST API
  */
 export async function getDocument(documentId: string): Promise<unknown> {
-  if (!TIPTAP_CLOUD_APP_ID || !REST_API_SECRET) {
-    throw new Error("Missing TIPTAP_CLOUD_APP_ID or REST_API_SECRET");
+  const tiptapCloudAppId = process.env.TIPTAP_CLOUD_APP_ID;
+  const documentManagementApiSecret =
+    process.env.TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET;
+
+  if (!tiptapCloudAppId) {
+    throw new Error("Missing TIPTAP_CLOUD_APP_ID");
   }
 
-  const collabUrl = `https://${TIPTAP_CLOUD_APP_ID}.collab.tiptap.cloud/api/documents/${encodeURIComponent(
+  if (!documentManagementApiSecret) {
+    throw new Error("Missing TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET");
+  }
+
+  const collabUrl = `https://${tiptapCloudAppId}.collab.tiptap.cloud/api/documents/${encodeURIComponent(
     documentId,
   )}?format=json`;
 
@@ -16,7 +22,7 @@ export async function getDocument(documentId: string): Promise<unknown> {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: REST_API_SECRET,
+      Authorization: documentManagementApiSecret,
     },
   });
 
