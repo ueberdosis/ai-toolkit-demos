@@ -1,4 +1,4 @@
-import { getJwtToken } from "./get-ai-jwt-token";
+import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
 /**
  * Gets the schema awareness prompt from the Server AI Toolkit API
@@ -20,7 +20,7 @@ export async function getSchemaAwarenessPrompt(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getJwtToken()}`,
+        Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
         "X-App-Id": appId,
       },
       body: JSON.stringify({

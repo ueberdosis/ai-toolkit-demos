@@ -1,5 +1,5 @@
 import type z from "zod";
-import { getJwtToken } from "./get-ai-jwt-token";
+import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
 /**
  * Gets tool definitions from the Server AI Toolkit API
@@ -23,7 +23,7 @@ export async function getToolDefinitions(schemaAwarenessData: unknown): Promise<
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${getJwtToken()}`,
+      Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
       "X-App-Id": appId,
     },
     body: JSON.stringify({

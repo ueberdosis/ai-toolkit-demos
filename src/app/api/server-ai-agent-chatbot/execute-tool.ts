@@ -1,4 +1,4 @@
-import { getJwtToken } from "./get-ai-jwt-token";
+import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
 /**
  * Executes a tool via the Server AI Toolkit API
@@ -21,7 +21,7 @@ export async function executeTool(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${getJwtToken()}`,
+      Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
       "X-App-Id": appId,
     },
     body: JSON.stringify({
