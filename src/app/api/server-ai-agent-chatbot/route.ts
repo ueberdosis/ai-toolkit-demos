@@ -1,9 +1,11 @@
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { openai } from "@ai-sdk/openai";
 import {
   createAgentUIStreamResponse,
   ToolLoopAgent,
   tool,
   type UIMessage,
+  wrapLanguageModel,
 } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
@@ -82,8 +84,13 @@ export async function POST(req: Request) {
     ]),
   );
 
-  const agent = new ToolLoopAgent({
+  const model = wrapLanguageModel({
     model: openai("gpt-5-mini"),
+    middleware: devToolsMiddleware(),
+  });
+
+  const agent = new ToolLoopAgent({
+    model,
     instructions: `You are an assistant that can edit rich text documents.
 In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
 Before calling any tools, summarize you're going to do (in a sentence or less), as a high-level view of the task, like a human writer would describe it.
