@@ -9,10 +9,7 @@ export function getTiptapCloudAiJwtToken(): string {
     throw new Error("TIPTAP_CLOUD_AI_SECRET environment variable is not set");
   }
 
-  const payload = {
-    // Standard JWT claims for AI Toolkit API
-    iat: Math.floor(Date.now() / 1000),
-  };
+  const payload = {};
 
   return jwt.sign(payload, secret, { expiresIn: "1h" });
 }
