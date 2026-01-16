@@ -81,6 +81,12 @@ export default function Home() {
                     Multi-document AI Agent
                   </Link>
                   <Link
+                    href="/comments"
+                    className="inline-block bg-amber-500 text-white px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors"
+                  >
+                    Comments
+                  </Link>
+                  <Link
                     href="/schema-awareness"
                     className="inline-block bg-pink-500 text-white px-6 py-3 rounded-lg hover:bg-pink-600 transition-colors"
                   >

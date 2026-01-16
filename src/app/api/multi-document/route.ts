@@ -1,3 +1,4 @@
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { openai } from "@ai-sdk/openai";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import {
@@ -5,6 +6,7 @@ import {
   ToolLoopAgent,
   tool,
   type UIMessage,
+  wrapLanguageModel,
 } from "ai";
 import { z } from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
@@ -27,8 +29,13 @@ export async function POST(req: Request) {
 
   const { messages }: { messages: UIMessage[] } = await req.json();
 
-  const agent = new ToolLoopAgent({
+  const model = wrapLanguageModel({
     model: openai("gpt-5-mini"),
+    middleware: devToolsMiddleware(),
+  });
+
+  const agent = new ToolLoopAgent({
+    model,
     instructions: `You are an assistant that can edit rich text documents. 
     You have access multiple documents and can switch between them. 
     At any point in time, the 'active document' is the document that is open in the editor.

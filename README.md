@@ -16,6 +16,7 @@ AI agents allow the AI model to choose from a set of tools to perform tasks. The
 
 ### Advanced AI Agents
 - **Multi-document AI Agent** (`/multi-document`) - An AI agent that can read and edit multiple Tiptap documents at once
+- **Comments** (`/comments`) - An AI agent that can add and manage comments and threads in a Tiptap document
 - **Schema Awareness** (`/schema-awareness`) - An AI agent with schema awareness enabled. It understands custom nodes and marks.
 - **Selection Awareness** (`/selection-awareness`) - An AI agent that is aware of the current selection in the editor
 
@@ -78,6 +79,9 @@ Workflows are scenarios where the AI model has a single, well-defined task. Buil
 - Accept or reject changes individually or in bulk
 - Custom styling for suggestions (red for deletions, green for insertions)
 - Halt conversation until user reviews changes
+
+#### Comments (`/comments`)
+- An AI agent that can add and manage comments and threads in a Tiptap document
 
 #### Advanced AI Agents
 - **Multi-document AI Agent** - Work with multiple documents simultaneously

@@ -52,9 +52,9 @@ export default function Page() {
 
   const editDocument = () => {
     const toolkit = getAiToolkit(editor);
-    const { nodes } = toolkit.tiptapRead();
+    const { content } = toolkit.tiptapRead();
     setWorkflowId(uuid());
-    submit({ nodes, task });
+    submit({ content, task });
   };
 
   return (
