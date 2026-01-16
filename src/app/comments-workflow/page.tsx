@@ -28,7 +28,7 @@ import { ThreadsProvider } from "../../demos/comments/React/context.jsx";
 import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
 import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
 import "../../demos/comments/React/styles.scss";
-import "../../demos/style.scss";
+import "../../demos/comments/style.scss";
 import "./comments-workflow.css";
 
 const doc = new Y.Doc();
