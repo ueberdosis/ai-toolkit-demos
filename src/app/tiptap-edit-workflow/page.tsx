@@ -43,7 +43,7 @@ export default function Page() {
 
     const toolkit = getAiToolkit(editor);
     toolkit.tiptapEditWorkflow({
-      operations: operations as Record<string, unknown>[],
+      operations,
       workflowId,
     });
   }, [operations, workflowId, editor]);
