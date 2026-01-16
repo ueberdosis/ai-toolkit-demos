@@ -19,7 +19,7 @@ export async function getToolDefinitions(schemaAwarenessData: unknown): Promise<
     throw new Error("Missing TIPTAP_CLOUD_AI_APP_ID");
   }
 
-  const response = await fetch(`${apiBaseUrl}/v2/toolkit/tools`, {
+  const response = await fetch(`${apiBaseUrl}/v3/toolkit/tools`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

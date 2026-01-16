@@ -138,7 +138,6 @@ export default function Page() {
           Send
         </button>
       </form>
-      <pre>{JSON.stringify(messages, null, 2)}</pre>
     </div>
   );
 }

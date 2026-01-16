@@ -15,7 +15,7 @@ export async function getSchemaAwarenessPrompt(
   }
 
   const response = await fetch(
-    `${apiBaseUrl}/v2/toolkit/schema-awareness-prompt`,
+    `${apiBaseUrl}/v3/toolkit/schema-awareness-prompt`,
     {
       method: "POST",
       headers: {

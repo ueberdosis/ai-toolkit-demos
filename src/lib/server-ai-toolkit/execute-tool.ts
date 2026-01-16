@@ -17,7 +17,7 @@ export async function executeTool(
     throw new Error("Missing TIPTAP_CLOUD_AI_APP_ID");
   }
 
-  const response = await fetch(`${apiBaseUrl}/v2/toolkit/execute-tool`, {
+  const response = await fetch(`${apiBaseUrl}/v3/toolkit/execute-tool`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
