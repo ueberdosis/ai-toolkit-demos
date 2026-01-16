@@ -84,7 +84,7 @@ export default function Home() {
                     href="/comments"
                     className="inline-block bg-amber-500 text-white px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors"
                   >
-                    Comments demo
+                    Comments
                   </Link>
                   <Link
                     href="/schema-awareness"

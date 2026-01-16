@@ -1,6 +1,7 @@
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { openai } from "@ai-sdk/openai";
 import { createProofreaderWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
-import { Output, streamText } from "ai";
+import { Output, streamText, wrapLanguageModel } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -18,19 +19,24 @@ export async function POST(req: Request) {
       });
     }
   }
-  const { nodes } = await req.json();
+  const { content } = await req.json();
 
   // Create and configure the proofreader workflow (with the default settings).
   // It includes the ready-to-use system prompt and the output schema.
   const workflow = createProofreaderWorkflow();
 
-  const result = streamText({
+  const model = wrapLanguageModel({
     model: openai("gpt-5-mini"),
+    middleware: devToolsMiddleware(),
+  });
+
+  const result = streamText({
+    model,
     // System prompt
     system: workflow.systemPrompt,
     // User message
     prompt: JSON.stringify({
-      nodes,
+      content,
       task: "Correct all grammar and spelling mistakes",
     }),
     output: Output.object({ schema: workflow.zodOutputSchema }),

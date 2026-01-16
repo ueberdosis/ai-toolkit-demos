@@ -205,11 +205,11 @@ export default function Page() {
     const toolkit = getAiToolkit(editor);
 
     // Get the document content and existing threads
-    const { nodes } = toolkit.tiptapRead();
+    const { content } = toolkit.tiptapRead();
     const { threads } = toolkit.getThreads();
 
     // Call the API endpoint to start the workflow
-    submit({ nodes, threads, task });
+    submit({ content, threads, task });
   };
 
   if (!editor) {

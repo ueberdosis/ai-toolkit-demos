@@ -1,6 +1,12 @@
-import { anthropic } from "@ai-sdk/anthropic";
+import { devToolsMiddleware } from "@ai-sdk/devtools";
+import { openai } from "@ai-sdk/openai";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
-import { createAgentUIStreamResponse, ToolLoopAgent, type UIMessage } from "ai";
+import {
+  createAgentUIStreamResponse,
+  ToolLoopAgent,
+  type UIMessage,
+  wrapLanguageModel,
+} from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -21,8 +27,13 @@ export async function POST(req: Request) {
 
   const { messages }: { messages: UIMessage[] } = await req.json();
 
+  const model = wrapLanguageModel({
+    model: openai("gpt-5-mini"),
+    middleware: devToolsMiddleware(),
+  });
+
   const agent = new ToolLoopAgent({
-    model: anthropic("claude-haiku-4-5"),
+    model,
     instructions: `
 You are an assistant that can add comments to a rich text document. 
 In your responses, be concise and to the point. However, the content of the comments you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
@@ -37,6 +48,11 @@ Rule: In your responses, do not give any details of the HTML content of the docu
         tiptapReadSelection: false,
       },
     }),
+    providerOptions: {
+      openai: {
+        reasoningEffort: "minimal",
+      },
+    },
   });
 
   return createAgentUIStreamResponse({

@@ -1,6 +1,12 @@
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { openai } from "@ai-sdk/openai";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
-import { createAgentUIStreamResponse, ToolLoopAgent, type UIMessage } from "ai";
+import {
+  createAgentUIStreamResponse,
+  ToolLoopAgent,
+  type UIMessage,
+  wrapLanguageModel,
+} from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -21,8 +27,13 @@ export async function POST(req: Request) {
 
   const { messages }: { messages: UIMessage[] } = await req.json();
 
-  const agent = new ToolLoopAgent({
+  const model = wrapLanguageModel({
     model: openai("gpt-5.1"),
+    middleware: devToolsMiddleware(),
+  });
+
+  const agent = new ToolLoopAgent({
+    model,
     instructions: `
 You are an assistant that can edit rich text documents. 
 In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
