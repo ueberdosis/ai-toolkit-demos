@@ -1,5 +1,5 @@
+import { anthropic } from "@ai-sdk/anthropic";
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { openai } from "@ai-sdk/openai";
 import { createEditThreadsWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
 import { Output, streamText, wrapLanguageModel } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   const workflow = createEditThreadsWorkflow();
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5-mini"),
+    model: anthropic("claude-haiku-4-5"),
     middleware: devToolsMiddleware(),
   });
 

@@ -18,7 +18,7 @@ import {
   hoverThread,
 } from "@tiptap-pro/extension-comments";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { fromBase64String } from "../../demos/comments/demo-setup";
@@ -49,12 +49,10 @@ export default function Page() {
   // biome-ignore lint/suspicious/noExplicitAny: Interop with js file
   const threadsRef = useRef<any[]>([]);
   const [selection, setSelection] = useState<Selection | null>(null);
+  const [workflowId, setWorkflowId] = useState("");
   const [task, setTask] = useState(
     "Add short, example comments suggesting improvements to sentences in this document",
   );
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error"
-  >("idle");
   const [resultMessage, setResultMessage] = useState("");
 
   const user = useUser();
@@ -116,30 +114,27 @@ export default function Page() {
   const editorRef = useRef(editor);
   editorRef.current = editor;
 
-  const { submit, isLoading } = useObject({
+  const { submit, isLoading, object } = useObject({
     api: "/api/comments-workflow",
     schema: editThreadsWorkflowOutputSchema,
-    onFinish: (result) => {
-      if (!result.object) {
-        setResultMessage("No operations to apply");
-        return;
-      }
-
-      const editor = editorRef.current;
-      if (!editor) return;
-
-      const toolkit = getAiToolkit(editor);
-      const workflowResult = toolkit.editThreadsWorkflow({
-        operations: result.object.operations,
-      });
-
-      if (workflowResult.docChanged) {
-        setResultMessage(
-          `Applied ${workflowResult.operations.length} comment operation(s)`,
-        );
-      }
-    },
   });
+
+  useEffect(() => {
+    if (!editor || !object?.operations) return;
+
+    const toolkit = getAiToolkit(editor);
+    const result = toolkit.editThreadsWorkflow({
+      operations: object.operations,
+      workflowId,
+      isStreaming: isLoading,
+    });
+
+    if (!isLoading) {
+      setResultMessage(
+        `Applied ${result.operations.length} comment operation(s)`,
+      );
+    }
+  }, [editor, object, workflowId, isLoading]);
 
   const selectThreadInEditor = useCallback(
     (threadId: string) => {
@@ -199,7 +194,7 @@ export default function Page() {
   }, [editor]);
 
   const manageComments = () => {
-    setStatus("loading");
+    setWorkflowId(uuid());
     setResultMessage("");
 
     const toolkit = getAiToolkit(editor);
@@ -311,11 +306,8 @@ export default function Page() {
               </div>
             </div>
           </div>
-          {(status === "success" || status === "error") && resultMessage && (
-            <div
-              className={`hint ${status === "error" ? "error" : ""}`}
-              style={{ margin: "0 1.5rem" }}
-            >
+          {!isLoading && Boolean(resultMessage) && (
+            <div className={`hint`} style={{ margin: "0 1.5rem" }}>
               {resultMessage}
             </div>
           )}
