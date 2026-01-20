@@ -29,7 +29,7 @@ export default function Page() {
     // Data for the tool call result
     tool: "",
     toolCallId: "",
-    output: "",
+    output: {},
     // Feedback events collected from user actions
     userFeedback: [] as SuggestionFeedbackEvent[],
   });
