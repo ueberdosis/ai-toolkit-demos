@@ -129,7 +129,7 @@ export default function Page() {
       isStreaming: isLoading,
     });
 
-    if (!isLoading && result.docChanged) {
+    if (!isLoading) {
       setResultMessage(
         `Applied ${result.operations.length} comment operation(s)`,
       );
