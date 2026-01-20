@@ -29,7 +29,8 @@ export async function POST(req: Request) {
 
   const model = wrapLanguageModel({
     model: anthropic("claude-haiku-4-5"),
-    middleware: devToolsMiddleware(),
+    middleware:
+      process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
   const agent = new ToolLoopAgent({

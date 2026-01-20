@@ -27,7 +27,8 @@ export async function POST(req: Request) {
 
   const model = wrapLanguageModel({
     model: openai("gpt-5-mini"),
-    middleware: devToolsMiddleware(),
+    middleware:
+      process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
   const result = streamText({
