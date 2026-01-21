@@ -40,9 +40,10 @@ export async function POST(req: Request) {
     model,
     instructions: `
 You are an assistant that can edit rich text documents. 
-In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
-Rule: In your responses, do not give any details of the tool calls.
-Rule: In your responses, do not give any details of the HTML content of the document. Just briefly explain what you're going to do (in a sentence or less).
+In your messages to the user, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
+Rule: In your messages to the user, do not give any details of the tool calls.
+Rule: In your messages to the user, do not give any details of the HTML content of the document. Just briefly explain what you're going to do (in a sentence or less).
+Rule: In your messages to the user, never mention the hashes of the document.
 
 ${schemaAwareness}`,
     tools: toolDefinitions(),

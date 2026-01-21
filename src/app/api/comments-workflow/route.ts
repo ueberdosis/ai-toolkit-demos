@@ -42,13 +42,6 @@ export async function POST(req: Request) {
       task,
     }),
     output: Output.object({ schema: workflow.zodOutputSchema }),
-    // If you use gpt-5-mini, set the reasoning effort to minimal to improve the
-    // response time.
-    providerOptions: {
-      openai: {
-        reasoningEffort: "minimal",
-      },
-    },
   });
 
   return result.toTextStreamResponse();
