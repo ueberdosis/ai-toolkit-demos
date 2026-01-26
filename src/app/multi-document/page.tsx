@@ -174,7 +174,7 @@ export default function Page() {
       input,
     });
 
-    return result.output;
+    return JSON.stringify(result.output);
   };
 
   const { messages, sendMessage, addToolOutput, status } = useChat({

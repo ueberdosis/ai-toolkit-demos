@@ -31,7 +31,8 @@ export async function POST(req: Request) {
 
   const model = wrapLanguageModel({
     model: openai("gpt-5-mini"),
-    middleware: devToolsMiddleware(),
+    middleware:
+      process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
   const agent = new ToolLoopAgent({
@@ -43,10 +44,11 @@ export async function POST(req: Request) {
     To read and edit another document, you should use the tools to switch to that document and then read and edit it.
     Before making any edits, you should always list the documents and see which is the active document.
 
-    In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
+    In your messages to the user, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
     Before calling any tools, summarize you're going to do (in a sentence or less), as a high-level view of the task, like a human writer would describe it.
-    Rule: In your responses, do not give any details of the tool calls.
-    Rule: In your responses, do not give any details of the HTML content of the document.
+    Rule: In your messages to the user, do not give any details of the tool calls.
+    Rule: In your messages to the user, do not give any details of the HTML content of the document.
+    Rule: In your messages to the user, never mention the hashes of the document.
     `,
     tools: {
       ...toolDefinitions(),

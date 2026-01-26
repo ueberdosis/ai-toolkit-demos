@@ -1,5 +1,5 @@
+import { anthropic } from "@ai-sdk/anthropic";
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { openai } from "@ai-sdk/openai";
 import { createEditThreadsWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
 import { Output, streamText, wrapLanguageModel } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
@@ -26,8 +26,9 @@ export async function POST(req: Request) {
   const workflow = createEditThreadsWorkflow();
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5-mini"),
-    middleware: devToolsMiddleware(),
+    model: anthropic("claude-haiku-4-5"),
+    middleware:
+      process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
   const result = streamText({
@@ -41,13 +42,6 @@ export async function POST(req: Request) {
       task,
     }),
     output: Output.object({ schema: workflow.zodOutputSchema }),
-    // If you use gpt-5-mini, set the reasoning effort to minimal to improve the
-    // response time.
-    providerOptions: {
-      openai: {
-        reasoningEffort: "minimal",
-      },
-    },
   });
 
   return result.toTextStreamResponse();
