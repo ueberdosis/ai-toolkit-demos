@@ -91,7 +91,12 @@ export default function Page() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Server AI agent chatbot</h1>
+      <h1 className="text-3xl font-bold mb-2">Server AI agent chatbot</h1>
+
+      <p className="text-sm text-gray-500 pb-4">
+        In this demo, the AI edits the collaborative document in the server and
+        changes are reflected in the client in real time.
+      </p>
 
       <div className="mb-6">
         <EditorContent
