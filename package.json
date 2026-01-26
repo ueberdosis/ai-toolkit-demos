@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "biome check",
     "lint:fix": "biome check --write && tsc --noEmit",
-    "ai-sdk-devtools": "npx @ai-sdk/devtools"
+    "ai-sdk-devtools": "pnpx @ai-sdk/devtools"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.23",
