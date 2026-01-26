@@ -7,7 +7,7 @@ export async function getSchemaAwarenessPrompt(
   schemaAwarenessData: unknown,
 ): Promise<string> {
   const apiBaseUrl =
-    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
+    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
   const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
 
   if (!appId) {
@@ -15,13 +15,15 @@ export async function getSchemaAwarenessPrompt(
   }
 
   const response = await fetch(
-    `${apiBaseUrl}/v3/toolkit/schema-awareness-prompt`,
+    `${apiBaseUrl}/toolkit/schema-awareness-prompt`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
         "X-App-Id": appId,
+        // Set allowed origins to avoid CORS errors (due to the setup in Tiptap Cloud)
+        Origin: "http://localhost:3000",
       },
       body: JSON.stringify({
         schemaAwarenessData,

@@ -10,19 +10,21 @@ export async function executeTool(
   schemaAwarenessData: unknown,
 ): Promise<{ output: unknown; docChanged: boolean; document?: unknown }> {
   const apiBaseUrl =
-    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
+    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
   const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
 
   if (!appId) {
     throw new Error("Missing TIPTAP_CLOUD_AI_APP_ID");
   }
 
-  const response = await fetch(`${apiBaseUrl}/v3/toolkit/execute-tool`, {
+  const response = await fetch(`${apiBaseUrl}/toolkit/execute-tool`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
       "X-App-Id": appId,
+      // Set allowed origins to avoid CORS errors (due to the setup in Tiptap Cloud)
+      Origin: "http://localhost:3000",
     },
     body: JSON.stringify({
       toolName,
