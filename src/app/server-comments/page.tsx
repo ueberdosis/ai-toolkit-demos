@@ -15,7 +15,7 @@ import {
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { getSchemaAwarenessData } from "@tiptap-pro/server-ai-toolkit";
 import { DefaultChatTransport } from "ai";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { fromBase64String } from "../../demos/comments/demo-setup";
@@ -40,6 +40,8 @@ export default function Page() {
   const [selection, setSelection] = useState<Selection | null>(null);
 
   const user = useUser();
+  // Memoize user object to prevent unnecessary editor recreations
+  const memoizedUser = useMemo(() => user, [user.name, user.color]);
 
   // Setup provider on mount
   useEffect(() => {
@@ -94,8 +96,8 @@ export default function Page() {
               CollaborationCaret.configure({
                 provider,
                 user: {
-                  name: user.name,
-                  color: user.color,
+                  name: memoizedUser.name,
+                  color: memoizedUser.color,
                 },
               }),
               CommentsKit.configure({
@@ -120,7 +122,7 @@ export default function Page() {
         }),
       ],
     },
-    [provider, user],
+    [provider, memoizedUser],
   );
 
   // Update threadsRef when editor is available and handle thread selection
@@ -133,7 +135,7 @@ export default function Page() {
     }
   }, [editor, selectedThread]);
 
-  const { threads = [], createThread } = useThreads(provider, editor, user);
+  const { threads = [], createThread } = useThreads(provider, editor, memoizedUser);
 
   threadsRef.current = threads;
 
@@ -218,12 +220,7 @@ export default function Page() {
   }, [editor]);
 
   if (!editor || !provider) {
-    return (
-      <div className="max-w-6xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-2">Server Comments Demo</h1>
-        <p className="text-gray-500">Loading collaborative editor...</p>
-      </div>
-    );
+    return null;
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: Interop with js file
@@ -255,19 +252,10 @@ export default function Page() {
       setSelectedThread={setSelectedThread}
       threads={threads}
     >
-      <div className="max-w-6xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-2">Server Comments Demo</h1>
-
-        <p className="text-sm text-gray-500 pb-4">
-          In this demo, the AI adds and manages comments on a collaborative
-          document using the Server AI Toolkit. Comments appear in real-time via
-          Tiptap Collaboration.
-        </p>
-
-        <div
-          className="col-group divide-x divide-gray-200 border border-gray-300 rounded-lg"
-          data-viewmode={showUnresolved ? "open" : "resolved"}
-        >
+      <div
+        className="col-group divide-x divide-gray-200"
+        data-viewmode={showUnresolved ? "open" : "resolved"}
+      >
           <div className="sidebar">
             <div className="sidebar-options">
               <div className="option-group">
@@ -310,48 +298,48 @@ export default function Page() {
             </div>
             <EditorContent editor={editor} />
           </div>
-        </div>
-
-        <div className="mt-6 mb-6 space-y-4">
-          <h2 className="text-xl font-semibold">AI Chat</h2>
-          {messages?.map((message) => (
-            <div key={message.id} className="bg-gray-100 p-4 rounded-lg">
-              <strong className="text-blue-600">{message.role}</strong>
-              <br />
-              <div className="mt-2 whitespace-pre-wrap">
-                {message.parts
-                  .filter((p) => p.type === "text")
-                  .map((p) => p.text)
-                  .join("\n") || "Loading..."}
-              </div>
+          <div className="sidebar">
+            <h2 className="text-xl font-semibold mb-2">AI Chat Assistant</h2>
+            <div className="mb-4">
+              {messages?.map((message) => (
+                <div key={message.id} className="bg-gray-100 p-4 rounded-lg mb-2">
+                  <strong className="text-blue-600">{message.role}</strong>
+                  <br />
+                  <div className="mt-2 whitespace-pre-wrap">
+                    {message.parts
+                      .filter((p) => p.type === "text")
+                      .map((p) => p.text)
+                      .join("\n") || "Loading..."}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (input.trim()) {
-              sendMessage({ text: input });
-              setInput("");
-            }
-          }}
-          className="flex gap-2"
-        >
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-1 border border-gray-300 rounded-lg px-4 py-2"
-            placeholder="Ask the AI to add or manage comments..."
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-          >
-            Send
-          </button>
-        </form>
-      </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (input.trim()) {
+                  sendMessage({ text: input });
+                  setInput("");
+                }
+              }}
+              className="flex gap-2"
+            >
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 w-full bg-white min-h-24"
+                placeholder="Ask the AI to add comments..."
+              />
+              <button
+                type="submit"
+                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
+              >
+                Send
+              </button>
+            </form>
+          </div>
+        </div>
     </ThreadsProvider>
   );
 }

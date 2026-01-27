@@ -40,8 +40,8 @@ export async function getCommentsToolDefinitions(
     body: JSON.stringify({
       schemaAwarenessData,
       tools: {
-        // Disable tiptap read and edit tools
-        tiptapRead: false,
+        // Disable tiptap edit tool so that the AI can not edit the document,
+        // only add comments
         tiptapEdit: false,
         // Enable comments tools
         getThreads: true,
