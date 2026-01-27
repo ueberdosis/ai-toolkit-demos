@@ -38,6 +38,8 @@ export async function executeCommentsTool(
         apiSecret: commentsOptions.apiSecret,
         userId: commentsOptions.userId,
         appId: commentsOptions.appId,
+        threadData: { userName: "Tiptap AI" },
+        commentData: { userName: "Tiptap AI" },
       },
     }),
   });

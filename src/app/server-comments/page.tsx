@@ -40,8 +40,6 @@ export default function Page() {
   const [selection, setSelection] = useState<Selection | null>(null);
 
   const user = useUser();
-  // Memoize user object to prevent unnecessary editor recreations
-  const memoizedUser = useMemo(() => user, [user.name, user.color]);
 
   // Setup provider on mount
   useEffect(() => {
@@ -95,10 +93,7 @@ export default function Page() {
           ? [
               CollaborationCaret.configure({
                 provider,
-                user: {
-                  name: memoizedUser.name,
-                  color: memoizedUser.color,
-                },
+                user,
               }),
               CommentsKit.configure({
                 provider,
@@ -122,7 +117,7 @@ export default function Page() {
         }),
       ],
     },
-    [provider, memoizedUser],
+    [provider],
   );
 
   // Update threadsRef when editor is available and handle thread selection
@@ -135,7 +130,7 @@ export default function Page() {
     }
   }, [editor, selectedThread]);
 
-  const { threads = [], createThread } = useThreads(provider, editor, memoizedUser);
+  const { threads = [], createThread } = useThreads(provider, editor);
 
   threadsRef.current = threads;
 
@@ -155,7 +150,7 @@ export default function Page() {
   });
 
   const [input, setInput] = useState(
-    "Add short comments suggesting improvements to sentences in this document",
+    "Add a comment to the first sentence of the last paragraph, that says 'well done'",
   );
 
   const selectThreadInEditor = useCallback(
@@ -256,90 +251,90 @@ export default function Page() {
         className="col-group divide-x divide-gray-200"
         data-viewmode={showUnresolved ? "open" : "resolved"}
       >
-          <div className="sidebar">
-            <div className="sidebar-options">
-              <div className="option-group">
-                <div className="label-large">Comments</div>
-                <div className="switch-group">
-                  <label>
-                    <input
-                      type="radio"
-                      name="thread-state"
-                      onChange={() => setShowUnresolved(true)}
-                      checked={showUnresolved}
-                    />
-                    Open
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="thread-state"
-                      onChange={() => setShowUnresolved(false)}
-                      checked={!showUnresolved}
-                    />
-                    Resolved
-                  </label>
-                </div>
-              </div>
-              <ThreadsList provider={provider} threads={filteredThreads} />
-            </div>
-          </div>
-          <div className="main">
-            <div className="control-group">
-              <div className="button-group">
-                <button
-                  type="button"
-                  onClick={createThread}
-                  disabled={!selection || selection.empty}
-                >
-                  Add comment
-                </button>
+        <div className="sidebar">
+          <div className="sidebar-options">
+            <div className="option-group">
+              <div className="label-large">Comments</div>
+              <div className="switch-group">
+                <label>
+                  <input
+                    type="radio"
+                    name="thread-state"
+                    onChange={() => setShowUnresolved(true)}
+                    checked={showUnresolved}
+                  />
+                  Open
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="thread-state"
+                    onChange={() => setShowUnresolved(false)}
+                    checked={!showUnresolved}
+                  />
+                  Resolved
+                </label>
               </div>
             </div>
-            <EditorContent editor={editor} />
-          </div>
-          <div className="sidebar">
-            <h2 className="text-xl font-semibold mb-2">AI Chat Assistant</h2>
-            <div className="mb-4">
-              {messages?.map((message) => (
-                <div key={message.id} className="bg-gray-100 p-4 rounded-lg mb-2">
-                  <strong className="text-blue-600">{message.role}</strong>
-                  <br />
-                  <div className="mt-2 whitespace-pre-wrap">
-                    {message.parts
-                      .filter((p) => p.type === "text")
-                      .map((p) => p.text)
-                      .join("\n") || "Loading..."}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (input.trim()) {
-                  sendMessage({ text: input });
-                  setInput("");
-                }
-              }}
-              className="flex gap-2"
-            >
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 w-full bg-white min-h-24"
-                placeholder="Ask the AI to add comments..."
-              />
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-              >
-                Send
-              </button>
-            </form>
+            <ThreadsList provider={provider} threads={filteredThreads} />
           </div>
         </div>
+        <div className="main">
+          <div className="control-group">
+            <div className="button-group">
+              <button
+                type="button"
+                onClick={createThread}
+                disabled={!selection || selection.empty}
+              >
+                Add comment
+              </button>
+            </div>
+          </div>
+          <EditorContent editor={editor} />
+        </div>
+        <div className="sidebar">
+          <h2 className="text-xl font-semibold mb-2">AI Chat Assistant</h2>
+          <div className="mb-4">
+            {messages?.map((message) => (
+              <div key={message.id} className="bg-gray-100 p-4 rounded-lg mb-2">
+                <strong className="text-blue-600">{message.role}</strong>
+                <br />
+                <div className="mt-2 whitespace-pre-wrap">
+                  {message.parts
+                    .filter((p) => p.type === "text")
+                    .map((p) => p.text)
+                    .join("\n") || "Loading..."}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (input.trim()) {
+                sendMessage({ text: input });
+                setInput("");
+              }
+            }}
+            className="flex gap-2"
+          >
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 w-full bg-white min-h-24"
+              placeholder="Ask the AI to add comments..."
+            />
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
+            >
+              Send
+            </button>
+          </form>
+        </div>
+      </div>
     </ThreadsProvider>
   );
 }

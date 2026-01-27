@@ -24,6 +24,10 @@ export function CommentsAiChatbot({ editor }) {
       const result = toolkit.executeTool({
         toolName,
         input,
+        commentsOptions: {
+          threadData: { userName: "Tiptap AI" },
+          commentData: { userName: "Tiptap AI" },
+        },
       });
 
       addToolOutput({ tool: toolName, toolCallId, output: result.output });

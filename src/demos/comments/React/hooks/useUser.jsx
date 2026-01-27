@@ -44,9 +44,11 @@ const getRandomName = () => getRandomElement(names);
 export const userName = getRandomName();
 export const userColor = getRandomColor();
 
+const user = {
+  name: userName,
+  color: userColor,
+};
+
 export const useUser = () => {
-  return {
-    name: userName,
-    color: userColor,
-  };
+  return user;
 };
