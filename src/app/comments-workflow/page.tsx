@@ -71,10 +71,7 @@ export default function Page() {
       }),
       CollaborationCaret.configure({
         provider,
-        user: {
-          name: user.name,
-          color: user.color,
-        },
+        user,
       }),
       CommentsKit.configure({
         provider,

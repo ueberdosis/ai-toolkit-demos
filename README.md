@@ -29,6 +29,13 @@ Workflows are scenarios where the AI model has a single, well-defined task. Buil
 - **Tiptap Edit** (`/tiptap-edit-workflow`) - A general-purpose workflow for making small and large edits to Tiptap documents
 - **Comments** (`/comments-workflow`) - A workflow for managing comments and threads in Tiptap documents
 
+## Server AI Toolkit
+
+Server-side AI toolkit demos that run AI operations on the server for enhanced security and performance.
+
+- **Server AI Agent Chatbot** (`/server-ai-agent-chatbot`) - A server-side AI agent that can edit collaborative documents
+- **Server Comments** (`/server-comments`) - A server-side AI agent that can add and manage comments via Tiptap Collaboration
+
 ## Tech Stack
 
 - [React](https://react.dev/) + [Next.js](https://nextjs.org/)
