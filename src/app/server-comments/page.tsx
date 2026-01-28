@@ -15,7 +15,7 @@ import {
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { getSchemaAwarenessData } from "@tiptap-pro/server-ai-toolkit";
 import { DefaultChatTransport } from "ai";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { fromBase64String } from "../../demos/comments/demo-setup";
