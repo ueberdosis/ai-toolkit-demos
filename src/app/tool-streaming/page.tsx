@@ -89,7 +89,7 @@ export default function Page() {
       <div className="mb-6">
         <EditorContent
           editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-[200px]"
+          className="border border-gray-300 rounded-lg p-4 min-h-50"
         />
       </div>
 
