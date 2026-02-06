@@ -2,7 +2,7 @@
 
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import { AiCaret, AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import { useState } from "react";
 import "./selection.css";
 import { Selection } from "@tiptap/extensions";
@@ -10,7 +10,7 @@ import { Selection } from "@tiptap/extensions";
 export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, AiToolkit, Selection],
+    extensions: [StarterKit, AiToolkit, Selection, AiCaret],
     content: `<p>Select some text and click the "Add emojis" button to add emojis to your selection.</p>
 <p>This is another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>
 <p>This is yet another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>`,
@@ -28,6 +28,7 @@ export default function Page() {
   if (!editor) return null;
 
   const editSelection = async (task: string) => {
+    editor.commands.blur();
     setIsLoading(true);
 
     const toolkit = getAiToolkit(editor);
@@ -80,7 +81,7 @@ export default function Page() {
       <div className="mb-6">
         <EditorContent
           editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-[200px]"
+          className="border border-gray-300 rounded-lg p-4 min-h-50"
         />
       </div>
 

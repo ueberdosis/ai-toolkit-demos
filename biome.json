@@ -8,8 +8,8 @@
   "files": {
     "ignoreUnknown": false,
     "includes": [
-      "src/**/*.{js,jsx,ts,tsx,json}",
-      "*.{js,jsx,ts,tsx,json}",
+      "src/**/*.{js,jsx,ts,tsx,json,css}",
+      "*.{js,jsx,ts,tsx,json,css}",
       "!**/node_modules",
       "!**/.next",
       "!**/out",

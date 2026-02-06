@@ -1,8 +1,4 @@
-.selection {
-  background: oklch(93.2% 0.032 255.585);
-}
-
-/* Style the AI caret */
+/* AI Caret styles */
 .tiptap .tiptap-ai-caret {
   border-left: 1px solid #0d0d0d;
   border-right: 1px solid #0d0d0d;
