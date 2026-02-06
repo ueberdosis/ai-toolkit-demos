@@ -1,3 +1,14 @@
+.tiptap h1 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.tiptap p {
+  margin-bottom: 0.4rem;
+  line-height: 1.6;
+}
+
 /* AI Caret styles */
 .tiptap .tiptap-ai-caret {
   border-left: 1px solid #0d0d0d;

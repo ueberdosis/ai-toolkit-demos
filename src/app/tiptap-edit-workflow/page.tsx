@@ -4,6 +4,7 @@ import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
+  AiCaret,
   AiToolkit,
   getAiToolkit,
   tiptapEditWorkflowOutputSchema,
@@ -21,7 +22,7 @@ const INITIAL_CONTENT = `<h1>Document Editor Demo</h1>
 export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, AiToolkit],
+    extensions: [StarterKit, AiToolkit, AiCaret],
     content: INITIAL_CONTENT,
   });
 
