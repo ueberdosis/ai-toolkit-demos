@@ -44,6 +44,7 @@ In your messages to the user, be concise and to the point. However, the content 
 Rule: In your messages to the user, do not give any details of the tool calls.
 Rule: In your messages to the user, do not give any details of the HTML content of the document. Just briefly explain what you're going to do (in a sentence or less).
 Rule: In your messages to the user, never mention the hashes of the document.
+Before editing the document, give a brief, high-level overview of what you're going to do.
 
 ${schemaAwareness}`,
     tools: toolDefinitions(),

@@ -16,9 +16,7 @@ export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit, Selection],
-    content: `<p>Select some text and ask the AI to edit it.</p>
-<p></p>
-<p>This is another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>
+    content: `<p>This is another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>
 <p>This is yet another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>`,
   });
 
@@ -49,14 +47,17 @@ export default function Page() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">
+      <h1 className="text-3xl font-bold mb-2">
         AI agent chatbot with selection awareness
       </h1>
+      <p className="text-sm text-gray-500 pb-4">
+        Select some text and ask the AI to edit it.
+      </p>
 
       <div className="mb-6">
         <EditorContent
           editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-[200px]"
+          className="border border-gray-300 rounded-lg p-4 min-h-50"
         />
       </div>
 
