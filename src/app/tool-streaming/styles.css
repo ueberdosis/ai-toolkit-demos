@@ -1,9 +1,3 @@
-/* Tiptap Edit Workflow Demo Styles */
-
-.tiptap {
-  outline: none;
-}
-
 .tiptap h1 {
   font-size: 1rem;
   font-weight: 700;
@@ -15,7 +9,7 @@
   line-height: 1.6;
 }
 
-/* Style the AI caret */
+/* AI Caret styles */
 .tiptap .tiptap-ai-caret {
   border-left: 1px solid #0d0d0d;
   border-right: 1px solid #0d0d0d;
@@ -26,7 +20,7 @@
   word-break: normal;
 }
 
-/* Render the username above the caret */
+/* Render the AI label above the caret */
 .tiptap .tiptap-ai-caret__label {
   border-radius: 3px 3px 3px 0;
   color: #0d0d0d;

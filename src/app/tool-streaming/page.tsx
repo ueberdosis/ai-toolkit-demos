@@ -3,17 +3,18 @@
 import { useChat } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import { AiCaret, AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
 import { useEffect, useState } from "react";
+import "./styles.css";
 
 export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, AiToolkit],
+    extensions: [StarterKit, AiToolkit, AiCaret],
     content: `<h1>AI agent demo</h1><p>Ask the AI to improve this.</p>`,
   });
 
@@ -88,7 +89,7 @@ export default function Page() {
       <div className="mb-6">
         <EditorContent
           editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-[200px]"
+          className="border border-gray-300 rounded-lg p-4 min-h-50"
         />
       </div>
 
