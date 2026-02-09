@@ -13,7 +13,7 @@
   word-break: normal;
 }
 
-/* Render the username above the caret */
+/* Render the AI label above the caret */
 .tiptap .tiptap-ai-caret__label {
   border-radius: 3px 3px 3px 0;
   color: #0d0d0d;
