@@ -15,7 +15,7 @@
     "@ai-sdk/devtools": "^0.0.8",
     "@ai-sdk/openai": "^3.0.25",
     "@ai-sdk/react": "^3.0.75",
-    "@tiptap-pro/ai-toolkit": "3.0.0-alpha.68",
+    "@tiptap-pro/ai-toolkit": "3.0.0-alpha.69",
     "@tiptap-pro/ai-toolkit-ai-sdk": "3.0.0-alpha.30",
     "@tiptap-pro/ai-toolkit-tool-definitions": "3.0.0-alpha.29",
     "@tiptap-pro/extension-comments": "^3.3.1",
