@@ -57,65 +57,10 @@ export default function Page() {
           mode: "preview",
           displayOptions: {
             renderDecorations(options) {
-              const decorations = [
-                ...options.defaultRenderDecorations(),
+              const decorations = [...options.defaultRenderDecorations()];
 
-                // Accept button
-                Decoration.widget(options.range.to, () => {
-                  const element = document.createElement("button");
-                  element.textContent = "Accept";
-                  element.className =
-                    "ml-2 bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600";
-                  element.addEventListener("click", () => {
-                    const result = toolkit.acceptSuggestion(
-                      options.suggestion.id,
-                    );
-                    // Collect feedback events using functional update
-                    setReviewState((prev) => ({
-                      ...prev,
-                      userFeedback: [
-                        ...prev.userFeedback,
-                        ...result.aiFeedback.events,
-                      ],
-                    }));
-                    if (toolkit.getSuggestions().length === 0) {
-                      acceptButtonRef.current?.click();
-                    }
-                  });
-                  return element;
-                }),
-
-                // Reject button
-                Decoration.widget(options.range.to, () => {
-                  const element = document.createElement("button");
-                  element.textContent = "Reject";
-                  element.className =
-                    "ml-2 bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600";
-                  element.addEventListener("click", () => {
-                    const result = toolkit.rejectSuggestion(
-                      options.suggestion.id,
-                    );
-                    // Collect feedback events using functional update
-                    setReviewState((prev) => ({
-                      ...prev,
-                      userFeedback: [
-                        ...prev.userFeedback,
-                        ...result.aiFeedback.events,
-                      ],
-                    }));
-                    if (toolkit.getSuggestions().length === 0) {
-                      rejectButtonRef.current?.click();
-                    }
-                  });
-                  return element;
-                }),
-              ];
-
-              // Add justification tooltip when selected and metadata is available
-              if (
-                options.isSelected &&
-                options.suggestion.metadata?.operationMeta
-              ) {
+              // Add justification tooltip with actions when selected
+              if (options.isSelected) {
                 decorations.push(
                   Decoration.widget(options.range.to, () => {
                     const container = document.createElement("span");
@@ -123,8 +68,6 @@ export default function Page() {
                     container.style.display = "inline";
 
                     const tooltip = document.createElement("div");
-                    tooltip.textContent = options.suggestion.metadata
-                      ?.operationMeta as string;
                     tooltip.style.cssText = `
                       position: absolute;
                       background: white;
@@ -139,8 +82,75 @@ export default function Page() {
                       white-space: normal;
                       z-index: 50;
                       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
-                      pointer-events: none;
+                      pointer-events: auto;
                     `;
+
+                    const text = document.createElement("p");
+                    text.textContent =
+                      (options.suggestion.metadata?.operationMeta as string) ||
+                      "No justification provided.";
+                    text.style.margin = "0";
+
+                    const actions = document.createElement("div");
+                    actions.style.cssText = `
+                      display: flex;
+                      gap: 8px;
+                      margin-top: 10px;
+                    `;
+
+                    // Accept action for the selected suggestion
+                    const accept = document.createElement("button");
+                    accept.type = "button";
+                    accept.textContent = "Accept";
+                    accept.className =
+                      "bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600";
+                    accept.addEventListener("click", (event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      const result = toolkit.acceptSuggestion(
+                        options.suggestion.id,
+                      );
+                      setReviewState((prev) => ({
+                        ...prev,
+                        userFeedback: [
+                          ...prev.userFeedback,
+                          ...result.aiFeedback.events,
+                        ],
+                      }));
+                      if (toolkit.getSuggestions().length === 0) {
+                        acceptButtonRef.current?.click();
+                      }
+                    });
+
+                    // Reject action for the selected suggestion
+                    const reject = document.createElement("button");
+                    reject.type = "button";
+                    reject.textContent = "Reject";
+                    reject.className =
+                      "bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600";
+                    reject.addEventListener("click", (event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      const result = toolkit.rejectSuggestion(
+                        options.suggestion.id,
+                      );
+                      setReviewState((prev) => ({
+                        ...prev,
+                        userFeedback: [
+                          ...prev.userFeedback,
+                          ...result.aiFeedback.events,
+                        ],
+                      }));
+                      if (toolkit.getSuggestions().length === 0) {
+                        rejectButtonRef.current?.click();
+                      }
+                    });
+
+                    // Tooltip layout: justification text followed by action buttons
+                    actions.appendChild(accept);
+                    actions.appendChild(reject);
+                    tooltip.appendChild(text);
+                    tooltip.appendChild(actions);
                     container.appendChild(tooltip);
 
                     requestAnimationFrame(() => {
