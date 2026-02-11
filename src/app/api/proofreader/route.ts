@@ -23,7 +23,9 @@ export async function POST(req: Request) {
 
   // Create and configure the proofreader workflow (with the default settings).
   // It includes the ready-to-use system prompt and the output schema.
-  const workflow = createProofreaderWorkflow();
+  const workflow = createProofreaderWorkflow({
+    operationMeta: 'The category. Can be "spelling" or "grammar".',
+  });
 
   const model = wrapLanguageModel({
     model: openai("gpt-5-mini"),
