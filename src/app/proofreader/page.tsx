@@ -1,12 +1,14 @@
 "use client";
 
 import { experimental_useObject as useObject } from "@ai-sdk/react";
+import { Decoration } from "@tiptap/pm/view";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
   AiToolkit,
   getAiToolkit,
   proofreaderWorkflowOutputSchema,
+  renderSlice,
 } from "@tiptap-pro/ai-toolkit";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
@@ -50,6 +52,74 @@ export default function Page() {
       workflowId,
       reviewOptions: {
         mode: "preview",
+        displayOptions: {
+          renderDecorations: ({ range, suggestion, isSelected }) => {
+            const operationMeta = suggestion.metadata?.operationMeta;
+            const underlineColor =
+              operationMeta === "grammar" ? "#d97706" : "#2563eb";
+            const selectedBackgroundColor =
+              operationMeta === "grammar"
+                ? "rgba(217, 119, 6, 0.18)"
+                : "rgba(37, 99, 235, 0.18)";
+
+            const decorations = [
+              Decoration.inline(range.from, range.to, {
+                style: [
+                  `box-shadow: inset 0 -2px 0 ${underlineColor}`,
+                  isSelected
+                    ? `background-color: ${selectedBackgroundColor}`
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join("; "),
+              }),
+            ];
+
+            if (!isSelected) {
+              return decorations;
+            }
+
+            const selectedReplacement = suggestion.replacementOptions[0];
+
+            if (!selectedReplacement) {
+              return decorations;
+            }
+
+            decorations.push(
+              Decoration.widget(range.to, () => {
+                const element = document.createElement("span");
+                element.className =
+                  "ml-2 inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium";
+                element.style.borderColor = underlineColor;
+                element.style.color = underlineColor;
+                element.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+
+                const label = document.createElement("span");
+                const category =
+                  operationMeta === "grammar" ? "Grammar" : "Spelling";
+                label.textContent = `${category} suggestion: `;
+                element.append(label);
+
+                if (selectedReplacement.type === "slice") {
+                  element.append(
+                    renderSlice({
+                      slice: selectedReplacement.addSlice,
+                      editor,
+                    }),
+                  );
+                } else {
+                  const replacementText = document.createElement("span");
+                  replacementText.textContent = selectedReplacement.addText;
+                  element.append(replacementText);
+                }
+
+                return element;
+              }),
+            );
+
+            return decorations;
+          },
+        },
       },
       hasFinished: !isLoading,
     });

@@ -62,6 +62,12 @@ export default function Home() {
                   >
                     Review changes as summary
                   </Link>
+                  <Link
+                    href="/justified-changes"
+                    className="inline-block bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition-colors"
+                  >
+                    Justified changes
+                  </Link>
                 </div>
               </div>
 
