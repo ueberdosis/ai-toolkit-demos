@@ -15,6 +15,8 @@ import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awa
 import { getToolDefinitions } from "@/lib/server-ai-toolkit/get-tool-definitions";
 import { updateDocument } from "@/lib/server-ai-toolkit/update-document";
 
+const collabBaseUrl = process.env.TIPTAP_CLOUD_COLLAB_BASE_URL;
+
 export async function POST(req: Request) {
   // Rate limiting
   if (process.env.UPSTASH_REDIS_REST_URL) {
@@ -58,7 +60,7 @@ export async function POST(req: Request) {
         execute: async (input) => {
           try {
             // Get the latest version of the document before executing the tool
-            const document = await getDocument(documentId);
+            const document = await getDocument(documentId, collabBaseUrl);
 
             const result = await executeTool(
               toolDef.name,
@@ -69,7 +71,7 @@ export async function POST(req: Request) {
 
             // Update the document after executing the tool if it changed
             if (result.docChanged && result.document && documentId) {
-              await updateDocument(documentId, result.document);
+              await updateDocument(documentId, result.document, collabBaseUrl);
             }
 
             return result.output;

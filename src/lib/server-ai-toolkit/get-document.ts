@@ -1,12 +1,15 @@
 /**
  * Retrieves a document from Tiptap Collaboration REST API
  */
-export async function getDocument(documentId: string): Promise<unknown> {
+export async function getDocument(
+  documentId: string,
+  collabBaseUrl?: string,
+): Promise<unknown> {
   const tiptapCloudAppId = process.env.TIPTAP_CLOUD_APP_ID;
   const documentManagementApiSecret =
     process.env.TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET;
 
-  if (!tiptapCloudAppId) {
+  if (!collabBaseUrl && !tiptapCloudAppId) {
     throw new Error("Missing TIPTAP_CLOUD_APP_ID");
   }
 
@@ -14,7 +17,9 @@ export async function getDocument(documentId: string): Promise<unknown> {
     throw new Error("Missing TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET");
   }
 
-  const collabUrl = `https://${tiptapCloudAppId}.collab.tiptap.cloud/api/documents/${encodeURIComponent(
+  const baseUrl =
+    collabBaseUrl ?? `https://${tiptapCloudAppId}.collab.tiptap.cloud`;
+  const collabUrl = `${baseUrl}/api/documents/${encodeURIComponent(
     documentId,
   )}?format=json`;
 
