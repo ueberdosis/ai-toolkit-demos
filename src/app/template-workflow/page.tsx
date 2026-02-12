@@ -174,7 +174,7 @@ export default function Page() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           htmlTemplate,
-          task: "Generate a Non-Disclosure Agreement between Acme Corporation (a Delaware corporation) and Beta Technologies LLC (a California limited liability company). The agreement should be governed by the laws of the State of New York. Include an arbitration clause. The agreement term should be 2 years.",
+          task: "Generate a Non-Disclosure Agreement between Acme Corporation (a Delaware corporation) and Beta Technologies LLC (a California limited liability company). The agreement should be governed by the laws of the State of New York. Include an arbitration clause. The agreement term should be 2 years. Write 1 paragraph for each section slot.",
         }),
       });
 
@@ -216,7 +216,7 @@ export default function Page() {
         disabled={isLoading || hasGenerated}
         className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed w-full"
       >
-        {isLoading ? "Generating..." : "Generate NDA"}
+        {isLoading ? "Generating..." : "Fill template with AI"}
       </button>
     </div>
   );

@@ -1,5 +1,5 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { createTemplateWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
 import { generateText, Output, wrapLanguageModel } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const workflow = createTemplateWorkflow({ htmlTemplate });
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5-mini"),
+    model: anthropic("claude-haiku-4-5-20251001"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
@@ -39,13 +39,6 @@ export async function POST(req: Request) {
     // User message
     prompt: JSON.stringify({ task }),
     output: Output.object({ schema: workflow.zodOutputSchema }),
-    // If you use gpt-5-mini, set the reasoning effort to minimal to improve the
-    // response time.
-    providerOptions: {
-      openai: {
-        reasoningEffort: "minimal",
-      },
-    },
   });
 
   return Response.json(result.output);
