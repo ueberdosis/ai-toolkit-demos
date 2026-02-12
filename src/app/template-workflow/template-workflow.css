@@ -1,0 +1,9 @@
+/* Slot placeholders in red */
+.ProseMirror code {
+  color: #dc2626;
+  background: #fef2f2;
+  border-radius: 2px;
+  padding: 0 2px;
+  font-family: inherit;
+  font-size: inherit;
+}

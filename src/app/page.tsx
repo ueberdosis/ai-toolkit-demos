@@ -145,6 +145,12 @@ export default function Home() {
                 >
                   Comments
                 </Link>
+                <Link
+                  href="/template-workflow"
+                  className="inline-block bg-rose-500 text-white px-6 py-3 rounded-lg hover:bg-rose-600 transition-colors"
+                >
+                  Template
+                </Link>
               </div>
             </div>
           </div>
