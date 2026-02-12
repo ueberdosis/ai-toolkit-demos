@@ -34,10 +34,10 @@ export default function Page() {
   useEffect(() => {
     const setupProvider = async () => {
       try {
-        const { token, appId } = await getCollabConfig("user-1", documentId);
+        const { token, appId, collabBaseUrl } = await getCollabConfig("user-1", documentId);
 
         const collabProvider = new TiptapCollabProvider({
-          appId,
+          ...(collabBaseUrl ? { baseUrl: collabBaseUrl } : { appId }),
           name: documentId,
           token,
           document: doc,

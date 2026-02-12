@@ -4,12 +4,13 @@
 export async function updateDocument(
   documentId: string,
   document: unknown,
+  collabBaseUrl?: string,
 ): Promise<void> {
   const tiptapCloudAppId = process.env.TIPTAP_CLOUD_APP_ID;
   const documentManagementApiSecret =
     process.env.TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET;
 
-  if (!tiptapCloudAppId) {
+  if (!collabBaseUrl && !tiptapCloudAppId) {
     console.warn("Missing TIPTAP_CLOUD_APP_ID, skipping update");
     return;
   }
@@ -21,7 +22,9 @@ export async function updateDocument(
     return;
   }
 
-  const collabUrl = `https://${tiptapCloudAppId}.collab.tiptap.cloud/api/documents/${encodeURIComponent(
+  const baseUrl =
+    collabBaseUrl ?? `https://${tiptapCloudAppId}.collab.tiptap.cloud`;
+  const collabUrl = `${baseUrl}/api/documents/${encodeURIComponent(
     documentId,
   )}?format=json`;
 
