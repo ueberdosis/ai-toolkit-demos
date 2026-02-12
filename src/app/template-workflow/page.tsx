@@ -1,5 +1,6 @@
 "use client";
 
+import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
@@ -7,7 +8,9 @@ import {
   createHtmlTemplate,
   getAiToolkit,
 } from "@tiptap-pro/ai-toolkit";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { v4 as uuid } from "uuid";
+import { z } from "zod";
 
 import "./template-workflow.css";
 
@@ -133,6 +136,8 @@ const TEMPLATE = {
   ],
 };
 
+const templateSchema = z.object({}).passthrough();
+
 const INITIAL_CONTENT = `<h1>Non-Disclosure Agreement</h1>
 <p>This Non-Disclosure Agreement ("Agreement") is entered into as of the date set forth below.</p>
 <h2>Parties</h2>
@@ -155,46 +160,39 @@ export default function Page() {
     content: INITIAL_CONTENT,
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [workflowId, setWorkflowId] = useState("");
   const [hasGenerated, setHasGenerated] = useState(false);
 
-  const generate = async () => {
-    if (!editor) return;
-    setIsLoading(true);
-
-    try {
-      const toolkit = getAiToolkit(editor);
-
-      // Convert the Tiptap JSON template to HTML for the server
-      const htmlTemplate = createHtmlTemplate(TEMPLATE, editor.schema);
-
-      // Call the API endpoint (no streaming needed)
-      const response = await fetch("/api/template-workflow", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          htmlTemplate,
-          task: "Generate a Non-Disclosure Agreement between Acme Corporation (a Delaware corporation) and Beta Technologies LLC (a California limited liability company). The agreement should be governed by the laws of the State of New York. Include an arbitration clause. The agreement term should be 2 years. Write 1 paragraph for each section slot.",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to generate template content");
-      }
-
-      const values = await response.json();
-
-      // Fill the template and insert into the editor
-      toolkit.templateWorkflow({
-        template: TEMPLATE,
-        values,
-        position: "document",
-      });
-
+  const { submit, isLoading, object } = useObject({
+    api: "/api/template-workflow",
+    schema: templateSchema,
+    onFinish: () => {
       setHasGenerated(true);
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  useEffect(() => {
+    if (!editor || !object) return;
+
+    const toolkit = getAiToolkit(editor);
+    toolkit.templateWorkflow({
+      template: TEMPLATE,
+      values: object as Record<string, unknown>,
+      position: "document",
+      hasFinished: !isLoading,
+      workflowId,
+    });
+  }, [object, workflowId, editor, isLoading]);
+
+  const generate = () => {
+    if (!editor) return;
+
+    const htmlTemplate = createHtmlTemplate(TEMPLATE, editor.schema);
+    setWorkflowId(uuid());
+    submit({
+      htmlTemplate,
+      task: "Generate a Non-Disclosure Agreement between Acme Corporation (a Delaware corporation) and Beta Technologies LLC (a California limited liability company). The agreement should be governed by the laws of the State of New York. Include an arbitration clause. The agreement term should be 2 years. Write 1-2 paragraphs for each section slot.",
+    });
   };
 
   if (!editor) return null;

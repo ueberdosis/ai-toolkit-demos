@@ -1,7 +1,7 @@
-import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { anthropic } from "@ai-sdk/anthropic";
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { createTemplateWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
-import { generateText, Output, wrapLanguageModel } from "ai";
+import { Output, streamText, wrapLanguageModel } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -32,14 +32,12 @@ export async function POST(req: Request) {
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
-  const result = await generateText({
+  const result = streamText({
     model,
-    // System prompt
     system: workflow.systemPrompt,
-    // User message
     prompt: JSON.stringify({ task }),
     output: Output.object({ schema: workflow.zodOutputSchema }),
   });
 
-  return Response.json(result.output);
+  return result.toTextStreamResponse();
 }
