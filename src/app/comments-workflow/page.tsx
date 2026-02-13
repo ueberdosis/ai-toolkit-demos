@@ -270,12 +270,12 @@ export default function Page() {
           </div>
         </div>
         <div className="main">
-          <div className="flex flex-col sm:flex-row sm:items-start gap-2 border-b border-slate-200 bg-white px-4 py-3">
+          <div className="flex flex-col md:flex-row md:items-start gap-2 border-b border-slate-200 bg-white px-4 py-3">
             <button
               type="button"
               onClick={createThread}
               disabled={!selection || selection.empty}
-              className="rounded-lg border-none bg-[var(--gray-2)] text-[var(--black)] px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--gray-3)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] transition-all duration-200 sm:w-auto whitespace-nowrap"
+              className="rounded-lg border-none bg-[var(--gray-2)] text-[var(--black)] px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--gray-3)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] transition-all duration-200 md:w-auto whitespace-nowrap"
             >
               Add comment
             </button>
@@ -288,13 +288,13 @@ export default function Page() {
               }}
               placeholder="Enter task for managing comments..."
               rows={1}
-              className="flex-1 resize-none border border-[var(--gray-3)] rounded-lg px-3 py-1.5 text-sm focus:border-[var(--purple)] focus:outline-none min-h-16 sm:min-h-0"
+              className="flex-1 resize-none border border-[var(--gray-3)] rounded-lg px-3 py-1.5 text-sm focus:border-[var(--purple)] focus:outline-none min-h-16 md:min-h-0"
             />
             <button
               type="button"
               onClick={manageComments}
               disabled={isLoading || !task.trim()}
-              className="rounded-lg border-none bg-[var(--gray-2)] text-[var(--black)] px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--gray-3)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] transition-all duration-200 w-full sm:w-auto whitespace-nowrap"
+              className="rounded-lg border-none bg-[var(--gray-2)] text-[var(--black)] px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--gray-3)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] transition-all duration-200 w-full md:w-auto whitespace-nowrap"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-1.5">
