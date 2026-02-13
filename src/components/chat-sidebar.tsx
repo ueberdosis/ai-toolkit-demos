@@ -78,7 +78,7 @@ function MessagesArea({
   isLoading: boolean;
   children?: ReactNode;
 }) {
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const messageCount = messages.length;
   const lastContent =
@@ -88,11 +88,15 @@ function MessagesArea({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: scroll to bottom when messages change
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messageCount === 0 && !isLoading) return;
+    const el = containerRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
   }, [messageCount, isLoading, lastContent]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
       {messages.length === 0 && !isLoading ? (
         <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
           <MessageSquare size={24} />
@@ -120,7 +124,6 @@ function MessagesArea({
             })() && <TypingIndicator />}
         </>
       )}
-      <div ref={bottomRef} />
       {children}
     </div>
   );
