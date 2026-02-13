@@ -46,6 +46,11 @@ Rule: In your messages to the user, never mention the hashes of the document.
     tools: toolDefinitions({
       operationMeta: "Brief explanation of why this change improves the text",
     }),
+    providerOptions: {
+      openai: {
+        reasoningEffort: "minimal",
+      },
+    },
   });
 
   return createAgentUIStreamResponse({
