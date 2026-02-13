@@ -1,5 +1,5 @@
 import type { CommentsOptions } from "./get-comments-tool-definitions";
-import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
+import { getTiptapCloudAiJwtTokenComments } from "./get-tiptap-cloud-ai-jwt-token-comments";
 
 /**
  * Executes a comments tool via the Server AI Toolkit API
@@ -7,7 +7,8 @@ import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 export async function executeCommentsTool(
   toolName: string,
   input: unknown,
-  document: unknown,
+  // TODO remove this property
+  _document: unknown,
   schemaAwarenessData: unknown,
   commentsOptions: CommentsOptions,
 ): Promise<{ output: unknown; docChanged: boolean; document?: unknown }> {
@@ -23,7 +24,7 @@ export async function executeCommentsTool(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
+      Authorization: `Bearer ${getTiptapCloudAiJwtTokenComments()}`,
       "X-App-Id": appId,
       // Set allowed origins to avoid CORS errors (due to the setup in Tiptap Cloud)
       Origin: "http://localhost:3000",
@@ -31,13 +32,13 @@ export async function executeCommentsTool(
     body: JSON.stringify({
       toolName,
       input,
-      document,
+      // document,
       schemaAwarenessData,
-      experimental__commentsOptions: {
+      experimental_documentOptions: {
         documentId: commentsOptions.documentId,
-        apiSecret: commentsOptions.apiSecret,
         userId: commentsOptions.userId,
-        appId: commentsOptions.appId,
+      },
+      experimental_commentsOptions: {
         threadData: { userName: "Tiptap AI" },
         commentData: { userName: "Tiptap AI" },
       },
