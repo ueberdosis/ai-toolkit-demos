@@ -3,11 +3,7 @@
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import {
-  AiToolkit,
-  createHtmlTemplate,
-  getAiToolkit,
-} from "@tiptap-pro/ai-toolkit";
+import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 import { z } from "zod";
@@ -187,7 +183,8 @@ export default function Page() {
   const generate = () => {
     if (!editor) return;
 
-    const htmlTemplate = createHtmlTemplate(TEMPLATE, editor.schema);
+    const toolkit = getAiToolkit(editor);
+    const htmlTemplate = toolkit.createHtmlTemplate(TEMPLATE);
     setWorkflowId(uuid());
     submit({
       htmlTemplate,

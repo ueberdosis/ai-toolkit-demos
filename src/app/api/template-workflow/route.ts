@@ -1,4 +1,4 @@
-import { anthropic } from "@ai-sdk/anthropic";
+import { openai } from "@ai-sdk/openai";
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { createTemplateWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
 import { Output, streamText, wrapLanguageModel } from "ai";
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const workflow = createTemplateWorkflow({ htmlTemplate });
 
   const model = wrapLanguageModel({
-    model: anthropic("claude-haiku-4-5-20251001"),
+    model: openai("gpt-5-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
@@ -37,6 +37,11 @@ export async function POST(req: Request) {
     system: workflow.systemPrompt,
     prompt: JSON.stringify({ task }),
     output: Output.object({ schema: workflow.zodOutputSchema }),
+    providerOptions: {
+      openai: {
+        reasoningEffort: "minimal",
+      },
+    },
   });
 
   return result.toTextStreamResponse();
