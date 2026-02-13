@@ -218,18 +218,6 @@ export default () => {
               </button>
               <button
                 type="button"
-                onClick={() =>
-                  editor
-                    .chain()
-                    .focus()
-                    .setImage({ src: "https://placehold.co/800x500" })
-                    .run()
-                }
-              >
-                Add image
-              </button>
-              <button
-                type="button"
                 onClick={() => editor.chain().focus().insertNodeView().run()}
               >
                 Add node view
@@ -238,7 +226,7 @@ export default () => {
           </div>
           <EditorContent editor={editor} />
         </div>
-        <div className="sidebar">
+        <div className="sidebar !p-0">
           <CommentsAiChatbot editor={editor} />
         </div>
       </div>

@@ -3,7 +3,9 @@
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { AiCaret, AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { ToolbarPanel } from "../../components/toolbar-panel";
 import "./selection.css";
 import { Selection } from "@tiptap/extensions";
 
@@ -74,34 +76,43 @@ export default function Page() {
 
   const disabled = selectionIsEmpty || isLoading;
 
+  const buttonClassName =
+    "inline-flex items-center gap-1.5 rounded-lg border-none bg-[var(--gray-2)] text-[var(--black)] px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--gray-3)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] transition-all duration-200 cursor-pointer disabled:cursor-not-allowed";
+
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Insert content workflow demo</h1>
-
-      <div className="mb-6">
-        <EditorContent
-          editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-50"
-        />
-      </div>
-
-      <div className="flex gap-2">
+    <div className="flex flex-col h-screen">
+      <ToolbarPanel>
         <button
           type="button"
           onClick={() => editSelection("Add emojis to this text")}
           disabled={disabled}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className={buttonClassName}
         >
-          {isLoading ? "Loading..." : "Add emojis"}
+          {isLoading ? (
+            <>
+              <Loader2 className="animate-spin" size={14} /> Loading...
+            </>
+          ) : (
+            "Add emojis"
+          )}
         </button>
         <button
           type="button"
           onClick={() => editSelection("Make the text twice as long")}
           disabled={disabled}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className={buttonClassName}
         >
-          {isLoading ? "Loading..." : "Make text longer"}
+          {isLoading ? (
+            <>
+              <Loader2 className="animate-spin" size={14} /> Loading...
+            </>
+          ) : (
+            "Make text longer"
+          )}
         </button>
+      </ToolbarPanel>
+      <div className="flex-1 overflow-y-auto">
+        <EditorContent editor={editor} />
       </div>
     </div>
   );

@@ -18,6 +18,7 @@ import { DefaultChatTransport } from "ai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
+import { ChatSidebar } from "../../components/chat-sidebar";
 import { fromBase64String } from "../../demos/comments/demo-setup";
 import { initialContent } from "../../demos/comments/initialContent";
 import { ThreadsList } from "../../demos/comments/React/components/ThreadsList.jsx";
@@ -142,7 +143,7 @@ export default function Page() {
   const schemaAwarenessDataRef = useRef(schemaAwarenessData);
   schemaAwarenessDataRef.current = schemaAwarenessData;
 
-  const { messages, sendMessage } = useChat({
+  const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/server-comments",
       body: () => ({
@@ -155,6 +156,16 @@ export default function Page() {
   const [input, setInput] = useState(
     "Add a comment to the first sentence of the last paragraph, that says 'well done'",
   );
+
+  const isLoading = status !== "ready";
+
+  const handleSubmit = (e: SubmitEvent) => {
+    e.preventDefault();
+    if (input.trim()) {
+      sendMessage({ text: input });
+      setInput("");
+    }
+  };
 
   const selectThreadInEditor = useCallback(
     (threadId: string) => {
@@ -296,46 +307,16 @@ export default function Page() {
           </div>
           <EditorContent editor={editor} />
         </div>
-        <div className="sidebar">
-          <h2 className="text-xl font-semibold mb-2">AI Chat Assistant</h2>
-          <div className="mb-4">
-            {messages?.map((message) => (
-              <div key={message.id} className="bg-gray-100 p-4 rounded-lg mb-2">
-                <strong className="text-blue-600">{message.role}</strong>
-                <br />
-                <div className="mt-2 whitespace-pre-wrap">
-                  {message.parts
-                    .filter((p) => p.type === "text")
-                    .map((p) => p.text)
-                    .join("\n") || "Loading..."}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (input.trim()) {
-                sendMessage({ text: input });
-                setInput("");
-              }
-            }}
-            className="flex gap-2"
-          >
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 w-full bg-white min-h-24"
-              placeholder="Ask the AI to add comments..."
-            />
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-            >
-              Send
-            </button>
-          </form>
+        <div className="sidebar !p-0">
+          <ChatSidebar
+            embedded={true}
+            messages={messages}
+            input={input}
+            onInputChange={setInput}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            placeholder="Ask the AI to add comments..."
+          />
         </div>
       </div>
     </ThreadsProvider>

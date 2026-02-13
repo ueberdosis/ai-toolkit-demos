@@ -14,6 +14,7 @@ import {
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
 import { useState } from "react";
+import { ChatSidebar } from "../../components/chat-sidebar";
 import "./suggestions.css";
 
 export default function Page() {
@@ -53,6 +54,8 @@ export default function Page() {
     userFeedback: [] as SuggestionFeedbackEvent[],
   });
 
+  const isLoading = status !== "ready";
+
   if (!editor) return null;
 
   const toolkit = getAiToolkit(editor);
@@ -64,177 +67,142 @@ export default function Page() {
 
   const showReviewUI = reviewState.isComparing && status === "ready";
 
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">
-        Review changes as summary demo
-      </h1>
+  const handleSubmit = (e: SubmitEvent) => {
+    e.preventDefault();
 
-      <div className="mb-6">
-        <EditorContent
-          editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-[200px]"
-        />
+    if (reviewState.isComparing) return;
+
+    // Build message text with feedback if available
+    let messageText = input.trim();
+    if (reviewState.userFeedback.length > 0) {
+      const feedbackOutput = JSON.stringify(reviewState.userFeedback);
+      messageText += `\n\n<user_feedback>${feedbackOutput}</user_feedback>`;
+    }
+
+    toolkit.startComparingDocuments({
+      displayOptions: {
+        renderDecorations(options) {
+          return [
+            ...options.defaultRenderDecorations(),
+
+            // Accept button
+            Decoration.widget(options.range.to, () => {
+              const element = document.createElement("button");
+              element.textContent = "Accept";
+              element.className =
+                "ml-2 bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600";
+              element.addEventListener("click", () => {
+                const result = toolkit.acceptSuggestion(options.suggestion.id);
+                setReviewState((prev) => ({
+                  ...prev,
+                  userFeedback: [
+                    ...prev.userFeedback,
+                    ...result.aiFeedback.events,
+                  ],
+                }));
+                if (toolkit.getSuggestions().length === 0) {
+                  stopComparing();
+                }
+              });
+              return element;
+            }),
+
+            // Reject button
+            Decoration.widget(options.range.to, () => {
+              const element = document.createElement("button");
+              element.textContent = "Reject";
+              element.className =
+                "ml-2 bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600";
+              element.addEventListener("click", () => {
+                const result = toolkit.rejectSuggestion(options.suggestion.id);
+                setReviewState((prev) => ({
+                  ...prev,
+                  userFeedback: [
+                    ...prev.userFeedback,
+                    ...result.aiFeedback.events,
+                  ],
+                }));
+                if (toolkit.getSuggestions().length === 0) {
+                  stopComparing();
+                }
+              });
+              return element;
+            }),
+          ];
+        },
+      },
+    });
+    setReviewState((prev) => ({ ...prev, isComparing: true }));
+
+    if (messageText) {
+      sendMessage({ text: messageText });
+      setInput("");
+      setReviewState((prev) => ({ ...prev, userFeedback: [] }));
+    }
+  };
+
+  return (
+    <div className="flex h-screen">
+      <div className="flex-1 overflow-y-auto">
+        <EditorContent editor={editor} />
       </div>
 
-      <div className="mb-6 space-y-4">
-        {messages?.map((message) => (
-          <div key={message.id} className="bg-gray-100 p-4 rounded-lg">
-            <strong className="text-blue-600">{message.role}</strong>
-            <br />
-            <div className="mt-2 whitespace-pre-wrap">
-              {message.parts
-                .filter((p) => p.type === "text")
-                .map((p) => p.text)
-                .join("\n") || "Loading..."}
+      <ChatSidebar
+        messages={messages}
+        input={input}
+        onInputChange={setInput}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+        disabled={reviewState.isComparing}
+      >
+        {showReviewUI && (
+          <div className="border-t border-slate-200 p-4 space-y-2">
+            <p className="text-xs text-slate-500">
+              Review suggestions in the document
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const result = toolkit.acceptAllSuggestions();
+                  // Collect all feedback events
+                  const userFeedback = [
+                    ...reviewState.userFeedback,
+                    ...result.aiFeedback.events,
+                  ];
+                  setReviewState({
+                    isComparing: false,
+                    userFeedback,
+                  });
+                  toolkit.stopComparingDocuments();
+                }}
+                className="flex-1 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--green)] text-white hover:opacity-90 transition-all duration-200"
+              >
+                Accept all
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const result = toolkit.rejectAllSuggestions();
+                  // Collect all feedback events
+                  const userFeedback = [
+                    ...reviewState.userFeedback,
+                    ...result.aiFeedback.events,
+                  ];
+                  setReviewState({
+                    isComparing: false,
+                    userFeedback,
+                  });
+                  toolkit.stopComparingDocuments();
+                }}
+                className="flex-1 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--gray-2)] text-[var(--black)] hover:bg-[var(--gray-3)] transition-all duration-200"
+              >
+                Reject all
+              </button>
             </div>
           </div>
-        ))}
-      </div>
-
-      {!showReviewUI && (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-
-            if (reviewState.isComparing) return;
-
-            // Build message text with feedback if available
-            let messageText = input.trim();
-            if (reviewState.userFeedback.length > 0) {
-              const feedbackOutput = JSON.stringify(reviewState.userFeedback);
-              messageText += `\n\n<user_feedback>${feedbackOutput}</user_feedback>`;
-            }
-
-            toolkit.startComparingDocuments({
-              displayOptions: {
-                renderDecorations(options) {
-                  return [
-                    ...options.defaultRenderDecorations(),
-
-                    // Accept button
-                    Decoration.widget(options.range.to, () => {
-                      const element = document.createElement("button");
-                      element.textContent = "Accept";
-                      element.className =
-                        "ml-2 bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600";
-                      element.addEventListener("click", () => {
-                        const result = toolkit.acceptSuggestion(
-                          options.suggestion.id,
-                        );
-                        setReviewState((prev) => ({
-                          ...prev,
-                          userFeedback: [
-                            ...prev.userFeedback,
-                            ...result.aiFeedback.events,
-                          ],
-                        }));
-                        if (toolkit.getSuggestions().length === 0) {
-                          stopComparing();
-                        }
-                      });
-                      return element;
-                    }),
-
-                    // Reject button
-                    Decoration.widget(options.range.to, () => {
-                      const element = document.createElement("button");
-                      element.textContent = "Reject";
-                      element.className =
-                        "ml-2 bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600";
-                      element.addEventListener("click", () => {
-                        const result = toolkit.rejectSuggestion(
-                          options.suggestion.id,
-                        );
-                        setReviewState((prev) => ({
-                          ...prev,
-                          userFeedback: [
-                            ...prev.userFeedback,
-                            ...result.aiFeedback.events,
-                          ],
-                        }));
-                        if (toolkit.getSuggestions().length === 0) {
-                          stopComparing();
-                        }
-                      });
-                      return element;
-                    }),
-                  ];
-                },
-              },
-            });
-            setReviewState((prev) => ({ ...prev, isComparing: true }));
-
-            if (messageText) {
-              sendMessage({ text: messageText });
-              setInput("");
-              setReviewState((prev) => ({ ...prev, userFeedback: [] }));
-            }
-          }}
-          className="flex gap-2"
-        >
-          <input
-            disabled={reviewState.isComparing}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 disabled:bg-gray-100"
-            placeholder="Ask the AI to improve the document..."
-          />
-          <button
-            type="submit"
-            disabled={reviewState.isComparing}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400"
-          >
-            Send
-          </button>
-        </form>
-      )}
-
-      {showReviewUI && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h2 className="text-xl font-semibold mb-4">Reviewing changes</h2>
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => {
-                const result = toolkit.acceptAllSuggestions();
-                // Collect all feedback events
-                const userFeedback = [
-                  ...reviewState.userFeedback,
-                  ...result.aiFeedback.events,
-                ];
-                setReviewState({
-                  isComparing: false,
-                  userFeedback,
-                });
-                toolkit.stopComparingDocuments();
-              }}
-              className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
-            >
-              Accept all
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const result = toolkit.rejectAllSuggestions();
-                // Collect all feedback events
-                const userFeedback = [
-                  ...reviewState.userFeedback,
-                  ...result.aiFeedback.events,
-                ];
-                setReviewState({
-                  isComparing: false,
-                  userFeedback,
-                });
-                toolkit.stopComparingDocuments();
-              }}
-              className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600"
-            >
-              Reject all
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </ChatSidebar>
     </div>
   );
 }

@@ -10,6 +10,7 @@ import {
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
 import { useRef, useState } from "react";
+import { ChatSidebar } from "../../components/chat-sidebar";
 import "./alert-styles.css";
 
 // Custom Alert Node Extension
@@ -129,7 +130,7 @@ export default function Page() {
   const schemaAwarenessRef = useRef(schemaAwareness);
   schemaAwarenessRef.current = schemaAwareness;
 
-  const { messages, sendMessage, addToolOutput } = useChat({
+  const { messages, sendMessage, addToolOutput, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/schema-awareness",
       body: () => ({ schemaAwareness: schemaAwarenessRef.current }),
@@ -162,59 +163,31 @@ export default function Page() {
 Make sure each alert contains relevant, helpful information that enhances the documentation's clarity and usability.`,
   );
 
+  const isLoading = status !== "ready";
+
+  const handleSubmit = (e: SubmitEvent) => {
+    e.preventDefault();
+    if (input.trim()) {
+      sendMessage({ text: input });
+      setInput("");
+    }
+  };
+
   if (!editor) return null;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">
-        AI chatbot with schema awareness
-      </h1>
-
-      <div className="mb-6">
-        <EditorContent
-          editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-[200px]"
-        />
+    <div className="flex h-screen">
+      <div className="flex-1 overflow-y-auto">
+        <EditorContent editor={editor} />
       </div>
 
-      <div className="mb-6 space-y-4">
-        {messages?.map((message) => (
-          <div key={message.id} className="bg-gray-100 p-4 rounded-lg">
-            <strong className="text-blue-600">{message.role}</strong>
-            <br />
-            <div className="mt-2 whitespace-pre-wrap">
-              {message.parts
-                .filter((p) => p.type === "text")
-                .map((p) => p.text)
-                .join("\n") || "Loading..."}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (input.trim()) {
-            sendMessage({ text: input });
-            setInput("");
-          }
-        }}
-        className="flex gap-2"
-      >
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 min-h-[200px]"
-          placeholder="Ask the AI to improve the document..."
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-        >
-          Send
-        </button>
-      </form>
+      <ChatSidebar
+        messages={messages}
+        input={input}
+        onInputChange={setInput}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+      />
     </div>
   );
 }
