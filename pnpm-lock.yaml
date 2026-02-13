@@ -24,14 +24,14 @@ importers:
         specifier: ^1.7.5
         version: 1.7.5
       '@tiptap-pro/ai-toolkit':
-        specifier: 3.0.0-alpha.70
-        version: 3.0.0-alpha.70(@tiptap/core@3.19.0(@tiptap/pm@3.19.0))(@tiptap/pm@3.19.0)
+        specifier: 3.0.0-alpha.73
+        version: 3.0.0-alpha.73(@tiptap/core@3.19.0(@tiptap/pm@3.19.0))(@tiptap/pm@3.19.0)
       '@tiptap-pro/ai-toolkit-ai-sdk':
         specifier: 3.0.0-alpha.32
         version: 3.0.0-alpha.32(zod@4.3.6)
       '@tiptap-pro/ai-toolkit-tool-definitions':
-        specifier: 3.0.0-alpha.30
-        version: 3.0.0-alpha.30
+        specifier: 3.0.0-alpha.31
+        version: 3.0.0-alpha.31
       '@tiptap-pro/extension-comments':
         specifier: ^3.4.1
         version: 3.4.1(@hocuspocus/provider@3.4.3(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.19.0(@tiptap/pm@3.19.0))(@tiptap/pm@3.19.0)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.6)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(yjs@13.6.29))(@tiptap-pro/provider@3.4.1(@hocuspocus/provider@3.4.3(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29))(@tiptap/core@3.19.0(@tiptap/pm@3.19.0))(@tiptap/pm@3.19.0)
@@ -656,8 +656,11 @@ packages:
   '@tiptap-pro/ai-toolkit-tool-definitions@3.0.0-alpha.30':
     resolution: {integrity: sha512-/5zxoIL9fAm+EuxqYrpFnquPoIqPDSZLT6YnnPBX4IsrtqI2dUAh/LnVecXQ7zqUDkNVKtRHQnP+zc/iUavCwQ==}
 
-  '@tiptap-pro/ai-toolkit@3.0.0-alpha.70':
-    resolution: {integrity: sha512-pDHvzm76CXiYpvwqFB0m1dCZBeOOZ1n9qgjd6Ct0kVDqGeU2TL6mel4RNbrZL9e+oU6PQum41Hk26pscQSZgkw==}
+  '@tiptap-pro/ai-toolkit-tool-definitions@3.0.0-alpha.31':
+    resolution: {integrity: sha512-skJ26pdgl3xo0YX0proubaCtUA8hVGDnPyej+1m0GYypsfAXbvxyv7sGoJ46/Tdsf5n0VxcEHzHynTXzXXwmbA==}
+
+  '@tiptap-pro/ai-toolkit@3.0.0-alpha.73':
+    resolution: {integrity: sha512-y5OqSFp3YJgJblrxhUBDFjauHa6GNUggwvYqVAdnOW17e9N2DvAKOEvAivSNJUrv3zwDG3GvR0KoSsKeKgQ29g==}
     peerDependencies:
       '@tiptap/core': ^3.12.0
       '@tiptap/pm': ^3.12.0
@@ -1803,7 +1806,11 @@ snapshots:
     dependencies:
       zod: 4.3.6
 
-  '@tiptap-pro/ai-toolkit@3.0.0-alpha.70(@tiptap/core@3.19.0(@tiptap/pm@3.19.0))(@tiptap/pm@3.19.0)':
+  '@tiptap-pro/ai-toolkit-tool-definitions@3.0.0-alpha.31':
+    dependencies:
+      zod: 4.3.6
+
+  '@tiptap-pro/ai-toolkit@3.0.0-alpha.73(@tiptap/core@3.19.0(@tiptap/pm@3.19.0))(@tiptap/pm@3.19.0)':
     dependencies:
       '@tiptap/core': 3.19.0(@tiptap/pm@3.19.0)
       '@tiptap/pm': 3.19.0
