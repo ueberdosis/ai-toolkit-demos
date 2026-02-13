@@ -9,6 +9,7 @@ import {
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
 import { useEffect, useState } from "react";
+import { ChatSidebar } from "../../components/chat-sidebar";
 import "./styles.css";
 
 export default function Page() {
@@ -18,7 +19,7 @@ export default function Page() {
     content: `<h1>AI agent demo</h1><p>Ask the AI to improve this.</p>`,
   });
 
-  const { messages, sendMessage, addToolOutput } = useChat({
+  const { messages, sendMessage, addToolOutput, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/tool-streaming" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
@@ -80,57 +81,31 @@ export default function Page() {
     });
   }, [editor, messages]);
 
+  const isLoading = status !== "ready";
+
+  const handleSubmit = (e: SubmitEvent) => {
+    e.preventDefault();
+    if (input.trim()) {
+      sendMessage({ text: input });
+      setInput("");
+    }
+  };
+
   if (!editor) return null;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Tool streaming demo</h1>
-
-      <div className="mb-6">
-        <EditorContent
-          editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-50"
-        />
+    <div className="flex h-screen">
+      <div className="flex-1 overflow-y-auto">
+        <EditorContent editor={editor} />
       </div>
 
-      <div className="mb-6 space-y-4">
-        {messages?.map((message) => (
-          <div key={message.id} className="bg-gray-100 p-4 rounded-lg">
-            <strong className="text-blue-600">{message.role}</strong>
-            <br />
-            <div className="mt-2 whitespace-pre-wrap">
-              {message.parts
-                .filter((p) => p.type === "text")
-                .map((p) => p.text)
-                .join("\n") || "Loading..."}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (input.trim()) {
-            sendMessage({ text: input });
-            setInput("");
-          }
-        }}
-        className="flex gap-2"
-      >
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2"
-          placeholder="Ask the AI to improve the document..."
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-        >
-          Send
-        </button>
-      </form>
+      <ChatSidebar
+        messages={messages}
+        input={input}
+        onInputChange={setInput}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

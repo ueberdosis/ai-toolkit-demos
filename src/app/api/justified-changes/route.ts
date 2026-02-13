@@ -1,5 +1,5 @@
-import { anthropic } from "@ai-sdk/anthropic";
 import { devToolsMiddleware } from "@ai-sdk/devtools";
+import { openai } from "@ai-sdk/openai";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import {
   createAgentUIStreamResponse,
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const model = wrapLanguageModel({
-    model: anthropic("claude-haiku-4-5"),
+    model: openai("gpt-5-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });

@@ -9,9 +9,9 @@ import {
   getAiToolkit,
   tiptapEditWorkflowOutputSchema,
 } from "@tiptap-pro/ai-toolkit";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
-
 import "./tiptap-edit.css";
 
 const INITIAL_CONTENT = `<h1>Document Editor Demo</h1>
@@ -60,41 +60,37 @@ export default function Page() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Tiptap Edit Workflow Demo</h1>
-
-      <div className="mb-6">
-        <EditorContent
-          editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-50"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label
-          htmlFor="task"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Editing Task
-        </label>
-        <input
-          id="task"
-          type="text"
+    <div className="flex flex-col h-screen">
+      <div className="flex flex-col sm:flex-row sm:items-start gap-2 border-b border-slate-200 bg-white px-4 py-3">
+        <textarea
           value={task}
-          onChange={(e) => setTask(e.target.value)}
+          onChange={(e) => {
+            setTask(e.target.value);
+            e.target.style.height = "auto";
+            e.target.style.height = `${e.target.scrollHeight}px`;
+          }}
           placeholder="Enter editing task..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          rows={1}
+          className="flex-1 resize-none border border-[var(--gray-3)] rounded-lg px-3 py-1.5 text-sm focus:border-[var(--purple)] focus:outline-none min-h-16 sm:min-h-0"
         />
+        <button
+          type="button"
+          onClick={editDocument}
+          disabled={isLoading || !task.trim()}
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg border-none bg-[var(--gray-2)] text-[var(--black)] px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--gray-3)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] transition-all duration-200 cursor-pointer disabled:cursor-not-allowed w-full sm:w-auto"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="animate-spin" size={14} /> Editing...
+            </>
+          ) : (
+            "Edit Document"
+          )}
+        </button>
       </div>
-
-      <button
-        type="button"
-        onClick={editDocument}
-        disabled={isLoading || !task.trim()}
-        className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed w-full"
-      >
-        {isLoading ? "Editing..." : "Edit Document"}
-      </button>
+      <div className="flex-1 overflow-y-auto">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }

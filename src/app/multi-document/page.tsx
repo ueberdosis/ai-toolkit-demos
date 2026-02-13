@@ -9,6 +9,7 @@ import {
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
 import { useEffect, useRef, useState } from "react";
+import { ChatSidebar } from "../../components/chat-sidebar";
 
 /**
  * One of the documents available in the app. Each
@@ -196,14 +197,21 @@ export default function Page() {
     "Create 2 docs, one with a short poem and another with a short story about Tiptap",
   );
 
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">
-        AI agent with multiple documents
-      </h1>
+  const isLoading = status !== "ready";
 
-      <div className="mb-6">
-        <div className="flex flex-wrap gap-2">
+  const handleSubmit = (e: SubmitEvent) => {
+    e.preventDefault();
+    if (input.trim()) {
+      sendMessage({ text: input });
+      setInput("");
+    }
+  };
+
+  return (
+    <div className="flex h-screen">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Document tabs bar */}
+        <div className="flex items-center gap-2 border-b border-slate-200 px-4 py-2 overflow-x-auto flex-nowrap">
           {documents.map((doc) => (
             <button
               type="button"
@@ -211,69 +219,38 @@ export default function Page() {
               disabled={
                 status === "streaming" || doc.name === activeDocumentName
               }
-              className={`px-4 py-2 rounded-full border text-sm font-medium ${
+              className={
                 doc.name === activeDocumentName
-                  ? "bg-blue-500 text-white border-blue-500 cursor-default"
-                  : "bg-gray-100 text-gray-800 border-gray-200 hover:bg-blue-100"
-              }`}
+                  ? "bg-[var(--purple)] text-white rounded-full px-3 py-1 text-sm font-medium flex-shrink-0 whitespace-nowrap"
+                  : "bg-[var(--gray-2)] text-[var(--black)] rounded-full px-3 py-1 text-sm font-medium hover:bg-[var(--gray-3)] flex-shrink-0 whitespace-nowrap"
+              }
               onClick={() => setActiveDocument(doc.name)}
             >
               {doc.name}
             </button>
           ))}
         </div>
+        {/* Editor */}
+        <div className="flex-1 overflow-y-auto">
+          {activeDocument && (
+            <EditorComponent
+              key={activeDocument.name}
+              initialContent={activeDocument.content}
+              onEditorInitialized={(editor) => {
+                editorRef.current = editor;
+              }}
+            />
+          )}
+        </div>
       </div>
-
-      <div className="mb-6">
-        {activeDocument && (
-          <EditorComponent
-            key={activeDocument.name}
-            initialContent={activeDocument.content}
-            onEditorInitialized={(editor) => {
-              editorRef.current = editor;
-            }}
-          />
-        )}
-      </div>
-
-      <div className="mb-6 space-y-4">
-        {messages?.map((message) => (
-          <div key={message.id} className="bg-gray-100 p-4 rounded-lg">
-            <strong className="text-blue-600">{message.role}</strong>
-            <br />
-            <div className="mt-2 whitespace-pre-wrap">
-              {message.parts
-                .filter((p) => p.type === "text")
-                .map((p) => p.text)
-                .join("\n") || "Loading..."}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (input.trim()) {
-            sendMessage({ text: input });
-            setInput("");
-          }
-        }}
-        className="flex gap-2"
-      >
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2"
-          placeholder="Ask the AI to improve the document..."
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-        >
-          Send
-        </button>
-      </form>
+      <ChatSidebar
+        messages={messages}
+        input={input}
+        onInputChange={setInput}
+        onSubmit={handleSubmit}
+        isLoading={!!isLoading}
+        placeholder="Ask the AI to improve the document..."
+      />
     </div>
   );
 }
@@ -308,7 +285,7 @@ function EditorComponent({
     <EditorContent
       editor={editor}
       content={initialContent}
-      className="border border-gray-300 rounded-lg p-4 min-h-[200px]"
+      className="min-h-[200px]"
     />
   );
 }

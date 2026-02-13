@@ -44,14 +44,7 @@ body {
   margin-top: 0;
 }
 
-.tiptap {
-  caret-color: var(--purple);
-  margin: 1.5rem;
-
-  &:focus {
-    outline: none;
-  }
-}
+/* Base .tiptap styles (padding, caret, focus) come from tiptap-content.css */
 
 /* Custom scrollbar styles */
 ::-webkit-scrollbar {

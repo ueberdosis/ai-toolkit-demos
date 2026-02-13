@@ -10,8 +10,10 @@ import {
   proofreaderWorkflowOutputSchema,
   renderSlice,
 } from "@tiptap-pro/ai-toolkit";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
+import { ToolbarPanel } from "../../components/toolbar-panel";
 
 import "./proofreader.css";
 
@@ -134,61 +136,59 @@ export default function Page() {
     submit({ content });
   };
 
+  const acceptAll = () => {
+    const toolkit = getAiToolkit(editor);
+    toolkit.acceptAllSuggestions();
+    setHasAccepted(true);
+    setIsReviewing(false);
+  };
+
+  const rejectAll = () => {
+    const toolkit = getAiToolkit(editor);
+    toolkit.setSuggestions([]);
+    setIsReviewing(false);
+  };
+
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Proofreader demo</h1>
-
-      <div className="mb-6">
-        <EditorContent
-          editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-50"
-        />
-      </div>
-
-      {!isReviewing && (
-        <button
-          type="button"
-          onClick={checkGrammar}
-          disabled={isLoading || hasAccepted}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed w-full"
-        >
-          {isLoading ? "Checking..." : "Check Grammar"}
-        </button>
-      )}
-
-      {isReviewing && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h3 className="text-lg font-semibold mb-2">Review suggestions</h3>
-          <p className="text-gray-600 mb-4 text-sm">
-            Corrections are highlighted in the document above.
-          </p>
-          <div className="flex gap-4">
+    <div className="flex flex-col h-screen">
+      <ToolbarPanel>
+        {!isReviewing ? (
+          <button
+            type="button"
+            onClick={checkGrammar}
+            disabled={isLoading || hasAccepted}
+            className="inline-flex items-center gap-1.5 rounded-lg border-none bg-[var(--gray-2)] text-[var(--black)] px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--gray-3)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin" size={14} /> Checking...
+              </>
+            ) : (
+              "Check Grammar"
+            )}
+          </button>
+        ) : (
+          <>
             <button
               type="button"
-              onClick={() => {
-                const toolkit = getAiToolkit(editor);
-                toolkit.acceptAllSuggestions();
-                setHasAccepted(true);
-                setIsReviewing(false);
-              }}
-              className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+              onClick={acceptAll}
+              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium bg-[var(--green)] text-white hover:opacity-90 transition-all duration-200 cursor-pointer"
             >
               Accept all
             </button>
             <button
               type="button"
-              onClick={() => {
-                const toolkit = getAiToolkit(editor);
-                toolkit.setSuggestions([]);
-                setIsReviewing(false);
-              }}
-              className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+              onClick={rejectAll}
+              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium bg-[var(--gray-2)] text-[var(--black)] hover:bg-[var(--gray-3)] transition-all duration-200 cursor-pointer"
             >
               Reject all
             </button>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </ToolbarPanel>
+      <div className="flex-1 overflow-y-auto">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }

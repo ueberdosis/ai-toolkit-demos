@@ -1,5 +1,5 @@
-import { openai } from "@ai-sdk/openai";
 import { devToolsMiddleware } from "@ai-sdk/devtools";
+import { openai } from "@ai-sdk/openai";
 import { createTemplateWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
 import { Output, streamText, wrapLanguageModel } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";

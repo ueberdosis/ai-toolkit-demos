@@ -4,9 +4,11 @@ import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 import { z } from "zod";
+import { ToolbarPanel } from "../../components/toolbar-panel";
 
 import "./template-workflow.css";
 
@@ -195,24 +197,26 @@ export default function Page() {
   if (!editor) return null;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Template workflow demo</h1>
-
-      <div className="mb-6">
-        <EditorContent
-          editor={editor}
-          className="border border-gray-300 rounded-lg p-4 min-h-50"
-        />
+    <div className="flex flex-col h-screen">
+      <ToolbarPanel>
+        <button
+          type="button"
+          onClick={generate}
+          disabled={isLoading || hasGenerated}
+          className="inline-flex items-center gap-1.5 rounded-lg border-none bg-[var(--gray-2)] text-[var(--black)] px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--gray-3)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="animate-spin" size={14} /> Generating...
+            </>
+          ) : (
+            "Fill template with AI"
+          )}
+        </button>
+      </ToolbarPanel>
+      <div className="flex-1 overflow-y-auto">
+        <EditorContent editor={editor} />
       </div>
-
-      <button
-        type="button"
-        onClick={generate}
-        disabled={isLoading || hasGenerated}
-        className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed w-full"
-      >
-        {isLoading ? "Generating..." : "Fill template with AI"}
-      </button>
     </div>
   );
 }
