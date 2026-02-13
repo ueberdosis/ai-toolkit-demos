@@ -18,7 +18,7 @@
     "@floating-ui/dom": "^1.7.5",
     "@tiptap-pro/ai-toolkit": "3.0.0-alpha.73",
     "@tiptap-pro/ai-toolkit-ai-sdk": "3.0.0-alpha.32",
-    "@tiptap-pro/ai-toolkit-tool-definitions": "3.0.0-alpha.31",
+    "@tiptap-pro/ai-toolkit-tool-definitions": "3.0.0-alpha.32",
     "@tiptap-pro/extension-comments": "^3.4.1",
     "@tiptap-pro/provider": "^3.4.1",
     "@tiptap-pro/server-ai-toolkit": "3.0.0-alpha.3",
