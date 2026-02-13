@@ -44,6 +44,11 @@ Rule: In your messages to the user, do not give any details of the HTML content 
 Rule: In your messages to the user, never mention the hashes of the document.
 `,
     tools: toolDefinitions(),
+    providerOptions: {
+      openai: {
+        reasoningEffort: "minimal",
+      },
+    },
   });
 
   return createAgentUIStreamResponse({
