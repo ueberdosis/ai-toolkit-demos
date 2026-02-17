@@ -96,7 +96,10 @@ function MessagesArea({
   }, [messageCount, isLoading, lastContent]);
 
   return (
-    <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+    <div
+      ref={containerRef}
+      className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3"
+    >
       {messages.length === 0 && !isLoading ? (
         <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
           <MessageSquare size={24} />
@@ -207,7 +210,7 @@ export function ChatSidebar({
 
   if (embedded) {
     return (
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full overflow-hidden">
         <MessagesArea messages={messages} isLoading={isLoading} />
         {children}
         <InputArea
@@ -225,7 +228,7 @@ export function ChatSidebar({
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden sm:flex w-80 lg:w-96 flex-shrink-0 border-l border-slate-200 h-screen flex-col">
+      <aside className="hidden sm:flex w-80 lg:w-96 flex-shrink-0 border-l border-slate-200 h-screen flex-col overflow-hidden">
         <MessagesArea messages={messages} isLoading={isLoading} />
         {children}
         <InputArea
@@ -264,7 +267,7 @@ export function ChatSidebar({
 
       {/* Mobile modal */}
       {isModalOpen && (
-        <div className="sm:hidden fixed inset-0 z-50 flex flex-col bg-white">
+        <div className="sm:hidden fixed inset-0 z-50 flex flex-col bg-white overflow-hidden">
           <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
             <span className="font-medium text-sm">AI Chat</span>
             <button
