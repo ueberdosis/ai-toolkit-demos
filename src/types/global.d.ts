@@ -17,7 +17,7 @@ declare global {
       UPSTASH_REDIS_REST_TOKEN?: string;
 
       // Tiptap Cloud
-      TIPTAP_CLOUD_APP_ID?: string;
+      TIPTAP_CLOUD_DOCUMENT_SERVER_ID?: string;
       TIPTAP_CLOUD_SECRET?: string;
 
       // Tiptap Cloud Document Management REST API

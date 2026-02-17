@@ -43,12 +43,12 @@ export async function POST(req: Request) {
     documentId: string;
   } = await req.json();
 
-  const tiptapCloudAppId = process.env.TIPTAP_CLOUD_APP_ID;
+  const tiptapCloudDocumentServerId = process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
   const documentManagementApiSecret =
     process.env.TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET;
 
-  if (!tiptapCloudAppId) {
-    throw new Error("Missing TIPTAP_CLOUD_APP_ID");
+  if (!tiptapCloudDocumentServerId) {
+    throw new Error("Missing TIPTAP_CLOUD_DOCUMENT_SERVER_ID");
   }
 
   if (!documentManagementApiSecret) {
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     documentId,
     apiSecret: documentManagementApiSecret,
     userId: "ai-assistant",
-    appId: tiptapCloudAppId,
+    appId: tiptapCloudDocumentServerId,
   };
 
   // Get tool definitions from the Server AI Toolkit API (with comments tools)
