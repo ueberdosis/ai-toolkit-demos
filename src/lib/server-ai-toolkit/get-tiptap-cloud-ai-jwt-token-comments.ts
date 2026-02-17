@@ -10,8 +10,8 @@ export function getTiptapCloudAiJwtTokenComments(): string {
   }
 
   const payload = {
-    experimental_document_app_id: process.env.TIPTAP_CLOUD_APP_ID,
-    experimental_document_secret:
+    experimental_document_server_id: process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID,
+    experimental_document_server_management_api_secret:
       process.env.TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET,
   };
 
