@@ -6,7 +6,8 @@
 
 /* Lighter background for change groups (sub-changes carry the stronger highlight) */
 .tiptap-ai-suggestion.tiptap-ai-suggestion--change-group,
-.tiptap-ai-suggestion.tiptap-ai-suggestion--change-group > *:not(.tiptap-ai-suggestion-sub-change) {
+.tiptap-ai-suggestion.tiptap-ai-suggestion--change-group
+  > *:not(.tiptap-ai-suggestion-sub-change) {
   background-color: oklch(0.962 0.044 156.743);
 }
 
