@@ -15,7 +15,7 @@ import {
 } from "ai";
 import { useRef, useState } from "react";
 import { ChatSidebar } from "../../components/chat-sidebar";
-import "./suggestions.css";
+import "../../styles/suggestions-preview-mode.css";
 
 export default function Page() {
   const editor = useEditor({

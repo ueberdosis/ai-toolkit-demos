@@ -12,6 +12,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
+import "../../styles/ai-caret.css";
 import "./tiptap-edit.css";
 
 const INITIAL_CONTENT = `<h1>Document Editor Demo</h1>

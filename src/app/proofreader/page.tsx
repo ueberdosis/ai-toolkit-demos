@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 import { ToolbarPanel } from "../../components/toolbar-panel";
 
-import "./proofreader.css";
+import "../../styles/suggestions-preview-mode.css";
 
 const INITIAL_CONTENT = `<h1>Grammar Check Demo</h1>
 <p>This is a excelent editor for writng documents. It have many feature's that makes it very powerfull.

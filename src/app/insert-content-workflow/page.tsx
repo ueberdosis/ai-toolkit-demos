@@ -6,6 +6,7 @@ import { AiCaret, AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { ToolbarPanel } from "../../components/toolbar-panel";
+import "../../styles/ai-caret.css";
 import "./selection.css";
 import { Selection } from "@tiptap/extensions";
 

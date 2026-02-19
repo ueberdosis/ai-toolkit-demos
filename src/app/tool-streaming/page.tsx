@@ -10,7 +10,7 @@ import {
 } from "ai";
 import { useEffect, useState } from "react";
 import { ChatSidebar } from "../../components/chat-sidebar";
-import "./styles.css";
+import "../../styles/ai-caret.css";
 
 export default function Page() {
   const editor = useEditor({
