@@ -12,7 +12,7 @@
 }
 
 /* Highlight sub-changes within inline groups */
-.tiptap-ai-suggestion.tiptap-ai-suggestion-sub-change {
+.tiptap-ai-suggestion-sub-change {
   background-color: oklch(87.1% 0.15 154.449);
 }
 
