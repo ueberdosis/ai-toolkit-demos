@@ -3,7 +3,8 @@
 import jwt from "jsonwebtoken";
 
 const TIPTAP_CLOUD_SECRET = process.env.TIPTAP_CLOUD_SECRET;
-const TIPTAP_CLOUD_DOCUMENT_SERVER_ID = process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
+const TIPTAP_CLOUD_DOCUMENT_SERVER_ID =
+  process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
 const TIPTAP_CLOUD_COLLAB_BASE_URL = process.env.TIPTAP_CLOUD_COLLAB_BASE_URL;
 
 export async function getCollabConfig(
@@ -15,7 +16,9 @@ export async function getCollabConfig(
   }
 
   if (!TIPTAP_CLOUD_DOCUMENT_SERVER_ID) {
-    throw new Error("TIPTAP_CLOUD_DOCUMENT_SERVER_ID environment variable is not set");
+    throw new Error(
+      "TIPTAP_CLOUD_DOCUMENT_SERVER_ID environment variable is not set",
+    );
   }
 
   const payload = {

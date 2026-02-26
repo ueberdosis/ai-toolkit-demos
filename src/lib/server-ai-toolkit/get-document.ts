@@ -5,7 +5,8 @@ export async function getDocument(
   documentId: string,
   collabBaseUrl?: string,
 ): Promise<unknown> {
-  const tiptapCloudDocumentServerId = process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
+  const tiptapCloudDocumentServerId =
+    process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
   const documentManagementApiSecret =
     process.env.TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET;
 
@@ -18,7 +19,8 @@ export async function getDocument(
   }
 
   const baseUrl =
-    collabBaseUrl ?? `https://${tiptapCloudDocumentServerId}.collab.tiptap.cloud`;
+    collabBaseUrl ??
+    `https://${tiptapCloudDocumentServerId}.collab.tiptap.cloud`;
   const collabUrl = `${baseUrl}/api/documents/${encodeURIComponent(
     documentId,
   )}?format=json`;

@@ -176,7 +176,6 @@ export default function Page() {
     toolkit.templateWorkflow({
       template: TEMPLATE,
       values: object as Record<string, unknown>,
-      position: "document",
       hasFinished: !isLoading,
       workflowId,
     });

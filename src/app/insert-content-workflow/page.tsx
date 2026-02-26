@@ -37,8 +37,8 @@ export default function Page() {
     const toolkit = getAiToolkit(editor);
 
     // Use the AI Toolkit to get the selection in HTML format
-    const selection = toolkit.getHtmlSelection();
-    const selectionPosition = editor.state.selection;
+    const selectionRange = editor.state.selection;
+    const selection = toolkit.getHtmlRange(selectionRange);
 
     // Call the API endpoint to get the edited HTML content
     const response = await fetch("/api/insert-content-workflow", {
@@ -64,7 +64,7 @@ export default function Page() {
 
     // Use the AI Toolkit to stream HTML into the selection
     await toolkit.streamHtml(readableStream, {
-      position: selectionPosition,
+      position: selectionRange,
       // Update the selection during streaming so that the selection always
       // spans the generated content
       onChunkInserted(event) {
