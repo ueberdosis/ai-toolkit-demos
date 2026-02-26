@@ -102,16 +102,16 @@ export default function Page() {
                 label.textContent = `${category} suggestion: `;
                 element.append(label);
 
-                if (selectedReplacement.type === "slice") {
+                if (typeof selectedReplacement.content !== "string") {
                   element.append(
                     renderSlice({
-                      slice: selectedReplacement.addSlice,
+                      slice: selectedReplacement.content,
                       editor,
                     }),
                   );
                 } else {
                   const replacementText = document.createElement("span");
-                  replacementText.textContent = selectedReplacement.addText;
+                  replacementText.textContent = selectedReplacement.content;
                   element.append(replacementText);
                 }
 

@@ -43,7 +43,8 @@ export async function POST(req: Request) {
     documentId: string;
   } = await req.json();
 
-  const tiptapCloudDocumentServerId = process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
+  const tiptapCloudDocumentServerId =
+    process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
   const documentManagementApiSecret =
     process.env.TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET;
 
