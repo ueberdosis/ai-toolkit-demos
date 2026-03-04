@@ -12,7 +12,6 @@ AI agents allow the AI model to choose from a set of tools to perform tasks. The
 
 ### Review Changes
 - **Review Changes** (`/review-changes`) - Preview and approve AI-inserted changes using suggestions
-- **Review Changes as Summary** (`/review-changes-as-summary`) - Preview and approve AI-inserted changes using suggestions as a summary
 
 ### Advanced AI Agents
 - **Multi-document AI Agent** (`/multi-document`) - An AI agent that can read and edit multiple Tiptap documents at once

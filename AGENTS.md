@@ -25,7 +25,6 @@ src/
 │   ├── multi-document/    # Multi-document editing demo
 │   ├── proofreader/       # Proofreading workflow demo
 │   ├── review-changes/    # Change review with suggestions
-│   ├── review-changes-as-summary/
 │   ├── schema-awareness/  # Custom schema handling demo
 │   ├── selection-awareness/
 │   ├── tiptap-edit-workflow/
