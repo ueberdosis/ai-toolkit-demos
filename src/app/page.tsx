@@ -57,12 +57,6 @@ export default function Home() {
                     Review changes
                   </Link>
                   <Link
-                    href="/review-changes-as-summary"
-                    className="inline-block bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
-                  >
-                    Review changes as summary
-                  </Link>
-                  <Link
                     href="/justified-changes"
                     className="inline-block bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition-colors"
                   >

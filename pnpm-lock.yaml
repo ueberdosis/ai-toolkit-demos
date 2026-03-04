@@ -27,8 +27,8 @@ importers:
         specifier: ^3.4.4
         version: 3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29)
       '@tiptap-pro/ai-toolkit':
-        specifier: 3.0.0-alpha.85
-        version: 3.0.0-alpha.85(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)
+        specifier: file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit
+        version: file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)
       '@tiptap-pro/ai-toolkit-ai-sdk':
         specifier: 3.0.0-alpha.32
         version: 3.0.0-alpha.32(zod@4.3.6)
@@ -662,8 +662,8 @@ packages:
     resolution: {integrity: sha512-uYtF9gByrVj3F5iGXiDWTjN01bO+jWBLUE0dLFVJiR54dhe77O38AblSymcyu1NhJ3FWWyxyz0xfob9OmDNsFg==}
     hasBin: true
 
-  '@tiptap-pro/ai-toolkit@3.0.0-alpha.85':
-    resolution: {integrity: sha512-+gXbMgSJEg6onVUVcK2Hf9rINsiXzvip0vM+th+RQNBSDZks0rYKoxsWkAUIMGZPA8hdJFomOxPs3szL9+I8BQ==}
+  '@tiptap-pro/ai-toolkit@file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit':
+    resolution: {directory: ../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit, type: directory}
     peerDependencies:
       '@tiptap/core': ^3.12.0
       '@tiptap/pm': ^3.12.0
@@ -1820,7 +1820,7 @@ snapshots:
       commander: 14.0.3
       zod: 4.3.6
 
-  '@tiptap-pro/ai-toolkit@3.0.0-alpha.85(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)':
+  '@tiptap-pro/ai-toolkit@file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)':
     dependencies:
       '@tiptap/core': 3.20.0(@tiptap/pm@3.20.0)
       '@tiptap/pm': 3.20.0
