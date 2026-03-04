@@ -98,7 +98,6 @@ export default function Page() {
         },
       });
 
-      // Always continue the conversation — never halt for review
       addToolOutput({
         tool: toolName,
         toolCallId,
