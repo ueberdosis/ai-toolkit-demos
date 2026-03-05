@@ -32,7 +32,7 @@ export function SuggestionReviewTooltip({
       offset(12),
       flip({ padding: 12 }),
       shift({ padding: 12 }),
-      arrow({ element: arrowRef }),
+      arrow({ element: arrowRef, padding: 14 }),
     ],
   });
 
@@ -46,6 +46,13 @@ export function SuggestionReviewTooltip({
     bottom: "top",
     left: "right",
   }[placement.split("-")[0]] as "bottom" | "left" | "top" | "right";
+
+  const arrowBorderClasses = {
+    top: "border-t border-l",
+    right: "border-r border-t",
+    bottom: "border-r border-b",
+    left: "border-b border-l",
+  }[staticSide];
 
   return createPortal(
     <div
@@ -74,7 +81,7 @@ export function SuggestionReviewTooltip({
 
       <div
         ref={arrowRef}
-        className="absolute h-2.5 w-2.5 rotate-45 border-r border-b border-slate-200 bg-white"
+        className={`absolute h-2.5 w-2.5 rotate-45 border-slate-200 bg-white ${arrowBorderClasses}`}
         style={{
           left:
             middlewareData.arrow?.x != null
