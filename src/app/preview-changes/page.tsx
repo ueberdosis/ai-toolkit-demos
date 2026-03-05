@@ -15,7 +15,7 @@ import {
 } from "ai";
 import { useRef, useState } from "react";
 import { ChatSidebar } from "../../components/chat-sidebar";
-import "../../styles/suggestions-review-mode.css";
+import "../../styles/suggestions-preview-mode.css";
 
 export default function Page() {
   const editor = useEditor({
@@ -45,7 +45,7 @@ export default function Page() {
         toolName,
         input,
         reviewOptions: {
-          mode: "review",
+          mode: "preview",
           displayOptions: {
             renderDecorations(options) {
               return [

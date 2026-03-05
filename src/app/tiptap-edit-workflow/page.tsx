@@ -6,11 +6,12 @@ import StarterKit from "@tiptap/starter-kit";
 import {
   AiCaret,
   AiToolkit,
+  type TiptapReadResult,
   getAiToolkit,
   tiptapEditWorkflowOutputSchema,
 } from "@tiptap-pro/ai-toolkit";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import "../../styles/ai-caret.css";
 import "./tiptap-edit.css";
@@ -28,6 +29,7 @@ export default function Page() {
   });
 
   const [workflowId, setWorkflowId] = useState("");
+  const tiptapReadResultRef = useRef<TiptapReadResult | null>(null);
   const [task, setTask] = useState(
     "Make the text more formal and professional, but do not change the title",
   );
@@ -44,10 +46,12 @@ export default function Page() {
     if (!editor || !operations) return;
 
     const toolkit = getAiToolkit(editor);
+    if (!tiptapReadResultRef.current) return;
     toolkit.tiptapEditWorkflow({
       operations,
       workflowId,
       hasFinished: !isLoading,
+      tiptapReadResult: tiptapReadResultRef.current,
     });
   }, [operations, workflowId, editor, isLoading]);
 
@@ -55,9 +59,10 @@ export default function Page() {
 
   const editDocument = () => {
     const toolkit = getAiToolkit(editor);
-    const { content } = toolkit.tiptapRead();
+    const readResult = toolkit.tiptapRead();
+    tiptapReadResultRef.current = readResult;
     setWorkflowId(uuid());
-    submit({ content, task });
+    submit({ content: readResult.content, task });
   };
 
   return (

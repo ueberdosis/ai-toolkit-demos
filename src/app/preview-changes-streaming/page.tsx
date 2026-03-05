@@ -5,6 +5,7 @@ import { Decoration } from "@tiptap/pm/view";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
+  AiCaret,
   AiToolkit,
   getAiToolkit,
   type SuggestionFeedbackEvent,
@@ -13,14 +14,15 @@ import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChatSidebar } from "../../components/chat-sidebar";
-import "../../styles/suggestions-review-mode.css";
+import "../../styles/ai-caret.css";
+import "../../styles/suggestions-preview-mode.css";
 
 export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, AiToolkit],
+    extensions: [StarterKit, AiToolkit, AiCaret],
     content: `<h1>AI agent demo</h1><p>Ask the AI to improve this.</p>`,
   });
 
@@ -32,20 +34,22 @@ export default function Page() {
   const rejectButtonRef = useRef<HTMLButtonElement>(null);
 
   const { messages, sendMessage, addToolOutput, status } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
+    transport: new DefaultChatTransport({ api: "/api/tool-streaming" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
       if (!editor) return;
 
       const { toolName, input, toolCallId } = toolCall;
 
-      // Use the AI Toolkit to execute the tool
+      // When the tool streaming is complete, apply the tool call with review options
       const toolkit = getAiToolkit(editor);
-      const result = toolkit.executeTool({
+      const result = toolkit.streamTool({
+        toolCallId,
         toolName,
         input,
+        hasFinished: true,
         reviewOptions: {
-          mode: "review",
+          mode: "preview",
           displayOptions: {
             renderDecorations(options) {
               return [
@@ -98,17 +102,46 @@ export default function Page() {
         },
       });
 
-      addToolOutput({
-        tool: toolName,
-        toolCallId,
-        output: result.output,
-      });
+      addToolOutput({ tool: toolName, toolCallId, output: result.output });
     },
   });
 
   const [input, setInput] = useState(
     "Replace the last paragraph with a short story about Tiptap",
   );
+
+  // While the tool streaming is in progress, update the document as the tool input changes
+  useEffect(() => {
+    if (!editor) return;
+
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage) return;
+
+    const toolCallParts =
+      lastMessage.parts.filter((p) => p.type.startsWith("tool-")) ?? [];
+    const lastToolCall = toolCallParts[toolCallParts.length - 1];
+    if (!lastToolCall) return;
+
+    interface ToolStreamingPart {
+      input: unknown;
+      state: string;
+      toolCallId: string;
+      type: string;
+    }
+    const part = lastToolCall as ToolStreamingPart;
+    if (!(part.state === "input-streaming")) return;
+    const toolName = part.type.replace("tool-", "");
+
+    const toolkit = getAiToolkit(editor);
+    toolkit.streamTool({
+      toolCallId: part.toolCallId,
+      toolName,
+      input: part.input,
+      reviewOptions: {
+        mode: "preview",
+      },
+    });
+  }, [editor, messages]);
 
   const isLoading = status !== "ready";
 
