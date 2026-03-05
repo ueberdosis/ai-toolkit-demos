@@ -15,9 +15,16 @@ import {
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChatSidebar } from "../../components/chat-sidebar";
+import { SuggestionReviewTooltip } from "../../components/suggestion-review-tooltip";
 import "../../styles/ai-caret.css";
 import "../../styles/suggestions-preview-mode.css";
+
+type SuggestionTooltipMount = {
+  suggestionId: string;
+  element: HTMLElement;
+};
 
 export default function Page() {
   const editor = useEditor({
@@ -29,6 +36,8 @@ export default function Page() {
   const [userFeedback, setUserFeedback] = useState<SuggestionFeedbackEvent[]>(
     [],
   );
+  const [tooltipMount, setTooltipMount] =
+    useState<SuggestionTooltipMount | null>(null);
 
   const acceptButtonRef = useRef<HTMLButtonElement>(null);
   const rejectButtonRef = useRef<HTMLButtonElement>(null);
@@ -52,51 +61,38 @@ export default function Page() {
           mode: "preview",
           displayOptions: {
             renderDecorations(options) {
-              return [
-                ...options.defaultRenderDecorations(),
+              const decorations = [...options.defaultRenderDecorations()];
 
-                // Accept button
-                Decoration.widget(options.range.to, () => {
-                  const element = document.createElement("button");
-                  element.textContent = "Accept";
-                  element.className =
-                    "ml-2 bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600";
-                  element.addEventListener("click", () => {
-                    const result = toolkit.acceptSuggestion(
-                      options.suggestion.id,
-                    );
-                    setUserFeedback((prev) => [
-                      ...prev,
-                      ...result.aiFeedback.events,
-                    ]);
-                    if (toolkit.getSuggestions().length === 0) {
-                      acceptButtonRef.current?.click();
-                    }
-                  });
-                  return element;
-                }),
+              if (options.isSelected) {
+                decorations.push(
+                  Decoration.widget(
+                    options.range.to,
+                    () => {
+                      const element = document.createElement("span");
+                      element.className =
+                        "ml-2 inline-block h-px w-px align-middle opacity-0 pointer-events-none";
 
-                // Reject button
-                Decoration.widget(options.range.to, () => {
-                  const element = document.createElement("button");
-                  element.textContent = "Reject";
-                  element.className =
-                    "ml-2 bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600";
-                  element.addEventListener("click", () => {
-                    const result = toolkit.rejectSuggestion(
-                      options.suggestion.id,
-                    );
-                    setUserFeedback((prev) => [
-                      ...prev,
-                      ...result.aiFeedback.events,
-                    ]);
-                    if (toolkit.getSuggestions().length === 0) {
-                      rejectButtonRef.current?.click();
-                    }
-                  });
-                  return element;
-                }),
-              ];
+                      setTooltipMount({
+                        suggestionId: options.suggestion.id,
+                        element,
+                      });
+
+                      return element;
+                    },
+                    {
+                      destroy() {
+                        setTooltipMount((prev) =>
+                          prev?.suggestionId === options.suggestion.id
+                            ? null
+                            : prev,
+                        );
+                      },
+                    },
+                  ),
+                );
+              }
+
+              return decorations;
             },
           },
         },
@@ -164,6 +160,40 @@ export default function Page() {
     <div className="flex h-screen">
       <div className="flex-1 overflow-y-auto">
         <EditorContent editor={editor} />
+        {tooltipMount &&
+          createPortal(
+            <SuggestionReviewTooltip
+              referenceElement={tooltipMount.element}
+              text="Review this suggestion"
+              onAccept={() => {
+                const toolkit = getAiToolkit(editor);
+                const result = toolkit.acceptSuggestion(
+                  tooltipMount.suggestionId,
+                );
+                setUserFeedback((prev) => [
+                  ...prev,
+                  ...result.aiFeedback.events,
+                ]);
+                if (toolkit.getSuggestions().length === 0) {
+                  acceptButtonRef.current?.click();
+                }
+              }}
+              onReject={() => {
+                const toolkit = getAiToolkit(editor);
+                const result = toolkit.rejectSuggestion(
+                  tooltipMount.suggestionId,
+                );
+                setUserFeedback((prev) => [
+                  ...prev,
+                  ...result.aiFeedback.events,
+                ]);
+                if (toolkit.getSuggestions().length === 0) {
+                  rejectButtonRef.current?.click();
+                }
+              }}
+            />,
+            tooltipMount.element,
+          )}
       </div>
 
       <ChatSidebar

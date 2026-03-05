@@ -1,7 +1,6 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { computePosition, flip, offset, shift } from "@floating-ui/dom";
 import { Decoration } from "@tiptap/pm/view";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -15,8 +14,16 @@ import {
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
 import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChatSidebar } from "../../components/chat-sidebar";
+import { SuggestionReviewTooltip } from "../../components/suggestion-review-tooltip";
 import "../../styles/suggestions-preview-mode.css";
+
+type SuggestionTooltipMount = {
+  suggestionId: string;
+  element: HTMLElement;
+  text?: string;
+};
 
 export default function Page() {
   const editor = useEditor({
@@ -28,6 +35,8 @@ export default function Page() {
   const [userFeedback, setUserFeedback] = useState<SuggestionFeedbackEvent[]>(
     [],
   );
+  const [tooltipMount, setTooltipMount] =
+    useState<SuggestionTooltipMount | null>(null);
 
   const acceptButtonRef = useRef<HTMLButtonElement>(null);
   const rejectButtonRef = useRef<HTMLButtonElement>(null);
@@ -56,105 +65,34 @@ export default function Page() {
               // Add justification tooltip with actions when selected
               if (options.isSelected) {
                 decorations.push(
-                  Decoration.widget(options.range.to, () => {
-                    const container = document.createElement("span");
-                    container.style.position = "relative";
-                    container.style.display = "inline";
+                  Decoration.widget(
+                    options.range.to,
+                    () => {
+                      const element = document.createElement("span");
+                      element.className =
+                        "ml-2 inline-block h-px w-px align-middle opacity-0 pointer-events-none";
 
-                    const tooltip = document.createElement("div");
-                    tooltip.style.cssText = `
-                      position: absolute;
-                      background: white;
-                      color: #1f2937;
-                      padding: 8px 12px;
-                      border-radius: 8px;
-                      border: 1px solid #e5e7eb;
-                      font-size: 13px;
-                      line-height: 1.5;
-                      max-width: 400px;
-                      width: max-content;
-                      white-space: normal;
-                      z-index: 50;
-                      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
-                      pointer-events: auto;
-                    `;
-
-                    const text = document.createElement("p");
-                    text.textContent =
-                      (options.suggestion.metadata?.operationMeta as string) ||
-                      "No justification provided.";
-                    text.style.margin = "0";
-
-                    const actions = document.createElement("div");
-                    actions.style.cssText = `
-                      display: flex;
-                      gap: 8px;
-                      margin-top: 10px;
-                    `;
-
-                    // Accept action for the selected suggestion
-                    const accept = document.createElement("button");
-                    accept.type = "button";
-                    accept.textContent = "Accept";
-                    accept.className =
-                      "bg-green-500 text-white px-2 py-1 rounded text-sm hover:bg-green-600";
-                    accept.addEventListener("click", (event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      const result = toolkit.acceptSuggestion(
-                        options.suggestion.id,
-                      );
-                      setUserFeedback((prev) => [
-                        ...prev,
-                        ...result.aiFeedback.events,
-                      ]);
-                      if (toolkit.getSuggestions().length === 0) {
-                        acceptButtonRef.current?.click();
-                      }
-                    });
-
-                    // Reject action for the selected suggestion
-                    const reject = document.createElement("button");
-                    reject.type = "button";
-                    reject.textContent = "Reject";
-                    reject.className =
-                      "bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600";
-                    reject.addEventListener("click", (event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      const result = toolkit.rejectSuggestion(
-                        options.suggestion.id,
-                      );
-                      setUserFeedback((prev) => [
-                        ...prev,
-                        ...result.aiFeedback.events,
-                      ]);
-                      if (toolkit.getSuggestions().length === 0) {
-                        rejectButtonRef.current?.click();
-                      }
-                    });
-
-                    // Tooltip layout: justification text followed by action buttons
-                    actions.appendChild(accept);
-                    actions.appendChild(reject);
-                    tooltip.appendChild(text);
-                    tooltip.appendChild(actions);
-                    container.appendChild(tooltip);
-
-                    requestAnimationFrame(() => {
-                      computePosition(container, tooltip, {
-                        placement: "top",
-                        middleware: [offset(8), flip(), shift({ padding: 8 })],
-                      }).then(({ x, y }) => {
-                        Object.assign(tooltip.style, {
-                          left: `${x}px`,
-                          top: `${y}px`,
-                        });
+                      setTooltipMount({
+                        suggestionId: options.suggestion.id,
+                        element,
+                        text:
+                          (options.suggestion.metadata
+                            ?.operationMeta as string) ||
+                          "No justification provided.",
                       });
-                    });
 
-                    return container;
-                  }),
+                      return element;
+                    },
+                    {
+                      destroy() {
+                        setTooltipMount((prev) =>
+                          prev?.suggestionId === options.suggestion.id
+                            ? null
+                            : prev,
+                        );
+                      },
+                    },
+                  ),
                 );
               }
 
@@ -198,6 +136,40 @@ export default function Page() {
     <div className="flex h-screen">
       <div className="flex-1 overflow-y-auto">
         <EditorContent editor={editor} />
+        {tooltipMount &&
+          createPortal(
+            <SuggestionReviewTooltip
+              referenceElement={tooltipMount.element}
+              text={tooltipMount.text}
+              onAccept={() => {
+                const toolkit = getAiToolkit(editor);
+                const result = toolkit.acceptSuggestion(
+                  tooltipMount.suggestionId,
+                );
+                setUserFeedback((prev) => [
+                  ...prev,
+                  ...result.aiFeedback.events,
+                ]);
+                if (toolkit.getSuggestions().length === 0) {
+                  acceptButtonRef.current?.click();
+                }
+              }}
+              onReject={() => {
+                const toolkit = getAiToolkit(editor);
+                const result = toolkit.rejectSuggestion(
+                  tooltipMount.suggestionId,
+                );
+                setUserFeedback((prev) => [
+                  ...prev,
+                  ...result.aiFeedback.events,
+                ]);
+                if (toolkit.getSuggestions().length === 0) {
+                  rejectButtonRef.current?.click();
+                }
+              }}
+            />,
+            tooltipMount.element,
+          )}
       </div>
 
       <ChatSidebar

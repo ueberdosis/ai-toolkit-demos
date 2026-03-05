@@ -15,7 +15,7 @@
     "@ai-sdk/devtools": "^0.0.15",
     "@ai-sdk/openai": "^3.0.34",
     "@ai-sdk/react": "^3.0.103",
-    "@floating-ui/dom": "^1.7.5",
+    "@floating-ui/react": "^0.27.19",
     "@hocuspocus/provider": "^3.4.4",
     "@tiptap-pro/ai-toolkit": "file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit",
     "@tiptap-pro/ai-toolkit-ai-sdk": "file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-ai-sdk",
