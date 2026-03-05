@@ -66,7 +66,7 @@ export default function Page() {
                     () => {
                       const element = document.createElement("span");
                       element.className =
-                        "ml-2 inline-block h-px w-px align-middle opacity-0 pointer-events-none";
+                        "inline-block h-px w-px align-middle opacity-0 pointer-events-none";
 
                       setTooltipMount({
                         suggestionId: options.suggestion.id,
