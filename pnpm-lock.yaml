@@ -27,14 +27,14 @@ importers:
         specifier: ^3.4.4
         version: 3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29)
       '@tiptap-pro/ai-toolkit':
-        specifier: file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit
-        version: file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)
+        specifier: 3.0.0-alpha.88
+        version: 3.0.0-alpha.88(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)
       '@tiptap-pro/ai-toolkit-ai-sdk':
-        specifier: file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-ai-sdk
-        version: file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-ai-sdk(zod@4.3.6)
+        specifier: 3.0.0-alpha.33
+        version: 3.0.0-alpha.33(zod@4.3.6)
       '@tiptap-pro/ai-toolkit-tool-definitions':
-        specifier: file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-tool-definitions
-        version: file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-tool-definitions
+        specifier: 3.0.0-alpha.36
+        version: 3.0.0-alpha.36
       '@tiptap-pro/extension-comments':
         specifier: ^3.5.0
         version: 3.5.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.6)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(yjs@13.6.29))(@tiptap-pro/provider@3.5.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29))(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)
@@ -673,15 +673,15 @@ packages:
   '@tailwindcss/postcss@4.2.1':
     resolution: {integrity: sha512-OEwGIBnXnj7zJeonOh6ZG9woofIjGrd2BORfvE5p9USYKDCZoQmfqLcfNiRWoJlRWLdNPn2IgVZuWAOM4iTYMw==}
 
-  '@tiptap-pro/ai-toolkit-ai-sdk@file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-ai-sdk':
-    resolution: {directory: ../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-ai-sdk, type: directory}
+  '@tiptap-pro/ai-toolkit-ai-sdk@3.0.0-alpha.33':
+    resolution: {integrity: sha512-FRcWtYdVTv8ur1ZmYojttPJhf7KUk+M2m7zU0lZIMfsUyqmfJgI0cBaxiQ7iuaHFsmFB1qIvUmtI0t1EWxmPlw==}
 
-  '@tiptap-pro/ai-toolkit-tool-definitions@file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-tool-definitions':
-    resolution: {directory: ../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-tool-definitions, type: directory}
+  '@tiptap-pro/ai-toolkit-tool-definitions@3.0.0-alpha.36':
+    resolution: {integrity: sha512-hz2YMEut6BjF3ML2lFlWccCJvHAcYx30+ym5wGGLVmejUKTMy1PsmasbfKuiFLyd3jTchVgdZuFa85X1euWZmQ==}
     hasBin: true
 
-  '@tiptap-pro/ai-toolkit@file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit':
-    resolution: {directory: ../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit, type: directory}
+  '@tiptap-pro/ai-toolkit@3.0.0-alpha.88':
+    resolution: {integrity: sha512-VpML498OdbaDQ1VFT7fTTFHMYVpP8v5CTaOA7nAQqpRdI5xQ/JgJ8SVDK89mcm143ZZbUZUGbtwg7+/OQa2BvQ==}
     peerDependencies:
       '@tiptap/core': ^3.12.0
       '@tiptap/pm': ^3.12.0
@@ -1853,19 +1853,19 @@ snapshots:
       postcss: 8.5.6
       tailwindcss: 4.2.1
 
-  '@tiptap-pro/ai-toolkit-ai-sdk@file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-ai-sdk(zod@4.3.6)':
+  '@tiptap-pro/ai-toolkit-ai-sdk@3.0.0-alpha.33(zod@4.3.6)':
     dependencies:
-      '@tiptap-pro/ai-toolkit-tool-definitions': file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-tool-definitions
+      '@tiptap-pro/ai-toolkit-tool-definitions': 3.0.0-alpha.36
       ai: 6.0.101(zod@4.3.6)
     transitivePeerDependencies:
       - zod
 
-  '@tiptap-pro/ai-toolkit-tool-definitions@file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit-tool-definitions':
+  '@tiptap-pro/ai-toolkit-tool-definitions@3.0.0-alpha.36':
     dependencies:
       commander: 14.0.3
       zod: 4.3.6
 
-  '@tiptap-pro/ai-toolkit@file:../tiptap-pro-ai-toolkit--hash-persistence-and-edit-pipeline/packages/ai-toolkit(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)':
+  '@tiptap-pro/ai-toolkit@3.0.0-alpha.88(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)':
     dependencies:
       '@tiptap/core': 3.20.0(@tiptap/pm@3.20.0)
       '@tiptap/pm': 3.20.0
