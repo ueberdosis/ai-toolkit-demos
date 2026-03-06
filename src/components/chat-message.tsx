@@ -12,7 +12,7 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
 
   return (
     <div
-      className={`flex items-start gap-2 ${isUser ? "flex-row-reverse ml-auto" : ""}`}
+      className={`flex min-w-0 items-start gap-2 ${isUser ? "ml-auto flex-row-reverse" : ""}`}
       style={{ maxWidth: "85%" }}
     >
       {isUser ? (
@@ -25,7 +25,7 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
         </div>
       )}
       <div
-        className={`rounded-lg px-3 py-2 text-sm whitespace-pre-wrap break-words ${
+        className={`min-w-0 rounded-lg px-3 py-2 text-sm whitespace-pre-wrap break-words [overflow-wrap:anywhere] ${
           isUser ? "bg-white border border-slate-200" : "bg-slate-50"
         }`}
       >

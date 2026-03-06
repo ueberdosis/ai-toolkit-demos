@@ -34,12 +34,6 @@ export default function Home() {
                   >
                     AI agent chatbot
                   </Link>
-                  <Link
-                    href="/tool-streaming"
-                    className="inline-block bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors"
-                  >
-                    Chatbot with tool streaming
-                  </Link>
                 </div>
               </div>
 
@@ -51,8 +45,14 @@ export default function Home() {
                 </p>
                 <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
                   <Link
-                    href="/review-changes"
+                    href="/preview-changes"
                     className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    Preview changes
+                  </Link>
+                  <Link
+                    href="/review-changes"
+                    className="inline-block bg-lime-500 text-white px-6 py-3 rounded-lg hover:bg-lime-600 transition-colors"
                   >
                     Review changes
                   </Link>
@@ -61,6 +61,35 @@ export default function Home() {
                     className="inline-block bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition-colors"
                   >
                     Justified changes
+                  </Link>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-semibold mb-3">Streaming</h3>
+                <p className="text-gray-600 mb-4">
+                  Stream AI-generated content in real time as the model writes.
+                  Combine streaming with preview or review modes to accept or
+                  reject changes after streaming completes.
+                </p>
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
+                  <Link
+                    href="/tool-streaming"
+                    className="inline-block bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors"
+                  >
+                    Streaming
+                  </Link>
+                  <Link
+                    href="/preview-changes-streaming"
+                    className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    Preview changes
+                  </Link>
+                  <Link
+                    href="/review-changes-streaming"
+                    className="inline-block bg-lime-500 text-white px-6 py-3 rounded-lg hover:bg-lime-600 transition-colors"
+                  >
+                    Review changes
                   </Link>
                 </div>
               </div>
@@ -78,7 +107,7 @@ export default function Home() {
                     href="/multi-document"
                     className="inline-block bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors"
                   >
-                    Multi-document AI Agent
+                    Multi-document
                   </Link>
                   <Link
                     href="/comments"

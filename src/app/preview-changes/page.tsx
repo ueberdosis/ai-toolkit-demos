@@ -22,7 +22,6 @@ import "../../styles/suggestions-preview-mode.css";
 type SuggestionTooltipMount = {
   suggestionId: string;
   element: HTMLElement;
-  text?: string;
 };
 
 export default function Page() {
@@ -42,9 +41,7 @@ export default function Page() {
   const rejectButtonRef = useRef<HTMLButtonElement>(null);
 
   const { messages, sendMessage, addToolOutput, status } = useChat({
-    transport: new DefaultChatTransport({
-      api: "/api/justified-changes",
-    }),
+    transport: new DefaultChatTransport({ api: "/api/chat" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
       if (!editor) return;
@@ -62,7 +59,6 @@ export default function Page() {
             renderDecorations(options) {
               const decorations = [...options.defaultRenderDecorations()];
 
-              // Add justification tooltip with actions when selected
               if (options.isSelected) {
                 decorations.push(
                   Decoration.widget(
@@ -75,10 +71,6 @@ export default function Page() {
                       setTooltipMount({
                         suggestionId: options.suggestion.id,
                         element,
-                        text:
-                          (options.suggestion.metadata
-                            ?.operationMeta as string) ||
-                          "No justification provided.",
                       });
 
                       return element;
@@ -102,7 +94,6 @@ export default function Page() {
         },
       });
 
-      // Always continue the conversation — never halt for review
       addToolOutput({
         tool: toolName,
         toolCallId,
@@ -140,7 +131,7 @@ export default function Page() {
           createPortal(
             <SuggestionReviewTooltip
               referenceElement={tooltipMount.element}
-              text={tooltipMount.text}
+              text="Review this suggestion"
               onAccept={() => {
                 const toolkit = getAiToolkit(editor);
                 const result = toolkit.acceptSuggestion(
