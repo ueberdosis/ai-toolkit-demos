@@ -1,0 +1,13 @@
+/* Inserted text - green background */
+span[data-suggestion-type="add"],
+span[data-suggestion-type="replaceInsertion"] {
+  background-color: oklch(87.1% 0.15 154.449);
+}
+
+/* Deleted text - red with strikethrough */
+span[data-suggestion-type="delete"],
+span[data-suggestion-type="replaceDeletion"] {
+  background-color: oklch(80.8% 0.114 19.571);
+  color: oklch(0.396 0.141 25.723);
+  text-decoration: line-through;
+}
