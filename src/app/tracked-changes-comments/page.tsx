@@ -49,6 +49,9 @@ type DemoThread = {
   };
 };
 
+const initialTrackedChangesCommentsContent =
+  "<h1>Tracked changes demo</h1><p>Ask the AI to improve this document. AI edits are written as tracked changes so you can accept or reject them one by one.</p>";
+
 const documentModel = new Y.Doc();
 
 const provider = new TiptapCollabProvider({
@@ -64,6 +67,7 @@ export default function Page() {
   const [tooltipMount, setTooltipMount] =
     useState<SuggestionTooltipMount | null>(null);
   const anchorRef = useRef<HTMLSpanElement | null>(null);
+  const didSetInitialContentRef = useRef(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -104,14 +108,21 @@ export default function Page() {
         spellcheck: false,
       },
     },
-    content:
-      "<h1>Tracked changes demo</h1><p>Ask the AI to improve this document. AI edits are written as tracked changes so you can accept or reject them one by one.</p>",
   });
 
   const threadsResult = useThreads(provider, editor, user);
   const threads: DemoThread[] = Array.isArray(threadsResult.threads)
     ? threadsResult.threads
     : [];
+
+  useEffect(() => {
+    if (!editor || didSetInitialContentRef.current || !editor.isEmpty) {
+      return;
+    }
+
+    editor.commands.setContent(initialTrackedChangesCommentsContent);
+    didSetInitialContentRef.current = true;
+  }, [editor]);
 
   useEffect(() => {
     if (!editor) {
@@ -289,7 +300,7 @@ export default function Page() {
   });
 
   const [input, setInput] = useState(
-    "Improve the document and justify each tracked change with a short comment.",
+    "Replace the last paragraph with a short story about Tiptap.",
   );
 
   const isLoading = status !== "ready";
