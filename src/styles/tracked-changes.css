@@ -72,3 +72,81 @@
   outline-color: transparent;
   box-shadow: none;
 }
+
+.tracked-changes-comments-demo
+  [data-viewmode="open"]
+  .tiptap
+  .tiptap-thread[data-status-all="open"][data-type="block"]
+  > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
+.tracked-changes-comments-demo
+  [data-viewmode="open"]
+  .tiptap
+  .tiptap-thread[data-status-all="open"][data-type="block"]:hover
+  > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
+.tracked-changes-comments-demo
+  [data-viewmode="open"]
+  .tiptap
+  .tiptap-thread[data-status-all="open"][data-type="block"][data-state="selected"]
+  > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
+.tracked-changes-comments-demo
+  [data-viewmode="open"]
+  .tiptap
+  .tiptap-thread[data-status-all="open"][data-type="block"][data-state="hovered"]
+  > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
+.tracked-changes-comments-demo
+  [data-viewmode="resolved"]
+  .tiptap
+  .tiptap-thread[data-status="closed"][data-type="block"]
+  > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
+.tracked-changes-comments-demo
+  [data-viewmode="resolved"]
+  .tiptap
+  .tiptap-thread[data-status="closed"][data-type="block"]:hover
+  > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
+.tracked-changes-comments-demo
+  [data-viewmode="resolved"]
+  .tiptap
+  .tiptap-thread[data-status="closed"][data-type="block"][data-state="selected"]
+  > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
+.tracked-changes-comments-demo
+  [data-viewmode="resolved"]
+  .tiptap
+  .tiptap-thread[data-status="closed"][data-type="block"][data-state="hovered"]
+  > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
+.tracked-changes-comments-demo
+  [data-viewmode="open"]
+  .tiptap
+  .tiptap-thread[data-status-all="open"][data-type="inline"],
+.tracked-changes-comments-demo
+  [data-viewmode="open"]
+  .tiptap
+  .tiptap-thread[data-status-all="open"][data-type="inline"]:hover,
+.tracked-changes-comments-demo
+  [data-viewmode="open"]
+  .tiptap
+  .tiptap-thread[data-status-all="open"][data-type="inline"][data-state="selected"],
+.tracked-changes-comments-demo
+  [data-viewmode="open"]
+  .tiptap
+  .tiptap-thread[data-status-all="open"][data-type="inline"][data-state="hovered"],
+.tracked-changes-comments-demo
+  [data-viewmode="resolved"]
+  .tiptap
+  .tiptap-thread[data-status="closed"][data-type="inline"],
+.tracked-changes-comments-demo
+  [data-viewmode="resolved"]
+  .tiptap
+  .tiptap-thread[data-status="closed"][data-type="inline"]:hover,
+.tracked-changes-comments-demo
+  [data-viewmode="resolved"]
+  .tiptap
+  .tiptap-thread[data-status="closed"][data-type="inline"][data-state="selected"],
+.tracked-changes-comments-demo
+  [data-viewmode="resolved"]
+  .tiptap
+  .tiptap-thread[data-status="closed"][data-type="inline"][data-state="hovered"] {
+  background-color: transparent;
+  border-bottom-color: transparent;
+  outline-color: transparent;
+  box-shadow: none;
+}
