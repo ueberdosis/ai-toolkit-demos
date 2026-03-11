@@ -6,8 +6,8 @@ import StarterKit from "@tiptap/starter-kit";
 import {
   AiCaret,
   AiToolkit,
-  type TiptapReadResult,
   getAiToolkit,
+  type TiptapReadResult,
   tiptapEditWorkflowOutputSchema,
 } from "@tiptap-pro/ai-toolkit";
 import { Loader2 } from "lucide-react";

@@ -95,6 +95,28 @@ export default function Home() {
               </div>
 
               <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-semibold mb-3">Tracked Changes</h3>
+                <p className="text-gray-600 mb-4">
+                  Review AI edits as tracked changes, with an optional comments
+                  sidebar that explains why each change was made.
+                </p>
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center">
+                  <Link
+                    href="/tracked-changes"
+                    className="inline-block bg-violet-500 text-white px-6 py-3 rounded-lg hover:bg-violet-600 transition-colors"
+                  >
+                    Tracked changes
+                  </Link>
+                  <Link
+                    href="/tracked-changes-comments"
+                    className="inline-block bg-fuchsia-500 text-white px-6 py-3 rounded-lg hover:bg-fuchsia-600 transition-colors"
+                  >
+                    Tracked changes with comments
+                  </Link>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-xl font-semibold mb-3">
                   Advanced AI Agents
                 </h3>

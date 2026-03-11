@@ -1,0 +1,74 @@
+.tiptap span[data-suggestion][data-suggestion-type="add"],
+.tiptap span[data-suggestion][data-suggestion-type="replaceInsertion"] {
+  background-color: oklch(87.1% 0.15 154.449);
+}
+
+.tiptap span[data-suggestion][data-suggestion-type="delete"],
+.tiptap span[data-suggestion][data-suggestion-type="replaceDeletion"] {
+  background-color: oklch(80.8% 0.114 19.571);
+  color: oklch(0.396 0.141 25.723);
+  text-decoration: line-through;
+}
+
+.tiptap pre span[data-suggestion][data-suggestion-type="delete"],
+.tiptap pre span[data-suggestion][data-suggestion-type="replaceDeletion"] {
+  color: oklch(0.97 0.012 17);
+}
+
+.tiptap img[data-suggestion-type],
+.tiptap hr[data-suggestion-type] {
+  transition: all 0.2s ease;
+}
+
+.tiptap img[data-suggestion-type="add"] {
+  outline: 3px solid oklch(0.72 0.16 154.449);
+  box-shadow: 0 0 0 6px oklch(0.92 0.06 154.449);
+}
+
+.tiptap img[data-suggestion-type="delete"] {
+  outline: 3px solid oklch(0.62 0.21 25.723);
+  box-shadow: 0 0 0 6px oklch(0.92 0.03 17.717);
+  opacity: 0.55;
+}
+
+.tiptap hr[data-suggestion-type="add"] {
+  background-color: oklch(0.92 0.06 154.449);
+  border-top-color: oklch(0.72 0.16 154.449);
+  border-top-width: 3px;
+  height: 4px;
+}
+
+.tiptap hr[data-suggestion-type="delete"] {
+  background-color: oklch(0.92 0.03 17.717);
+  border-top-color: oklch(0.62 0.21 25.723);
+  border-top-width: 3px;
+  height: 4px;
+  opacity: 0.65;
+}
+
+.tracked-changes-comments-demo
+  .tiptap
+  .tiptap-thread.tiptap-thread.tiptap-thread,
+.tracked-changes-comments-demo
+  .tiptap
+  .tiptap-thread.tiptap-thread.tiptap-thread
+  *,
+.tracked-changes-comments-demo
+  .tiptap
+  [data-type="inline-thread"][data-type="inline-thread"],
+.tracked-changes-comments-demo
+  .tiptap
+  [data-type="inline-thread"][data-type="inline-thread"]
+  *,
+.tracked-changes-comments-demo
+  .tiptap
+  [data-type="block-thread"][data-type="block-thread"],
+.tracked-changes-comments-demo
+  .tiptap
+  [data-type="block-thread"][data-type="block-thread"]
+  * {
+  background-color: transparent;
+  border-bottom-color: transparent;
+  outline-color: transparent;
+  box-shadow: none;
+}
