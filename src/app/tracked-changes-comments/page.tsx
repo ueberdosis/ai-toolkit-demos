@@ -27,8 +27,6 @@ import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { ChatSidebar } from "../../components/chat-sidebar";
 import { SuggestionReviewTooltip } from "../../components/suggestion-review-tooltip";
-import { fromBase64String } from "../../demos/comments/demo-setup";
-import { initialContent } from "../../demos/comments/initialContent";
 import { ThreadsList } from "../../demos/comments/React/components/ThreadsList.jsx";
 import { ThreadsProvider } from "../../demos/comments/React/context.jsx";
 import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
@@ -58,9 +56,6 @@ const provider = new TiptapCollabProvider({
   name: `tiptap-tracked-changes-comments-demo/${uuid()}`,
   document: documentModel,
 });
-
-const initialBinary = fromBase64String(initialContent);
-Y.applyUpdate(provider.document, initialBinary);
 
 export default function Page() {
   const user = useUser();
@@ -109,6 +104,8 @@ export default function Page() {
         spellcheck: false,
       },
     },
+    content:
+      "<h1>Tracked changes demo</h1><p>Ask the AI to improve this document. AI edits are written as tracked changes so you can accept or reject them one by one.</p>",
   });
 
   const threadsResult = useThreads(provider, editor, user);
