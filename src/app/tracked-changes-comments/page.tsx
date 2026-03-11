@@ -1,70 +1,126 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import { Collaboration } from "@tiptap/extension-collaboration";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import {
+  CommentsKit,
+  hoverOffThread,
+  hoverThread,
+  subscribeToThreads,
+} from "@tiptap-pro/extension-comments";
+import {
   findSuggestions,
   TrackedChanges,
 } from "@tiptap-pro/extension-tracked-changes";
+import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
-import { MessageSquareText } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { v4 as uuid } from "uuid";
+import * as Y from "yjs";
 import { ChatSidebar } from "../../components/chat-sidebar";
-import { SuggestionReviewTooltip } from "../../components/suggestion-review-tooltip";
+import "../../demos/comments/style.scss";
+import "../../demos/comments/React/styles.scss";
 import "../../styles/tracked-changes.css";
 
-type SuggestionTooltipMount = {
-  suggestionId: string;
-  element: HTMLElement;
-  text?: string;
+// Y.js doc + collab provider — created once at module level
+const doc = new Y.Doc();
+const docName = `tracked-changes-comments-demo/${uuid()}`;
+
+const provider = new TiptapCollabProvider({
+  appId: "7j9y6m10",
+  name: docName,
+  document: doc,
+});
+
+const INITIAL_CONTENT = `<h1>AI agent demo</h1><p>Ask the AI to improve this document. Changes will appear as tracked changes, and the AI will leave comments explaining each edit.</p>`;
+
+type Thread = {
+  id: string;
+  resolvedAt?: string | null;
+  createdAt: string;
 };
 
-type JustificationEntry = {
-  suggestionId: string;
-  justification: string;
+type Comment = {
+  id: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+  data: { userName: string };
 };
 
 export default function Page() {
-  const [justifications, setJustifications] = useState<JustificationEntry[]>(
-    [],
-  );
-  const [tooltipMount, setTooltipMount] =
-    useState<SuggestionTooltipMount | null>(null);
   const [hasSuggestions, setHasSuggestions] = useState(false);
-  const anchorRef = useRef<HTMLSpanElement | null>(null);
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [selectedThread, setSelectedThread] = useState<string | null>(null);
+  const threadsRef = useRef<Thread[]>([]);
+
+  const onClickThread = useCallback((threadId: string | null) => {
+    if (!threadId) {
+      setSelectedThread(null);
+      return;
+    }
+
+    const isResolved = threadsRef.current.find(
+      (t) => t.id === threadId,
+    )?.resolvedAt;
+
+    if (isResolved) {
+      setSelectedThread(null);
+      return;
+    }
+
+    setSelectedThread(threadId);
+  }, []);
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        undoRedo: false,
+      }),
+      Collaboration.configure({
+        document: doc,
+      }),
       TrackedChanges.configure({ enabled: false }),
+      CommentsKit.configure({
+        provider,
+        onClickThread,
+      }),
       AiToolkit,
     ],
-    content: `<h1>AI agent demo</h1><p>Ask the AI to improve this.</p>`,
   });
 
-  const collectJustifications = useCallback(() => {
+  // Set initial content when the Y.js doc is empty (Collaboration overrides the content prop)
+  useEffect(() => {
     if (!editor) return;
-    const trackedChangeMetadata = editor.storage.aiToolkit
-      .trackedChangeMetadata as Record<string, string>;
-    const suggestions = findSuggestions(editor, "suggestion");
-    const entries: JustificationEntry[] = suggestions
-      .filter((s) => trackedChangeMetadata[s.id])
-      .map((s) => ({
-        suggestionId: s.id,
-        justification: trackedChangeMetadata[s.id],
-      }));
-    setJustifications(entries);
-    setHasSuggestions(suggestions.length > 0);
+    if (editor.isEmpty) {
+      editor.commands.setContent(INITIAL_CONTENT);
+    }
   }, [editor]);
 
-  // Update hasSuggestions and tooltip on every transaction
+  // Subscribe to threads from the collab provider
+  useEffect(() => {
+    const unsubscribe = subscribeToThreads({
+      provider,
+      callback: (currentThreads: Thread[]) => {
+        setThreads(currentThreads);
+        threadsRef.current = currentThreads;
+      },
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  // Track suggestion count on every transaction
   useEffect(() => {
     if (!editor) return;
 
@@ -73,47 +129,9 @@ export default function Page() {
       setHasSuggestions(suggestions.length > 0);
     };
 
-    const onSelectionUpdate = () => {
-      const { from } = editor.state.selection;
-      const suggestions = findSuggestions(editor, "suggestion");
-      const selected = suggestions.find((s) => from >= s.from && from <= s.to);
-
-      if (!selected) {
-        setTooltipMount(null);
-        return;
-      }
-
-      const trackedChangeMetadata = editor.storage.aiToolkit
-        .trackedChangeMetadata as Record<string, string>;
-      const meta = trackedChangeMetadata[selected.id];
-
-      // Position an absolutely-placed anchor at the end of the suggestion
-      // so floating-ui can reference it for tooltip placement.
-      const coords = editor.view.coordsAtPos(selected.to);
-      if (!anchorRef.current) {
-        anchorRef.current = document.createElement("span");
-        anchorRef.current.style.cssText =
-          "position:fixed;width:1px;height:1px;pointer-events:none;";
-        document.body.appendChild(anchorRef.current);
-      }
-      anchorRef.current.style.left = `${coords.left}px`;
-      anchorRef.current.style.top = `${coords.top}px`;
-
-      setTooltipMount({
-        suggestionId: selected.id,
-        element: anchorRef.current,
-        text: meta || "No justification provided.",
-      });
-    };
-
     editor.on("transaction", onTransaction);
-    editor.on("selectionUpdate", onSelectionUpdate);
-
     return () => {
       editor.off("transaction", onTransaction);
-      editor.off("selectionUpdate", onSelectionUpdate);
-      anchorRef.current?.remove();
-      anchorRef.current = null;
     };
   }, [editor]);
 
@@ -138,10 +156,11 @@ export default function Page() {
             userName: "AI",
           },
         },
+        commentsOptions: {
+          threadData: { userName: "AI" },
+          commentData: { userName: "AI" },
+        },
       });
-
-      // Collect justifications after each tool execution
-      setTimeout(collectJustifications, 50);
 
       addToolOutput({
         tool: toolName,
@@ -166,68 +185,108 @@ export default function Page() {
     }
   };
 
+  // Thread helper callbacks
+  const selectThreadInEditor = useCallback(
+    (threadId: string) => {
+      editor?.chain().selectThread({ id: threadId }).run();
+    },
+    [editor],
+  );
+
+  const deleteThread = useCallback(
+    (threadId: string) => {
+      provider.deleteThread(threadId);
+      editor?.commands.removeThread({ id: threadId });
+    },
+    [editor],
+  );
+
+  const resolveThread = useCallback(
+    (threadId: string) => {
+      editor?.commands.resolveThread({ id: threadId });
+    },
+    [editor],
+  );
+
+  const unresolveThread = useCallback(
+    (threadId: string) => {
+      editor?.commands.unresolveThread({ id: threadId });
+    },
+    [editor],
+  );
+
+  const onHoverThread = useCallback(
+    (threadId: string) => {
+      if (editor) hoverThread(editor, [threadId]);
+    },
+    [editor],
+  );
+
+  const onLeaveThread = useCallback(() => {
+    if (editor) hoverOffThread(editor);
+  }, [editor]);
+
+  // Unresolved threads only
+  const openThreads = useMemo(
+    () => threads.filter((t) => !t.resolvedAt),
+    [threads],
+  );
+
   if (!editor) return null;
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen" data-viewmode="open">
+      {/* Left sidebar: comment threads */}
+      <aside className="hidden sm:block w-64 lg:w-72 flex-shrink-0 border-r border-slate-200 h-screen overflow-y-auto">
+        <div className="p-4">
+          <div className="mb-3">
+            <span className="text-sm font-semibold text-slate-700">
+              Comments
+            </span>
+            {openThreads.length > 0 && (
+              <span className="ml-2 text-xs text-slate-400">
+                ({openThreads.length})
+              </span>
+            )}
+          </div>
+
+          {openThreads.length === 0 ? (
+            <p className="text-xs text-slate-400">
+              No comment threads yet. Ask the AI to edit the document and
+              comment threads will appear here.
+            </p>
+          ) : (
+            <div className="threads-group">
+              {openThreads.map((thread) => (
+                <ThreadItem
+                  key={thread.id}
+                  thread={thread}
+                  provider={provider}
+                  isSelected={selectedThread === thread.id}
+                  focusedThreads={editor.storage.comments?.focusedThreads ?? []}
+                  onClickThread={(id) => {
+                    selectThreadInEditor(id);
+                    setSelectedThread((prev) => (prev === id ? null : id));
+                  }}
+                  onHoverThread={onHoverThread}
+                  onLeaveThread={onLeaveThread}
+                  onResolveThread={resolveThread}
+                  onDeleteThread={deleteThread}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* Center: editor */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto">
           <EditorContent editor={editor} />
-          {tooltipMount &&
-            createPortal(
-              <SuggestionReviewTooltip
-                referenceElement={tooltipMount.element}
-                text={tooltipMount.text}
-                onAccept={() => {
-                  editor.commands.acceptSuggestion({
-                    id: tooltipMount.suggestionId,
-                  });
-                  setJustifications((prev) =>
-                    prev.filter(
-                      (j) => j.suggestionId !== tooltipMount.suggestionId,
-                    ),
-                  );
-                }}
-                onReject={() => {
-                  editor.commands.rejectSuggestion({
-                    id: tooltipMount.suggestionId,
-                  });
-                  setJustifications((prev) =>
-                    prev.filter(
-                      (j) => j.suggestionId !== tooltipMount.suggestionId,
-                    ),
-                  );
-                }}
-              />,
-              tooltipMount.element,
-            )}
         </div>
-
-        {/* Justifications panel */}
-        {justifications.length > 0 && (
-          <div className="border-t border-slate-200 bg-slate-50 max-h-48 overflow-y-auto">
-            <div className="px-4 py-2 border-b border-slate-200 bg-white sticky top-0">
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
-                <MessageSquareText size={14} />
-                AI Justifications ({justifications.length})
-              </h3>
-            </div>
-            <div className="divide-y divide-slate-200">
-              {justifications.map((entry) => (
-                <div
-                  key={entry.suggestionId}
-                  className="px-4 py-2.5 hover:bg-slate-100 transition-colors cursor-default"
-                >
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {entry.justification}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
+      {/* Right: chat sidebar */}
       <ChatSidebar
         messages={messages}
         input={input}
@@ -238,15 +297,14 @@ export default function Page() {
         {showReviewUI && (
           <div className="border-t border-slate-200 p-4 space-y-2">
             <p className="text-xs text-slate-500">
-              Review tracked changes in the document. Click on a change to see
-              its justification.
+              Review tracked changes in the document. Comments appear as threads
+              in the left sidebar.
             </p>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => {
                   editor.commands.acceptAllSuggestions();
-                  setJustifications([]);
                 }}
                 className="flex-1 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--green)] text-white hover:opacity-90 transition-all duration-200"
               >
@@ -256,7 +314,6 @@ export default function Page() {
                 type="button"
                 onClick={() => {
                   editor.commands.rejectAllSuggestions();
-                  setJustifications([]);
 
                   const rejectionMessage =
                     "Some changes you made were rejected by the user. Ask the user why, and what you can do to improve them.";
@@ -270,6 +327,120 @@ export default function Page() {
           </div>
         )}
       </ChatSidebar>
+    </div>
+  );
+}
+
+/**
+ * A simplified thread item component for displaying comment threads.
+ */
+function ThreadItem({
+  thread,
+  provider,
+  isSelected,
+  focusedThreads,
+  onClickThread,
+  onHoverThread,
+  onLeaveThread,
+  onResolveThread,
+  onDeleteThread,
+}: {
+  thread: Thread;
+  provider: TiptapCollabProvider;
+  isSelected: boolean;
+  focusedThreads: string[];
+  onClickThread: (id: string) => void;
+  onHoverThread: (id: string) => void;
+  onLeaveThread: () => void;
+  onResolveThread: (id: string) => void;
+  onDeleteThread: (id: string) => void;
+}) {
+  const comments: Comment[] = useMemo(
+    () => provider.getThreadComments(thread.id, true) ?? [],
+    [provider, thread],
+  );
+
+  const firstComment = comments[0];
+  const isActive = isSelected || focusedThreads.includes(thread.id);
+
+  return (
+    <div
+      onMouseEnter={() => onHoverThread(thread.id)}
+      onMouseLeave={() => onLeaveThread()}
+    >
+      <div
+        className={`thread${isSelected ? " is-open" : ""}${isActive ? " is-active" : ""}`}
+        onClick={() => onClickThread(thread.id)}
+        onKeyDown={() => {}}
+        role="button"
+        tabIndex={0}
+      >
+        {isSelected ? (
+          <>
+            <div className="header-group">
+              <div className="button-group">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onResolveThread(thread.id);
+                  }}
+                >
+                  Resolve
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteThread(thread.id);
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+            <div className="comments-group">
+              {comments.map((comment) => (
+                <div key={comment.id} className="comment">
+                  <div className="label-group">
+                    <span>{comment.data?.userName ?? "AI"}</span>
+                    <span>
+                      {new Date(comment.createdAt).toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <div className="comment-content">
+                    <p>{comment.content}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          firstComment && (
+            <div className="comments-group">
+              <div className="comment">
+                <div className="label-group">
+                  <span>{firstComment.data?.userName ?? "AI"}</span>
+                  <span>
+                    {new Date(firstComment.createdAt).toLocaleTimeString()}
+                  </span>
+                </div>
+                <div className="comment-content">
+                  <p>{firstComment.content}</p>
+                </div>
+              </div>
+              {comments.length > 1 && (
+                <div className="comments-count">
+                  <span>
+                    {comments.length - 1}{" "}
+                    {comments.length - 1 === 1 ? "reply" : "replies"}
+                  </span>
+                </div>
+              )}
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 }

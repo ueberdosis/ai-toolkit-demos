@@ -4,10 +4,62 @@ span[data-suggestion-type="replaceInsertion"] {
   background-color: oklch(87.1% 0.15 154.449);
 }
 
-/* Deleted text - red with strikethrough */
+/* Deleted text - red background */
 span[data-suggestion-type="delete"],
 span[data-suggestion-type="replaceDeletion"] {
   background-color: oklch(80.8% 0.114 19.571);
   color: oklch(0.396 0.141 25.723);
-  text-decoration: line-through;
+}
+
+/*
+ * Darker tracked-change colors when the parent comment thread
+ * is selected or hovered, giving visual feedback for the active thread.
+ */
+.tiptap-thread[data-state="selected"] span[data-suggestion-type="add"],
+.tiptap-thread[data-state="selected"]
+  span[data-suggestion-type="replaceInsertion"],
+.tiptap-thread[data-state="hovered"] span[data-suggestion-type="add"],
+.tiptap-thread[data-state="hovered"]
+  span[data-suggestion-type="replaceInsertion"] {
+  background-color: oklch(78% 0.17 154.449);
+}
+
+.tiptap-thread[data-state="selected"] span[data-suggestion-type="delete"],
+.tiptap-thread[data-state="selected"]
+  span[data-suggestion-type="replaceDeletion"],
+.tiptap-thread[data-state="hovered"] span[data-suggestion-type="delete"],
+.tiptap-thread[data-state="hovered"]
+  span[data-suggestion-type="replaceDeletion"] {
+  background-color: oklch(72% 0.13 19.571);
+  color: oklch(0.34 0.15 25.723);
+}
+
+/*
+ * Disable all comment-thread yellow highlighting in the editor.
+ * Tracked changes should always show red/green without any
+ * yellow overlay from the comments extension.
+ */
+.tiptap .tiptap-thread,
+.tiptap .tiptap-thread[data-type="inline"],
+.tiptap .tiptap-thread[data-type="block"],
+[data-viewmode] .tiptap .tiptap-thread,
+[data-viewmode] .tiptap .tiptap-thread[data-type="inline"],
+[data-viewmode] .tiptap .tiptap-thread[data-type="block"],
+[data-viewmode] .tiptap .tiptap-thread[data-status-all="open"],
+[data-viewmode]
+  .tiptap
+  .tiptap-thread[data-status-all="open"][data-type="inline"],
+[data-viewmode]
+  .tiptap
+  .tiptap-thread[data-status-all="open"][data-type="block"],
+[data-viewmode] .tiptap .tiptap-thread[data-status="closed"],
+[data-viewmode]
+  .tiptap
+  .tiptap-thread[data-status="closed"][data-type="inline"],
+[data-viewmode]
+  .tiptap
+  .tiptap-thread[data-status="closed"][data-type="block"] {
+  background-color: transparent !important;
+  border-bottom: none !important;
+  outline-color: transparent !important;
 }
