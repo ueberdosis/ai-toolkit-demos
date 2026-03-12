@@ -51,8 +51,12 @@ export default function Page() {
 
   const collectJustifications = useCallback(() => {
     if (!editor) return;
-    const trackedChangeMetadata = editor.storage.aiToolkit
-      .trackedChangeMetadata as Record<string, string>;
+    const trackedChangeMetadata =
+      (
+        editor.storage.aiToolkit as typeof editor.storage.aiToolkit & {
+          trackedChangeMetadata?: Record<string, string>;
+        }
+      ).trackedChangeMetadata ?? {};
     const suggestions = findSuggestions(editor, "suggestion");
     const entries: JustificationEntry[] = suggestions
       .filter((s) => trackedChangeMetadata[s.id])
@@ -83,8 +87,12 @@ export default function Page() {
         return;
       }
 
-      const trackedChangeMetadata = editor.storage.aiToolkit
-        .trackedChangeMetadata as Record<string, string>;
+      const trackedChangeMetadata =
+        (
+          editor.storage.aiToolkit as typeof editor.storage.aiToolkit & {
+            trackedChangeMetadata?: Record<string, string>;
+          }
+        ).trackedChangeMetadata ?? {};
       const meta = trackedChangeMetadata[selected.id];
 
       // Position an absolutely-placed anchor at the end of the suggestion
@@ -135,7 +143,6 @@ export default function Page() {
           mode: "trackedChanges",
           trackedChangesOptions: {
             userId: "ai-assistant",
-            userName: "AI",
           },
         },
       });

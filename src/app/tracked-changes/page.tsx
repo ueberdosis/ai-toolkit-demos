@@ -59,7 +59,6 @@ export default function Page() {
           mode: "trackedChanges",
           trackedChangesOptions: {
             userId: "ai-assistant",
-            userName: "AI",
           },
         },
       });
