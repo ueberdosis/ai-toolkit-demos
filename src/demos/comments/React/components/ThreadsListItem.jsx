@@ -20,19 +20,13 @@ export const ThreadsListItem = ({ thread, provider, active, open }) => {
     classNames.push("threadsList--item--active");
   }
 
-  const allComments = useMemo(
+  const comments = useMemo(
     () => provider.getThreadComments(thread.id, true),
     [provider, thread],
   );
 
-  // Filter out empty comments (created by the TrackedChangesIntegrationPlugin).
-  // The initial comment has content === undefined or "".
-  const comments = useMemo(
-    () => (allComments || []).filter((c) => c.content),
-    [allComments],
-  );
-
   const firstComment = comments?.[0];
+  const suggestionReason = thread.data?.suggestionReason;
 
   const handleDeleteClick = useCallback(() => {
     deleteThread(thread.id);
@@ -105,7 +99,13 @@ export const ThreadsListItem = ({ thread, provider, active, open }) => {
                 <CommentCard
                   key={comment.id}
                   name={comment.data.userName}
-                  content={comment.deletedAt ? null : comment.content}
+                  content={
+                    comment.deletedAt
+                      ? null
+                      : comment.id === firstComment?.id
+                        ? comment.content || suggestionReason
+                        : comment.content
+                  }
                   createdAt={comment.createdAt}
                   deleted={comment.deletedAt}
                   onEdit={(val) => {
@@ -131,7 +131,7 @@ export const ThreadsListItem = ({ thread, provider, active, open }) => {
             <CommentCard
               key={firstComment.id}
               name={firstComment.data.userName}
-              content={firstComment.content}
+              content={firstComment.content || suggestionReason}
               createdAt={firstComment.createdAt}
               deleted={firstComment.deletedAt}
               onEdit={(val) => {
