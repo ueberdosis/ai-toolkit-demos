@@ -20,9 +20,16 @@ export const ThreadsListItem = ({ thread, provider, active, open }) => {
     classNames.push("threadsList--item--active");
   }
 
-  const comments = useMemo(
+  const allComments = useMemo(
     () => provider.getThreadComments(thread.id, true),
     [provider, thread],
+  );
+
+  // Filter out empty comments (created by the TrackedChangesIntegrationPlugin).
+  // The initial comment has content === undefined or "".
+  const comments = useMemo(
+    () => (allComments || []).filter((c) => c.content),
+    [allComments],
   );
 
   const firstComment = comments?.[0];

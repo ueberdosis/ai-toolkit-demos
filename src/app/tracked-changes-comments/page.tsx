@@ -129,6 +129,80 @@ export default function Page() {
       return;
     }
 
+    // Map suggestionId -> reason, populated by trackedChanges:suggestionCreated.
+    // Map suggestionId -> threadId, populated by comments:threadCreated.
+    // When both exist for a suggestion, add a comment with the reason.
+    const reasonBySuggestionId = new Map<string, string>();
+    const threadBySuggestionId = new Map<string, string>();
+    const completed = new Set<string>();
+
+    const tryAddReasonComment = (suggestionId: string) => {
+      if (completed.has(suggestionId)) {
+        return;
+      }
+
+      const reason = reasonBySuggestionId.get(suggestionId);
+      const threadId = threadBySuggestionId.get(suggestionId);
+
+      if (!reason || !threadId) {
+        return;
+      }
+
+      provider.addComment(threadId, {
+        content: reason,
+        data: { userName: "AI" },
+      });
+
+      completed.add(suggestionId);
+    };
+
+    const handleThreadCreated = (payload: {
+      threadId: string;
+      thread: { id: string; data?: Record<string, unknown> };
+    }) => {
+      const suggestionId = payload.thread.data?.suggestionId;
+
+      if (typeof suggestionId !== "string") {
+        return;
+      }
+
+      threadBySuggestionId.set(suggestionId, payload.threadId);
+      tryAddReasonComment(suggestionId);
+    };
+
+    const handleSuggestionCreated = (payload: Record<string, unknown>) => {
+      const suggestion = payload.suggestion;
+      const reason = payload.reason;
+
+      if (
+        typeof reason !== "string" ||
+        !reason ||
+        !suggestion ||
+        typeof suggestion !== "object" ||
+        !("id" in suggestion) ||
+        typeof suggestion.id !== "string"
+      ) {
+        return;
+      }
+
+      reasonBySuggestionId.set(suggestion.id, reason);
+      tryAddReasonComment(suggestion.id);
+    };
+
+    editor.on("comments:threadCreated", handleThreadCreated);
+    editor.on("trackedChanges:suggestionCreated", handleSuggestionCreated);
+
+    return () => {
+      editor.off("comments:threadCreated", handleThreadCreated);
+      editor.off("trackedChanges:suggestionCreated", handleSuggestionCreated);
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
     const updateSuggestionState = () => {
       setHasSuggestions(findSuggestions(editor, "suggestion").length > 0);
     };
