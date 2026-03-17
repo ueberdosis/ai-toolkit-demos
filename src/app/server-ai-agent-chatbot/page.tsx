@@ -5,7 +5,10 @@ import { Collaboration } from "@tiptap/extension-collaboration";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import { getSchemaAwarenessData } from "@tiptap-pro/server-ai-toolkit";
+import {
+  ServerAiToolkit,
+  getSchemaAwarenessData,
+} from "@tiptap-pro/server-ai-toolkit";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
@@ -28,6 +31,7 @@ export default function Page() {
     extensions: [
       StarterKit.configure({ undoRedo: false }),
       Collaboration.configure({ document: doc }),
+      ServerAiToolkit,
     ],
   });
 
