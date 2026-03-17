@@ -47,6 +47,7 @@ type DemoThread = {
   resolvedAt?: string | null;
   data?: {
     suggestionId?: string;
+    suggestionReason?: string;
   };
 };
 
@@ -218,7 +219,10 @@ export default function Page() {
         text:
           typeof firstComment?.content === "string" && firstComment.content
             ? firstComment.content
-            : "Review this tracked change",
+            : typeof matchingThread?.data?.suggestionReason === "string" &&
+                matchingThread.data.suggestionReason
+              ? matchingThread.data.suggestionReason
+              : "Review this tracked change",
       });
     };
 
