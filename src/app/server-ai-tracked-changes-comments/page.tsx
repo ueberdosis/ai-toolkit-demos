@@ -219,9 +219,9 @@ export default function Page() {
         text:
           typeof firstComment?.content === "string" && firstComment.content
             ? firstComment.content
-            : typeof matchingThread?.data?.suggestionReason === "string" &&
-                matchingThread.data.suggestionReason
-              ? matchingThread.data.suggestionReason
+            : typeof firstComment?.data?.suggestionReason === "string" &&
+                firstComment.data.suggestionReason
+              ? firstComment.data.suggestionReason
               : "Review this tracked change",
       });
     };

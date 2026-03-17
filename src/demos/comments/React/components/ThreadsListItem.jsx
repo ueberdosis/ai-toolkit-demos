@@ -26,7 +26,19 @@ export const ThreadsListItem = ({ thread, provider, active, open }) => {
   );
 
   const firstComment = comments?.[0];
-  const suggestionReason = thread.data?.suggestionReason;
+  const suggestionReason = firstComment?.data?.suggestionReason;
+
+  if (typeof window !== 'undefined') {
+    window.__threadDebug = window.__threadDebug || [];
+    window.__threadDebug.push({
+      threadId: thread.id,
+      threadData: thread.data,
+      suggestionReason,
+      firstCommentContent: firstComment?.content,
+      firstCommentId: firstComment?.id,
+      commentsCount: comments?.length,
+    });
+  }
 
   const handleDeleteClick = useCallback(() => {
     deleteThread(thread.id);

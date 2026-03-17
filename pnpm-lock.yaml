@@ -36,14 +36,14 @@ importers:
         specifier: 3.0.0-alpha.36
         version: 3.0.0-alpha.36
       '@tiptap-pro/extension-comments':
-        specifier: ^3.5.0
-        version: 3.5.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.6)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(yjs@13.6.29))(@tiptap-pro/provider@3.5.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29))(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)
+        specifier: ^3.6.0
+        version: 3.6.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.6)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(yjs@13.6.29))(@tiptap-pro/provider@3.6.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29))(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)
       '@tiptap-pro/extension-tracked-changes':
         specifier: file:../../worktrees/tiptap-pro--server-ai-toolkit-tracked-changes/packages/extension-tracked-changes
         version: file:../tiptap-pro--server-ai-toolkit-tracked-changes/packages/extension-tracked-changes(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)
       '@tiptap-pro/provider':
-        specifier: ^3.5.0
-        version: 3.5.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29)
+        specifier: ^3.6.0
+        version: 3.6.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29)
       '@tiptap-pro/server-ai-toolkit':
         specifier: file:../../worktrees/tiptap-pro--server-ai-toolkit-tracked-changes/packages/server-ai-toolkit
         version: file:../tiptap-pro--server-ai-toolkit-tracked-changes/packages/server-ai-toolkit(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)
@@ -689,14 +689,14 @@ packages:
       '@tiptap/core': ^3.12.0
       '@tiptap/pm': ^3.12.0
 
-  '@tiptap-pro/extension-comments@3.5.0':
-    resolution: {integrity: sha512-5K6H/Zf/YUlVAhvyP9LrtJt1VMwLdCjp9aPnQ8mfmdi5DEj3sBN59CzssqnkGhQsY30u6QDzEjcn1guaDK2jVg==}
+  '@tiptap-pro/extension-comments@3.6.0':
+    resolution: {integrity: sha512-3M38SA6UqI+IvNNSnRFvCTmNGMH/H7IyKDNHMEech8kfNzlQWlXrp4ktiPGOp7lde/te1fp0IKE0G5od5J/G/g==}
     peerDependencies:
       '@hocuspocus/provider': ^3.2.0
       '@hocuspocus/transformer': ^3.2.0
-      '@tiptap-pro/provider': 3.5.0
-      '@tiptap/core': ^3.0.1
-      '@tiptap/pm': ^3.0.1
+      '@tiptap-pro/provider': 3.6.0
+      '@tiptap/core': ^3.15.0
+      '@tiptap/pm': ^3.15.0
 
   '@tiptap-pro/extension-tracked-changes@file:../tiptap-pro--server-ai-toolkit-tracked-changes/packages/extension-tracked-changes':
     resolution: {directory: ../tiptap-pro--server-ai-toolkit-tracked-changes/packages/extension-tracked-changes, type: directory}
@@ -704,8 +704,8 @@ packages:
       '@tiptap/core': ^3.15.0
       '@tiptap/pm': ^3.15.0
 
-  '@tiptap-pro/provider@3.5.0':
-    resolution: {integrity: sha512-BmUgHFoEP0eBPvueXdbcmtFaCVFQvYKr3zFe339q9UI7nKZusV0h5rQXyFOvDwgpBrswiTOChaF0XHpVMX4lIg==}
+  '@tiptap-pro/provider@3.6.0':
+    resolution: {integrity: sha512-XKgRP4gUHvK69ibM4769sptH713KbJHQI84GpHa2uuXEBrZ1Jij/RCmq15joKU4AAROYt+/Qos7xLddWMEDjvg==}
     peerDependencies:
       '@hocuspocus/provider': ^3.4.4
       lib0: ^0.2.99
@@ -1882,11 +1882,11 @@ snapshots:
       micro-memoize: 5.1.1
       zod: 4.3.6
 
-  '@tiptap-pro/extension-comments@3.5.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.6)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(yjs@13.6.29))(@tiptap-pro/provider@3.5.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29))(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)':
+  '@tiptap-pro/extension-comments@3.6.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.6)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(yjs@13.6.29))(@tiptap-pro/provider@3.6.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29))(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)':
     dependencies:
       '@hocuspocus/provider': 3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29)
       '@hocuspocus/transformer': 3.4.3(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.6)(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(yjs@13.6.29)
-      '@tiptap-pro/provider': 3.5.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29)
+      '@tiptap-pro/provider': 3.6.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29)
       '@tiptap/core': 3.20.0(@tiptap/pm@3.20.0)
       '@tiptap/pm': 3.20.0
 
@@ -1895,7 +1895,7 @@ snapshots:
       '@tiptap/core': 3.20.0(@tiptap/pm@3.20.0)
       '@tiptap/pm': 3.20.0
 
-  '@tiptap-pro/provider@3.5.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29)':
+  '@tiptap-pro/provider@3.6.0(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29))(lib0@0.2.117)(yjs@13.6.29)':
     dependencies:
       '@hocuspocus/provider': 3.4.4(y-protocols@1.0.7(yjs@13.6.29))(yjs@13.6.29)
       lib0: 0.2.117
