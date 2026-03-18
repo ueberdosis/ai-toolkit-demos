@@ -9,13 +9,10 @@ import {
 } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
+import { createSession } from "@/lib/server-ai-toolkit/create-session";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
-import { getDocument } from "@/lib/server-ai-toolkit/get-document";
 import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
 import { getToolDefinitions } from "@/lib/server-ai-toolkit/get-tool-definitions";
-import { updateDocument } from "@/lib/server-ai-toolkit/update-document";
-
-const collabBaseUrl = process.env.TIPTAP_CLOUD_COLLAB_BASE_URL;
 
 export async function POST(req: Request) {
   // Rate limiting
@@ -43,6 +40,8 @@ export async function POST(req: Request) {
     documentId: string;
   } = await req.json();
 
+  const sessionId = await createSession();
+
   // Get tool definitions from the Server AI Toolkit API
   const toolDefinitions = await getToolDefinitions(schemaAwarenessData);
 
@@ -59,20 +58,17 @@ export async function POST(req: Request) {
         inputSchema: z.fromJSONSchema(toolDef.inputSchema),
         execute: async (input) => {
           try {
-            // Get the latest version of the document before executing the tool
-            const document = await getDocument(documentId, collabBaseUrl);
-
             const result = await executeTool(
               toolDef.name,
               input,
-              document,
+              null,
               schemaAwarenessData,
+              {
+                documentId,
+                userId: "ai-assistant",
+                sessionId,
+              },
             );
-
-            // Update the document after executing the tool if it changed
-            if (result.docChanged && result.document && documentId) {
-              await updateDocument(documentId, result.document, collabBaseUrl);
-            }
 
             return result.output;
           } catch (error) {
