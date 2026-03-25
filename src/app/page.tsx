@@ -228,6 +228,18 @@ export default function Home() {
                 >
                   Server Comments
                 </Link>
+                <Link
+                  href="/server-ai-tracked-changes"
+                  className="inline-block bg-violet-600 text-white px-6 py-3 rounded-lg hover:bg-violet-700 transition-colors"
+                >
+                  Server tracked changes
+                </Link>
+                <Link
+                  href="/server-ai-tracked-changes-comments"
+                  className="inline-block bg-fuchsia-600 text-white px-6 py-3 rounded-lg hover:bg-fuchsia-700 transition-colors"
+                >
+                  Server tracked changes + comments
+                </Link>
               </div>
             </div>
           </div>

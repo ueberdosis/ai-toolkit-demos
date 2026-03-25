@@ -26,7 +26,8 @@ export const ThreadsListItem = ({ thread, provider, active, open }) => {
   );
 
   const firstComment = comments?.[0];
-  const suggestionReason = thread.data?.suggestionReason;
+  const suggestionReason =
+    thread.data?.suggestionReason || firstComment?.data?.suggestionReason;
 
   const handleDeleteClick = useCallback(() => {
     deleteThread(thread.id);
