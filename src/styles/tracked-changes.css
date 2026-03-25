@@ -46,27 +46,29 @@
   opacity: 0.65;
 }
 
-.tracked-changes-comments-demo
-  .tiptap
-  .tiptap-thread.tiptap-thread.tiptap-thread,
-.tracked-changes-comments-demo
-  .tiptap
-  .tiptap-thread.tiptap-thread.tiptap-thread
-  *,
-.tracked-changes-comments-demo
-  .tiptap
-  [data-type="inline-thread"][data-type="inline-thread"],
-.tracked-changes-comments-demo
-  .tiptap
-  [data-type="inline-thread"][data-type="inline-thread"]
-  *,
-.tracked-changes-comments-demo
-  .tiptap
-  [data-type="block-thread"][data-type="block-thread"],
-.tracked-changes-comments-demo
-  .tiptap
-  [data-type="block-thread"][data-type="block-thread"]
-  * {
+:where(
+    .tracked-changes-comments-demo
+      .tiptap
+      .tiptap-thread.tiptap-thread.tiptap-thread,
+    .tracked-changes-comments-demo
+      .tiptap
+      [data-type="inline-thread"][data-type="inline-thread"],
+    .tracked-changes-comments-demo
+      .tiptap
+      [data-type="block-thread"][data-type="block-thread"],
+    .tracked-changes-comments-demo
+      .tiptap
+      .tiptap-thread.tiptap-thread.tiptap-thread
+      *,
+    .tracked-changes-comments-demo
+      .tiptap
+      [data-type="inline-thread"][data-type="inline-thread"]
+      *,
+    .tracked-changes-comments-demo
+      .tiptap
+      [data-type="block-thread"][data-type="block-thread"]
+      *
+  ) {
   background-color: transparent;
   border-bottom-color: transparent;
   outline-color: transparent;
