@@ -42,7 +42,33 @@ export default function Page() {
       TrackedChanges.configure({ enabled: false }),
       AiToolkit,
     ],
-    content: `<h1>Split view demo</h1><p>Ask the AI to edit this document, then click <strong>Compare</strong> to see a side-by-side diff of the original and modified versions. You can accept or reject each change individually.</p>`,
+    content: `<h1>Remote Work Policy</h1>
+<p>This document outlines our company's remote work guidelines. All employees should read and follow these rules.</p>
+
+<h2>Eligibility</h2>
+<p>Full-time employees who have completed their probation period can request remote work. Part-time employees and contractors need manager approval. New hires must work on-site for their first 90 days.</p>
+
+<h2>Work Hours and Availability</h2>
+<ul>
+  <li>Core hours are 10 AM to 3 PM in your local time zone</li>
+  <li>You must be reachable on Slack during core hours</li>
+  <li>Team meetings should be scheduled within core hours</li>
+  <li>Overtime must be approved by your manager in advance</li>
+</ul>
+
+<h2>Equipment and Setup</h2>
+<p>The company provides a laptop and one monitor. Employees are responsible for their own internet connection, which should be stable enough for video calls. If you need additional equipment, submit a request through the IT portal.</p>
+
+<h2>Communication</h2>
+<p>Use Slack for quick questions, email for formal communication, and video calls for meetings that need discussion. Keep your calendar up to date so colleagues know when you're available. Respond to messages within 2 hours during core hours.</p>
+
+<h2>Security</h2>
+<ul>
+  <li>Use the company VPN when accessing internal systems</li>
+  <li>Don't work from public Wi-Fi without VPN</li>
+  <li>Lock your screen when stepping away</li>
+  <li>Report any security issues to IT immediately</li>
+</ul>`,
   });
 
   // Preview editors for split view
@@ -250,7 +276,7 @@ export default function Page() {
   });
 
   const [input, setInput] = useState(
-    "Rewrite the content to be more professional and detailed.",
+    "Make this policy more professional. Add a section about expense reimbursement for home office costs.",
   );
 
   const isLoading = status !== "ready";

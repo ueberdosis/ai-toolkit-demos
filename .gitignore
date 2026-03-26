@@ -43,3 +43,7 @@ next-env.d.ts
 .devtools
 
 .npmrc
+
+# yalc
+.yalc/
+yalc.lock
