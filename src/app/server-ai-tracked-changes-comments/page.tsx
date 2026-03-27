@@ -15,7 +15,10 @@ import {
   TrackedChanges,
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import { getSchemaAwarenessData } from "@tiptap-pro/server-ai-toolkit";
+import {
+  getSchemaAwarenessData,
+  ServerAiToolkit,
+} from "@tiptap-pro/server-ai-toolkit";
 import { DefaultChatTransport } from "ai";
 import { MessageSquareText } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -75,6 +78,7 @@ export default function Page() {
         Collaboration.configure({
           document: doc,
         }),
+        ServerAiToolkit,
         TrackedChanges.configure({
           enabled: false,
         }),

@@ -9,6 +9,7 @@ import {
 } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
+import { createSession } from "@/lib/server-ai-toolkit/create-session";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
 import { getDocument } from "@/lib/server-ai-toolkit/get-document";
 import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
@@ -43,6 +44,8 @@ export async function POST(req: Request) {
     documentId: string;
   } = await req.json();
 
+  const sessionId = await createSession();
+
   // Get tool definitions from the Server AI Toolkit API
   const toolDefinitions = await getToolDefinitions(schemaAwarenessData);
 
@@ -67,6 +70,7 @@ export async function POST(req: Request) {
               input,
               document,
               schemaAwarenessData,
+              { sessionId },
             );
 
             // Update the document after executing the tool if it changed

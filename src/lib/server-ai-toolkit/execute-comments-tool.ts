@@ -11,6 +11,7 @@ export async function executeCommentsTool(
   _document: unknown,
   schemaAwarenessData: unknown,
   commentsOptions: CommentsOptions,
+  sessionId?: string,
 ): Promise<{ output: unknown; docChanged: boolean; document?: unknown }> {
   const apiBaseUrl =
     process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
@@ -34,6 +35,7 @@ export async function executeCommentsTool(
       input,
       // document,
       schemaAwarenessData,
+      ...(sessionId ? { sessionId } : {}),
       experimental_documentOptions: {
         documentId: commentsOptions.documentId,
         userId: commentsOptions.userId,
