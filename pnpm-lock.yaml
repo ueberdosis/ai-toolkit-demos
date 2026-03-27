@@ -27,8 +27,8 @@ importers:
         specifier: ^3.4.4
         version: 3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
       '@tiptap-pro/ai-toolkit':
-        specifier: ^0.2.0
-        version: 0.2.0(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)
+        specifier: 0.3.0
+        version: 0.3.0(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)
       '@tiptap-pro/ai-toolkit-ai-sdk':
         specifier: 3.0.0-alpha.33
         version: 3.0.0-alpha.33(zod@4.3.6)
@@ -674,8 +674,8 @@ packages:
     resolution: {integrity: sha512-hz2YMEut6BjF3ML2lFlWccCJvHAcYx30+ym5wGGLVmejUKTMy1PsmasbfKuiFLyd3jTchVgdZuFa85X1euWZmQ==}
     hasBin: true
 
-  '@tiptap-pro/ai-toolkit@0.2.0':
-    resolution: {integrity: sha512-pTVk4Ez10ViqPXKfhCEkw94o6MCF8rKqIpYTWwsTQQ2oJfbqJR0l3UvkNSgMYdrSSv+Zd7v5t6Xnt4Zf68RYFA==}
+  '@tiptap-pro/ai-toolkit@0.3.0':
+    resolution: {integrity: sha512-kZeN9rlSwjr75c3IulD/E5TYV+sGiCk7rv2jk5himnsE5Fuh1gfjCsYRqpNOtYZFbsqIgSYqRDFd0DI8bAwLAQ==}
     peerDependencies:
       '@tiptap/core': ^3.12.0
       '@tiptap/pm': ^3.12.0
@@ -1851,7 +1851,7 @@ snapshots:
       commander: 14.0.3
       zod: 4.3.6
 
-  '@tiptap-pro/ai-toolkit@0.2.0(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)':
+  '@tiptap-pro/ai-toolkit@0.3.0(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)':
     dependencies:
       '@tiptap/core': 3.20.5(@tiptap/pm@3.20.5)
       '@tiptap/pm': 3.20.5
