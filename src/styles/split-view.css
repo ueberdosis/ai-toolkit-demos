@@ -1,0 +1,37 @@
+/* Split View — diff highlights (applied by createSplitView) */
+.split-view-demo .split-diff-deletion {
+  background-color: rgba(161, 161, 170, 0.15);
+  color: #71717a;
+  text-decoration: line-through;
+  text-decoration-color: rgba(161, 161, 170, 0.5);
+  cursor: pointer;
+}
+
+.split-view-demo .split-diff-insertion {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+  cursor: pointer;
+}
+
+.split-view-demo .split-diff-deletion.split-diff-highlight {
+  background-color: rgba(161, 161, 170, 0.35);
+  box-shadow: 0 0 0 2px rgba(161, 161, 170, 0.3);
+  border-radius: 2px;
+}
+
+.split-view-demo .split-diff-insertion.split-diff-highlight {
+  background-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+  border-radius: 2px;
+}
+
+.split-view-demo .split-diff-spacer {
+  background-color: rgba(244, 244, 245, 0.6);
+  border-radius: 6px;
+  cursor: pointer !important;
+  transition: background-color 0.15s ease;
+}
+
+.split-view-demo .split-diff-spacer.split-diff-highlight {
+  background-color: rgba(161, 161, 170, 0.25);
+}
