@@ -3,8 +3,8 @@
 import { useChat } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import type { SplitView } from "@tiptap-pro/ai-toolkit";
+import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import {
   findSuggestions,
   TrackedChanges,
@@ -13,11 +13,32 @@ import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
-import { Check, Columns2, X } from "lucide-react";
+import {
+  Check,
+  Columns2,
+  MessageSquare,
+  PanelRightClose,
+  X,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChatSidebar } from "../../components/chat-sidebar";
 import "../../styles/tracked-changes.css";
 import "../../styles/split-view.css";
+
+function useIsNarrow(breakpoint: number) {
+  const [isNarrow, setIsNarrow] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    setIsNarrow(mql.matches);
+
+    const handler = (e: MediaQueryListEvent) => setIsNarrow(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [breakpoint]);
+
+  return isNarrow;
+}
 
 interface PopoverState {
   diffId: string;
@@ -28,6 +49,7 @@ interface PopoverState {
 export default function Page() {
   const [hasSuggestions, setHasSuggestions] = useState(false);
   const [isCompareMode, setIsCompareMode] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(true);
   const [popover, setPopover] = useState<PopoverState | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const splitViewRef = useRef<SplitView | null>(null);
@@ -102,6 +124,22 @@ export default function Page() {
       editor.off("transaction", updateSuggestionState);
     };
   }, [editor]);
+
+  const isNarrow = useIsNarrow(1024);
+
+  // Auto-collapse chat on narrow viewports
+  useEffect(() => {
+    if (isNarrow) {
+      setIsChatOpen(false);
+    }
+  }, [isNarrow]);
+
+  // Also collapse chat when entering split view on narrow screens
+  useEffect(() => {
+    if (isCompareMode && isNarrow) {
+      setIsChatOpen(false);
+    }
+  }, [isCompareMode, isNarrow]);
 
   // Create/destroy split view when entering/exiting compare mode
   useEffect(() => {
@@ -247,7 +285,10 @@ export default function Page() {
   }, [isCompareMode, editor]);
 
   // Chat
-  const transport = useMemo(() => new DefaultChatTransport({ api: "/api/split-view" }), []);
+  const transport = useMemo(
+    () => new DefaultChatTransport({ api: "/api/split-view" }),
+    [],
+  );
 
   const { messages, sendMessage, addToolOutput, status } = useChat({
     transport,
@@ -293,9 +334,48 @@ export default function Page() {
 
   if (!editor) return null;
 
+  const reviewToolbar = showReviewUi ? (
+    <div className="flex items-center justify-center gap-2">
+      <button
+        type="button"
+        onClick={() => setIsCompareMode((prev) => !prev)}
+        className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium bg-[var(--purple-light)] text-[var(--purple)] hover:opacity-90 transition-all duration-200"
+      >
+        <Columns2 size={13} />
+        {isCompareMode ? "Exit split view" : "Split view"}
+      </button>
+      <button
+        type="button"
+        onClick={handleAcceptAll}
+        className="rounded-md px-2.5 py-1.5 text-xs font-medium bg-[var(--green)] text-white hover:opacity-90 transition-all duration-200"
+      >
+        Accept all
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          handleRejectAll();
+          sendMessage({
+            text: "Some changes were rejected. Ask the user what should be improved before you edit the document again.",
+          });
+        }}
+        className="rounded-md px-2.5 py-1.5 text-xs font-medium bg-[var(--gray-2)] text-[var(--black)] hover:bg-[var(--gray-3)] transition-all duration-200"
+      >
+        Reject all
+      </button>
+    </div>
+  ) : null;
+
   return (
     <div className="flex h-screen split-view-demo">
-      <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-hidden flex flex-col relative">
+        {/* Floating review toolbar (only when chat is closed) */}
+        {!isChatOpen && reviewToolbar && (
+          <div className="absolute top-3 right-3 z-40 bg-white border border-slate-200 rounded-lg shadow-sm px-2 py-1.5">
+            {reviewToolbar}
+          </div>
+        )}
+
         {/* Normal mode: main editor */}
         {!isCompareMode && (
           <div className="flex-1 overflow-y-auto">
@@ -303,7 +383,7 @@ export default function Page() {
           </div>
         )}
 
-        {/* Compare mode: split view */}
+        {/* Split view mode */}
         {isCompareMode && (
           <div className="flex flex-1 gap-0 overflow-hidden">
             {/* Left: Original */}
@@ -343,52 +423,52 @@ export default function Page() {
       </div>
 
       {/* Chat sidebar */}
-      <ChatSidebar
-        messages={messages}
-        input={input}
-        onInputChange={setInput}
-        onSubmit={handleSubmit}
-        isLoading={isLoading}
-      >
-        {showReviewUi && (
-          <div className="border-t border-slate-200 p-4 space-y-3">
-            <p className="text-xs text-slate-500">
-              Review AI changes in the document.
-            </p>
-
+      {isChatOpen && (
+        <div className="flex flex-col border-l border-slate-200 h-screen flex-shrink-0 w-80 lg:w-96">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200">
+            <span className="text-sm font-medium text-slate-700">Chat</span>
             <button
               type="button"
-              onClick={() => setIsCompareMode((prev) => !prev)}
-              className="w-full flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--purple-light)] text-[var(--purple)] hover:opacity-90 transition-all duration-200"
+              onClick={() => setIsChatOpen(false)}
+              className="rounded-md p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
             >
-              <Columns2 size={14} />
-              {isCompareMode ? "Exit compare" : "Compare"}
+              <PanelRightClose size={16} />
             </button>
-
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleAcceptAll}
-                className="flex-1 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--green)] text-white hover:opacity-90 transition-all duration-200"
-              >
-                Accept all
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  handleRejectAll();
-                  sendMessage({
-                    text: "Some changes were rejected. Ask the user what should be improved before you edit the document again.",
-                  });
-                }}
-                className="flex-1 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--gray-2)] text-[var(--black)] hover:bg-[var(--gray-3)] transition-all duration-200"
-              >
-                Reject all
-              </button>
-            </div>
           </div>
-        )}
-      </ChatSidebar>
+          <ChatSidebar
+            messages={messages}
+            input={input}
+            onInputChange={setInput}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            embedded
+          >
+            {reviewToolbar && (
+              <div className="border-t border-slate-200 p-3">
+                {reviewToolbar}
+              </div>
+            )}
+          </ChatSidebar>
+        </div>
+      )}
+
+      {/* Chat toggle button when sidebar is collapsed */}
+      {!isChatOpen && (
+        <button
+          type="button"
+          onClick={() => setIsChatOpen(true)}
+          className="absolute top-3 right-3 z-30 flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--black)] text-white shadow-lg hover:opacity-90 transition-all duration-200"
+          style={showReviewUi ? { top: "3.5rem" } : undefined}
+        >
+          <MessageSquare size={14} />
+          Chat
+          {messages.length > 0 && (
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-white text-black text-xs font-bold">
+              {messages.length}
+            </span>
+          )}
+        </button>
+      )}
 
       {/* Popover for accept/reject individual entries */}
       {popover && (
