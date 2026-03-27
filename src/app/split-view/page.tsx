@@ -127,14 +127,7 @@ export default function Page() {
 
   const isNarrow = useIsNarrow(1024);
 
-  // Auto-collapse chat on narrow viewports
-  useEffect(() => {
-    if (isNarrow) {
-      setIsChatOpen(false);
-    }
-  }, [isNarrow]);
-
-  // Also collapse chat when entering split view on narrow screens
+  // Auto-collapse chat when entering split view on narrow screens
   useEffect(() => {
     if (isCompareMode && isNarrow) {
       setIsChatOpen(false);
@@ -203,11 +196,18 @@ export default function Page() {
       if (!diffId) return;
 
       const rect = target.getBoundingClientRect();
-      setPopover({
-        diffId,
-        top: rect.bottom + 4,
-        left: rect.right,
-      });
+      const popoverWidth = 160;
+      const popoverHeight = 40;
+      const padding = 8;
+
+      let top = rect.bottom + 4;
+      let left = rect.left + (rect.width / 2) - (popoverWidth / 2);
+
+      // Clamp to viewport bounds
+      left = Math.max(padding, Math.min(left, window.innerWidth - popoverWidth - padding));
+      top = Math.max(padding, Math.min(top, window.innerHeight - popoverHeight - padding));
+
+      setPopover({ diffId, top, left });
     };
 
     leftEl.addEventListener("click", handleClick);
@@ -368,11 +368,24 @@ export default function Page() {
 
   return (
     <div className="flex h-screen split-view-demo">
-      <div className="flex-1 overflow-hidden flex flex-col relative">
-        {/* Floating review toolbar (only when chat is closed) */}
-        {!isChatOpen && reviewToolbar && (
-          <div className="absolute top-3 right-3 z-40 bg-white border border-slate-200 rounded-lg shadow-sm px-2 py-1.5">
-            {reviewToolbar}
+      <div className="flex-1 overflow-hidden flex flex-col">
+        {/* Top bar when chat is closed: review toolbar + chat toggle */}
+        {!isChatOpen && (
+          <div className="flex items-center justify-center border-b border-slate-200 px-4 py-2 bg-white flex-shrink-0">
+            {reviewToolbar && <div className="flex-1 flex justify-center">{reviewToolbar}</div>}
+            <button
+              type="button"
+              onClick={() => setIsChatOpen(true)}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium bg-[var(--black)] text-white hover:opacity-90 transition-all duration-200 flex-shrink-0"
+            >
+              <MessageSquare size={13} />
+              Chat
+              {messages.length > 0 && (
+                <span className="flex items-center justify-center w-4 h-4 rounded-full bg-white text-black text-[10px] font-bold">
+                  {messages.length}
+                </span>
+              )}
+            </button>
           </div>
         )}
 
@@ -450,24 +463,6 @@ export default function Page() {
             )}
           </ChatSidebar>
         </div>
-      )}
-
-      {/* Chat toggle button when sidebar is collapsed */}
-      {!isChatOpen && (
-        <button
-          type="button"
-          onClick={() => setIsChatOpen(true)}
-          className="absolute top-3 right-3 z-30 flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--black)] text-white shadow-lg hover:opacity-90 transition-all duration-200"
-          style={showReviewUi ? { top: "3.5rem" } : undefined}
-        >
-          <MessageSquare size={14} />
-          Chat
-          {messages.length > 0 && (
-            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-white text-black text-xs font-bold">
-              {messages.length}
-            </span>
-          )}
-        </button>
       )}
 
       {/* Popover for accept/reject individual entries */}
