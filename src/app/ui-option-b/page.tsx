@@ -22,28 +22,28 @@ const CATEGORIES: Category[] = [
       },
       {
         title: "Review Changes",
-        description: "Preview and approve AI-inserted changes",
+        description: "Preview or review AI suggestions, accept or reject each change individually",
         links: [
-          { label: "Preview", href: "/preview-changes" },
-          { label: "Review", href: "/review-changes" },
-          { label: "Justified", href: "/justified-changes" },
+          { label: "Preview Changes", href: "/preview-changes" },
+          { label: "Review Changes", href: "/review-changes" },
+          { label: "Justified Changes", href: "/justified-changes" },
         ],
       },
       {
         title: "Streaming",
         description: "Real-time streaming with optional review modes",
         links: [
-          { label: "Basic", href: "/tool-streaming" },
-          { label: "+ Preview", href: "/preview-changes-streaming" },
-          { label: "+ Review", href: "/review-changes-streaming" },
+          { label: "Basic Streaming", href: "/tool-streaming" },
+          { label: "Stream + Preview", href: "/preview-changes-streaming" },
+          { label: "Stream + Review", href: "/review-changes-streaming" },
         ],
       },
       {
         title: "Tracked Changes",
-        description: "Review AI edits as tracked changes",
+        description: "Review AI edits as tracked changes, with optional comment threads",
         links: [
-          { label: "Basic", href: "/tracked-changes" },
-          { label: "+ Comments", href: "/tracked-changes-comments" },
+          { label: "Tracked Changes", href: "/tracked-changes" },
+          { label: "Tracked + Comments", href: "/tracked-changes-comments" },
         ],
       },
       {
@@ -78,9 +78,9 @@ const CATEGORIES: Category[] = [
         links: [
           { label: "Insert Content", href: "/insert-content-workflow" },
           { label: "Proofreader", href: "/proofreader" },
-          { label: "Tiptap Edit", href: "/tiptap-edit-workflow" },
-          { label: "Comments", href: "/comments-workflow" },
-          { label: "Template", href: "/template-workflow" },
+          { label: "Tiptap Edit (replace, insert)", href: "/tiptap-edit-workflow" },
+          { label: "Comments Workflow", href: "/comments-workflow" },
+          { label: "Template Workflow", href: "/template-workflow" },
         ],
       },
     ],
@@ -91,10 +91,10 @@ const CATEGORIES: Category[] = [
       {
         title: "Server AI Toolkit",
         description:
-          "Server-side AI operations for security and collaboration",
+          "AI operations running server-side via Tiptap Cloud for enhanced security",
         links: [
-          { label: "Chatbot", href: "/server-ai-agent-chatbot" },
-          { label: "Comments", href: "/server-comments" },
+          { label: "Server Chatbot", href: "/server-ai-agent-chatbot" },
+          { label: "Server Comments", href: "/server-comments" },
         ],
       },
     ],
@@ -125,27 +125,44 @@ export default function UIOptionB() {
                 {category.rows.map((row) => (
                   <div
                     key={row.title}
-                    className="flex items-start justify-between gap-4 py-4"
+                    className="py-4"
                   >
-                    <div className="min-w-0">
-                      <h3 className="text-base font-medium text-gray-900">
-                        {row.title}
-                      </h3>
-                      <p className="text-sm text-gray-500 mt-0.5">
-                        {row.description}
-                      </p>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <h3 className="text-base font-medium text-gray-900">
+                          {row.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 mt-0.5">
+                          {row.description}
+                        </p>
+                      </div>
+                      {row.links.length <= 3 && (
+                        <div className="flex flex-wrap gap-2 shrink-0">
+                          {row.links.map((link) => (
+                            <Link
+                              key={link.href}
+                              href={link.href}
+                              className="inline-block rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:border-gray-300 transition-colors"
+                            >
+                              {link.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex flex-wrap gap-2 shrink-0">
-                      {row.links.map((link) => (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          className="inline-block rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:border-gray-300 transition-colors"
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
-                    </div>
+                    {row.links.length > 3 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {row.links.map((link) => (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            className="inline-block rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:border-gray-300 transition-colors"
+                          >
+                            {link.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

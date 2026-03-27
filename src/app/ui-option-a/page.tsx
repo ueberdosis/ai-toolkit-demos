@@ -41,15 +41,18 @@ const CATEGORIES = [
         heading: "Review Changes",
         items: [
           {
-            title: "Preview",
+            title: "Preview Changes",
+            description: "Preview AI suggestions before applying, accept or reject each one",
             href: "/preview-changes",
           },
           {
-            title: "Review",
+            title: "Review Changes",
+            description: "Changes applied first, then review. Accept or reject afterward",
             href: "/review-changes",
           },
           {
-            title: "Justified",
+            title: "Justified Changes",
+            description: "AI explains reasoning for each change",
             href: "/justified-changes",
           },
         ],
@@ -58,15 +61,18 @@ const CATEGORIES = [
         heading: "Streaming",
         items: [
           {
-            title: "Basic",
+            title: "Basic Streaming",
+            description: "Real-time AI response streaming",
             href: "/tool-streaming",
           },
           {
-            title: "+ Preview",
+            title: "Streaming + Preview",
+            description: "Stream with change preview overlay",
             href: "/preview-changes-streaming",
           },
           {
-            title: "+ Review",
+            title: "Streaming + Review",
+            description: "Stream with accept/reject review flow",
             href: "/review-changes-streaming",
           },
         ],
@@ -75,11 +81,13 @@ const CATEGORIES = [
         heading: "Tracked Changes",
         items: [
           {
-            title: "Basic",
+            title: "Tracked Changes",
+            description: "Review AI edits as tracked changes",
             href: "/tracked-changes",
           },
           {
-            title: "+ Comments",
+            title: "Tracked + Comments",
+            description: "Tracked changes with comment threads explaining each edit",
             href: "/tracked-changes-comments",
           },
         ],
@@ -97,22 +105,27 @@ const CATEGORIES = [
         items: [
           {
             title: "Insert Content",
+            description: "Generate and insert new content with AI",
             href: "/insert-content-workflow",
           },
           {
             title: "Proofreader",
+            description: "Automatic grammar and style corrections",
             href: "/proofreader",
           },
           {
             title: "Tiptap Edit",
+            description: "Transform documents with precise AI operations (replace, insert)",
             href: "/tiptap-edit-workflow",
           },
           {
-            title: "Comments",
+            title: "Comments Workflow",
+            description: "Automated commenting via AI workflow",
             href: "/comments-workflow",
           },
           {
-            title: "Template",
+            title: "Template Workflow",
+            description: "Generate content from predefined templates",
             href: "/template-workflow",
           },
         ],
@@ -130,10 +143,12 @@ const CATEGORIES = [
         items: [
           {
             title: "Server Chatbot",
+            description: "AI agent running server-side via Tiptap Cloud for enhanced security",
             href: "/server-ai-agent-chatbot",
           },
           {
             title: "Server Comments",
+            description: "Server-side comment threads stored on Tiptap Cloud",
             href: "/server-comments",
           },
         ],
@@ -197,7 +212,7 @@ export default function UIOptionA() {
                           {group.heading}
                         </h3>
                       )}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                         {group.items.map((item) => (
                           <Link
                             key={item.href}
