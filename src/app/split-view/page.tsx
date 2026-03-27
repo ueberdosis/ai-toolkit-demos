@@ -72,17 +72,16 @@ export default function Page() {
   });
 
   // Preview editors for split view
-  const leftExtensions = useMemo(() => [StarterKit, AiToolkit], []);
-  const rightExtensions = useMemo(() => [StarterKit, AiToolkit], []);
+  const previewExtensions = useMemo(() => [StarterKit, AiToolkit], []);
 
   const leftEditor = useEditor({
-    extensions: leftExtensions,
+    extensions: previewExtensions,
     editable: false,
     immediatelyRender: false,
   });
 
   const rightEditor = useEditor({
-    extensions: rightExtensions,
+    extensions: previewExtensions,
     editable: false,
     immediatelyRender: false,
   });
@@ -248,8 +247,10 @@ export default function Page() {
   }, [isCompareMode, editor]);
 
   // Chat
+  const transport = useMemo(() => new DefaultChatTransport({ api: "/api/split-view" }), []);
+
   const { messages, sendMessage, addToolOutput, status } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/split-view" }),
+    transport,
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
       if (!editor) return;
