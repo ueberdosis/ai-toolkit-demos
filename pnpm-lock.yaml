@@ -30,11 +30,11 @@ importers:
         specifier: 0.3.0
         version: 0.3.0(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)
       '@tiptap-pro/ai-toolkit-ai-sdk':
-        specifier: 3.0.0-alpha.33
-        version: 3.0.0-alpha.33(zod@4.3.6)
+        specifier: 0.3.0
+        version: 0.3.0(zod@4.3.6)
       '@tiptap-pro/ai-toolkit-tool-definitions':
-        specifier: 3.0.0-alpha.36
-        version: 3.0.0-alpha.36
+        specifier: 0.3.0
+        version: 0.3.0
       '@tiptap-pro/extension-comments':
         specifier: ^3.6.2
         version: 3.6.2(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.7)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(yjs@13.6.30))(@tiptap-pro/provider@3.6.2(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(lib0@0.2.117)(yjs@13.6.30))(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)
@@ -45,8 +45,8 @@ importers:
         specifier: ^3.6.2
         version: 3.6.2(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(lib0@0.2.117)(yjs@13.6.30)
       '@tiptap-pro/server-ai-toolkit':
-        specifier: 3.0.0-alpha.4
-        version: 3.0.0-alpha.4(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)
+        specifier: 0.3.0
+        version: 0.3.0(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)
       '@tiptap/core':
         specifier: ^3.20.5
         version: 3.20.5(@tiptap/pm@3.20.5)
@@ -667,11 +667,11 @@ packages:
   '@tailwindcss/postcss@4.2.2':
     resolution: {integrity: sha512-n4goKQbW8RVXIbNKRB/45LzyUqN451deQK0nzIeauVEqjlI49slUlgKYJM2QyUzap/PcpnS7kzSUmPb1sCRvYQ==}
 
-  '@tiptap-pro/ai-toolkit-ai-sdk@3.0.0-alpha.33':
-    resolution: {integrity: sha512-FRcWtYdVTv8ur1ZmYojttPJhf7KUk+M2m7zU0lZIMfsUyqmfJgI0cBaxiQ7iuaHFsmFB1qIvUmtI0t1EWxmPlw==}
+  '@tiptap-pro/ai-toolkit-ai-sdk@0.3.0':
+    resolution: {integrity: sha512-5NkKt7L2ptavEjwZ3WVgaMPNzgab4KXOee+AcQyTLmGpU6Gq/2YkQD0dSHG2zAyT1LaRnzyIo+73dB03pz/Heg==}
 
-  '@tiptap-pro/ai-toolkit-tool-definitions@3.0.0-alpha.36':
-    resolution: {integrity: sha512-hz2YMEut6BjF3ML2lFlWccCJvHAcYx30+ym5wGGLVmejUKTMy1PsmasbfKuiFLyd3jTchVgdZuFa85X1euWZmQ==}
+  '@tiptap-pro/ai-toolkit-tool-definitions@0.3.0':
+    resolution: {integrity: sha512-q0+CsRRJyxwnxztTb304ArY68BRkJaeX73E3nAmyRRVfk5W3mOlbM1Z6xZXCjF82jjJ4MSukriallQ4p6vRmaA==}
     hasBin: true
 
   '@tiptap-pro/ai-toolkit@0.3.0':
@@ -702,8 +702,8 @@ packages:
       lib0: ^0.2.99
       yjs: ^13.6.20
 
-  '@tiptap-pro/server-ai-toolkit@3.0.0-alpha.4':
-    resolution: {integrity: sha512-xd2rreKCZtoOd/+l6Cvzc7boGK+0jX1tIYkT6QPuCDuPKs4Z0MSCFvg/ygaPLluQJzeZr/mChPZMkaOKTO0EFg==}
+  '@tiptap-pro/server-ai-toolkit@0.3.0':
+    resolution: {integrity: sha512-ybgTPSL7on/3RX+FhNWnJjik/cP4Qn0GrdV945d0qZ7NB6l13eOO16rkI+50ScZgoxp4Hn53NbrSJrB1S3KQ7g==}
     peerDependencies:
       '@tiptap/core': ^3.0.1
       '@tiptap/pm': ^3.0.1
@@ -1839,14 +1839,14 @@ snapshots:
       postcss: 8.5.8
       tailwindcss: 4.2.2
 
-  '@tiptap-pro/ai-toolkit-ai-sdk@3.0.0-alpha.33(zod@4.3.6)':
+  '@tiptap-pro/ai-toolkit-ai-sdk@0.3.0(zod@4.3.6)':
     dependencies:
-      '@tiptap-pro/ai-toolkit-tool-definitions': 3.0.0-alpha.36
+      '@tiptap-pro/ai-toolkit-tool-definitions': 0.3.0
       ai: 6.0.138(zod@4.3.6)
     transitivePeerDependencies:
       - zod
 
-  '@tiptap-pro/ai-toolkit-tool-definitions@3.0.0-alpha.36':
+  '@tiptap-pro/ai-toolkit-tool-definitions@0.3.0':
     dependencies:
       commander: 14.0.3
       zod: 4.3.6
@@ -1878,7 +1878,7 @@ snapshots:
       lib0: 0.2.117
       yjs: 13.6.30
 
-  '@tiptap-pro/server-ai-toolkit@3.0.0-alpha.4(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)':
+  '@tiptap-pro/server-ai-toolkit@0.3.0(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)':
     dependencies:
       '@tiptap/core': 3.20.5(@tiptap/pm@3.20.5)
       '@tiptap/pm': 3.20.5
