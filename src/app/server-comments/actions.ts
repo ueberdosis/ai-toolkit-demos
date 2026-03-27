@@ -1,6 +1,7 @@
 "use server";
 
 import jwt from "jsonwebtoken";
+import { createSession } from "@/lib/server-ai-toolkit/create-session";
 
 const TIPTAP_CLOUD_SECRET = process.env.TIPTAP_CLOUD_SECRET;
 const TIPTAP_CLOUD_DOCUMENT_SERVER_ID =
@@ -33,4 +34,8 @@ export async function getCollabConfig(
     appId: TIPTAP_CLOUD_DOCUMENT_SERVER_ID,
     collabBaseUrl: TIPTAP_CLOUD_COLLAB_BASE_URL,
   };
+}
+
+export async function createDemoSession(): Promise<string> {
+  return createSession();
 }

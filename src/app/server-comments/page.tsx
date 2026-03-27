@@ -30,11 +30,12 @@ import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
 import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
 import "../../demos/comments/React/styles.scss";
 import "../../demos/comments/style.scss";
-import { getCollabConfig } from "./actions";
+import { createDemoSession, getCollabConfig } from "./actions";
 
 export default function Page() {
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-comments/${uuid()}`);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
 
   const [showUnresolved, setShowUnresolved] = useState(true);
@@ -51,10 +52,11 @@ export default function Page() {
 
     const setupProvider = async () => {
       try {
-        const { token, appId, collabBaseUrl } = await getCollabConfig(
-          "user-1",
-          documentId,
-        );
+        const [{ token, appId, collabBaseUrl }, nextSessionId] =
+          await Promise.all([
+            getCollabConfig("user-1", documentId),
+            createDemoSession(),
+          ]);
 
         collabProvider = new TiptapCollabProvider({
           ...(collabBaseUrl ? { baseUrl: collabBaseUrl } : { appId }),
@@ -73,6 +75,7 @@ export default function Page() {
         });
 
         setProvider(collabProvider);
+        setSessionId(nextSessionId);
       } catch (error) {
         console.error("Failed to setup collaboration:", error);
       }
@@ -153,6 +156,7 @@ export default function Page() {
       body: () => ({
         schemaAwarenessData: schemaAwarenessDataRef.current,
         documentId,
+        sessionId,
       }),
     }),
   });
@@ -165,7 +169,7 @@ export default function Page() {
 
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
-    if (input.trim()) {
+    if (input.trim() && sessionId) {
       sendMessage({ text: input });
       setInput("");
     }
@@ -232,7 +236,7 @@ export default function Page() {
     }
   }, [editor]);
 
-  if (!editor || !provider) {
+  if (!editor || !provider || !sessionId) {
     return null;
   }
 

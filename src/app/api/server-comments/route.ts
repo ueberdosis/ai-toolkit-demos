@@ -9,7 +9,6 @@ import {
 } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
-import { createSession } from "@/lib/server-ai-toolkit/create-session";
 import { executeCommentsTool } from "@/lib/server-ai-toolkit/execute-comments-tool";
 import { getCommentsToolDefinitions } from "@/lib/server-ai-toolkit/get-comments-tool-definitions";
 import { getDocument } from "@/lib/server-ai-toolkit/get-document";
@@ -38,13 +37,17 @@ export async function POST(req: Request) {
     messages,
     schemaAwarenessData,
     documentId,
+    sessionId,
   }: {
     messages: UIMessage[];
     schemaAwarenessData: unknown;
     documentId: string;
+    sessionId?: string;
   } = await req.json();
 
-  const sessionId = await createSession();
+  if (!sessionId) {
+    throw new Error("Missing sessionId");
+  }
 
   const tiptapCloudDocumentServerId =
     process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;

@@ -21,7 +21,10 @@ import * as Y from "yjs";
 import { ChatSidebar } from "../../components/chat-sidebar";
 import { SuggestionReviewTooltip } from "../../components/suggestion-review-tooltip";
 import "../../styles/tracked-changes.css";
-import { getCollabConfig } from "../server-ai-agent-chatbot/actions";
+import {
+  createDemoSession,
+  getCollabConfig,
+} from "../server-ai-agent-chatbot/actions";
 
 const initialTrackedChangesContent =
   "<h1>Tracked changes demo</h1><p>Ask the AI to improve this document. AI edits are written as tracked changes so you can accept or reject them one by one.</p>";
@@ -35,6 +38,7 @@ type SuggestionTooltipMount = {
 export default function Page() {
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-ai-tracked-changes/${uuid()}`);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [hasSuggestions, setHasSuggestions] = useState(false);
   const [tooltipMount, setTooltipMount] =
     useState<SuggestionTooltipMount | null>(null);
@@ -67,10 +71,11 @@ export default function Page() {
 
     const setupProvider = async () => {
       try {
-        const { token, appId, collabBaseUrl } = await getCollabConfig(
-          "user-1",
-          documentId,
-        );
+        const [{ token, appId, collabBaseUrl }, nextSessionId] =
+          await Promise.all([
+            getCollabConfig("user-1", documentId),
+            createDemoSession(),
+          ]);
 
         collabProvider = new TiptapCollabProvider({
           ...(collabBaseUrl ? { baseUrl: collabBaseUrl } : { appId }),
@@ -87,6 +92,7 @@ export default function Page() {
         });
 
         providerRef.current = collabProvider;
+        setSessionId(nextSessionId);
       } catch (error) {
         console.error("Failed to setup collaboration:", error);
       }
@@ -165,6 +171,7 @@ export default function Page() {
       body: () => ({
         schemaAwarenessData: schemaAwarenessDataRef.current,
         documentId,
+        sessionId,
       }),
     }),
   });
@@ -179,13 +186,13 @@ export default function Page() {
   const handleSubmit = (event: SubmitEvent) => {
     event.preventDefault();
 
-    if (input.trim()) {
+    if (input.trim() && sessionId) {
       sendMessage({ text: input });
       setInput("");
     }
   };
 
-  if (!editor) {
+  if (!editor || !sessionId) {
     return null;
   }
 

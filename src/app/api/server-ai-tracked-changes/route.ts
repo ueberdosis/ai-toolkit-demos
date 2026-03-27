@@ -9,7 +9,6 @@ import {
 } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
-import { createSession } from "@/lib/server-ai-toolkit/create-session";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
 import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
 import { getToolDefinitions } from "@/lib/server-ai-toolkit/get-tool-definitions";
@@ -33,13 +32,17 @@ export async function POST(req: Request) {
     messages,
     schemaAwarenessData,
     documentId,
+    sessionId,
   }: {
     messages: UIMessage[];
     schemaAwarenessData: unknown;
     documentId: string;
+    sessionId?: string;
   } = await req.json();
 
-  const sessionId = await createSession();
+  if (!sessionId) {
+    throw new Error("Missing sessionId");
+  }
   const toolDefinitions = await getToolDefinitions(schemaAwarenessData);
   const schemaAwarenessPrompt =
     await getSchemaAwarenessPrompt(schemaAwarenessData);
