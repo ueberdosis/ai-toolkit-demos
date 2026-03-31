@@ -43,7 +43,9 @@ export async function POST(req: Request) {
   if (!sessionId) {
     throw new Error("Missing sessionId");
   }
-  const toolDefinitions = await getToolDefinitions(schemaAwarenessData);
+  const toolDefinitions = await getToolDefinitions({
+    schemaAwarenessData,
+  });
   const schemaAwarenessPrompt =
     await getSchemaAwarenessPrompt(schemaAwarenessData);
 

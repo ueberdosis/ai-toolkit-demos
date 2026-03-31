@@ -50,7 +50,9 @@ export async function POST(req: Request) {
   }
 
   // Get tool definitions from the Server AI Toolkit API
-  const toolDefinitions = await getToolDefinitions(schemaAwarenessData);
+  const toolDefinitions = await getToolDefinitions({
+    schemaAwarenessData,
+  });
 
   // Get schema awareness prompt from the Server AI Toolkit API
   const schemaAwarenessPrompt =
