@@ -58,70 +58,23 @@ const initialTrackedChangesCommentsContent =
   "<h1>Tracked changes demo</h1><p>Ask the AI to improve this document. AI edits are written as tracked changes so you can accept or reject them one by one.</p>";
 
 export default function Page() {
-  const user = useUser();
+  const [isMounted, setIsMounted] = useState(false);
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(
     () => `server-ai-tracked-changes-comments/${uuid()}`,
   );
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const sessionIdRef = useRef<string | null>(null);
-  const [hasSuggestions, setHasSuggestions] = useState(false);
-  const [selectedThread, setSelectedThread] = useState<string | null>(null);
-  const [tooltipMount, setTooltipMount] =
-    useState<SuggestionTooltipMount | null>(null);
   const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
-  const anchorRef = useRef<HTMLSpanElement | null>(null);
-  const didSetInitialContentRef = useRef(false);
-
-  const editor = useEditor(
-    {
-      immediatelyRender: false,
-      extensions: [
-        StarterKit.configure({
-          undoRedo: false,
-        }),
-        Collaboration.configure({
-          document: doc,
-        }),
-        ServerAiToolkit,
-        TrackedChanges.configure({
-          enabled: false,
-        }),
-        ...(provider
-          ? [
-              CommentsKit.configure({
-                provider,
-                onClickThread: (threadId: string | null) => {
-                  if (!threadId) {
-                    setSelectedThread(null);
-                    editor?.chain().unselectThread().run();
-                    return;
-                  }
-
-                  setSelectedThread(threadId);
-                  editor
-                    ?.chain()
-                    .selectThread({ id: threadId, updateSelection: false })
-                    .run();
-                },
-              }),
-            ]
-          : []),
-        Placeholder.configure({
-          placeholder: "Ask the AI to improve this document…",
-        }),
-      ],
-      editorProps: {
-        attributes: {
-          // @ts-expect-error spellcheck is a valid DOM attribute
-          spellcheck: false,
-        },
-      },
-    },
-    [provider],
-  );
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) {
+      return;
+    }
+
     let collabProvider: TiptapCollabProvider | null = null;
 
     const setupProvider = async () => {
@@ -152,7 +105,100 @@ export default function Page() {
     return () => {
       collabProvider?.destroy();
     };
-  }, [documentId, doc]);
+  }, [documentId, doc, isMounted]);
+
+  if (!isMounted) {
+    return null;
+  }
+
+  if (!provider || !sessionId) {
+    return (
+      <div className="tracked-changes-comments-demo flex h-screen items-center justify-center bg-white">
+        <div className="space-y-2 text-center">
+          <div className="label-large">Starting collaboration session</div>
+          <p className="label-small text-slate-500">
+            Mounting the comments provider before the editor initializes.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <TrackedChangesCommentsEditor
+      doc={doc}
+      documentId={documentId}
+      provider={provider}
+      sessionId={sessionId}
+    />
+  );
+}
+
+type TrackedChangesCommentsEditorProps = {
+  doc: Y.Doc;
+  documentId: string;
+  provider: TiptapCollabProvider;
+  sessionId: string;
+};
+
+function TrackedChangesCommentsEditor({
+  doc,
+  documentId,
+  provider,
+  sessionId,
+}: TrackedChangesCommentsEditorProps) {
+  const user = useUser();
+  const sessionIdRef = useRef(sessionId);
+  const [hasSuggestions, setHasSuggestions] = useState(false);
+  const [selectedThread, setSelectedThread] = useState<string | null>(null);
+  const [tooltipMount, setTooltipMount] =
+    useState<SuggestionTooltipMount | null>(null);
+  const anchorRef = useRef<HTMLSpanElement | null>(null);
+  const didSetInitialContentRef = useRef(false);
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        undoRedo: false,
+      }),
+      Collaboration.configure({
+        document: doc,
+      }),
+      ServerAiToolkit,
+      TrackedChanges.configure({
+        enabled: false,
+        userId: "foo"
+      }),
+      CommentsKit.configure({
+        provider,
+        onClickThread: (threadId: string | null) => {
+          if (!threadId) {
+            setSelectedThread(null);
+            editor?.chain().unselectThread().run();
+            return;
+          }
+
+          setSelectedThread(threadId);
+          editor
+            ?.chain()
+            .selectThread({ id: threadId, updateSelection: false })
+            .run();
+        },
+      }),
+      Placeholder.configure({
+        placeholder: "Ask the AI to improve this document…",
+      }),
+    ],
+    editorProps: {
+      attributes: {
+        // @ts-expect-error spellcheck is a valid DOM attribute
+        spellcheck: false,
+      },
+    },
+    // onTransaction: ({ transaction, appendedTransactions }) =>
+    //   console.log({ transaction, appendedTransactions }),
+  });
 
   useEffect(() => {
     if (!editor || didSetInitialContentRef.current || !editor.isEmpty) {
@@ -167,6 +213,7 @@ export default function Page() {
   const threads: DemoThread[] = Array.isArray(threadsResult.threads)
     ? threadsResult.threads
     : [];
+  console.log(threads)
 
   useEffect(() => {
     if (!editor) {
@@ -213,10 +260,7 @@ export default function Page() {
       let firstComment = null;
 
       if (typeof matchingThreadId === "string") {
-        const threadComments = provider?.getThreadComments(
-          matchingThreadId,
-          true,
-        );
+        const threadComments = provider.getThreadComments(matchingThreadId, true);
         firstComment = Array.isArray(threadComments) ? threadComments[0] : null;
       }
 
@@ -274,7 +318,7 @@ export default function Page() {
   const handleSubmit = (event: SubmitEvent) => {
     event.preventDefault();
 
-    if (input.trim() && sessionId) {
+    if (input.trim()) {
       sendMessage({ text: input });
       setInput("");
     }
@@ -289,7 +333,7 @@ export default function Page() {
 
   const deleteThread = useCallback(
     (threadId: string) => {
-      provider?.deleteThread(threadId);
+      provider.deleteThread(threadId);
       editor?.commands.removeThread({ id: threadId });
     },
     [editor, provider],
@@ -341,7 +385,7 @@ export default function Page() {
     }
   }, [editor]);
 
-  if (!editor || !provider || !sessionId) {
+  if (!editor) {
     return null;
   }
 
