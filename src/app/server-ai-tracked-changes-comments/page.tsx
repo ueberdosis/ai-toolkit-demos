@@ -64,6 +64,7 @@ export default function Page() {
     () => `server-ai-tracked-changes-comments/${uuid()}`,
   );
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
   const [hasSuggestions, setHasSuggestions] = useState(false);
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
   const [tooltipMount, setTooltipMount] =
@@ -249,6 +250,7 @@ export default function Page() {
   const schemaAwarenessData = editor ? getSchemaAwarenessData(editor) : null;
   const schemaAwarenessDataRef = useRef(schemaAwarenessData);
   schemaAwarenessDataRef.current = schemaAwarenessData;
+  sessionIdRef.current = sessionId;
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
@@ -256,7 +258,7 @@ export default function Page() {
       body: () => ({
         schemaAwarenessData: schemaAwarenessDataRef.current,
         documentId,
-        sessionId,
+        sessionId: sessionIdRef.current,
       }),
     }),
   });

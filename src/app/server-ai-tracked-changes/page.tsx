@@ -39,6 +39,7 @@ export default function Page() {
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-ai-tracked-changes/${uuid()}`);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
   const [hasSuggestions, setHasSuggestions] = useState(false);
   const [tooltipMount, setTooltipMount] =
     useState<SuggestionTooltipMount | null>(null);
@@ -60,6 +61,7 @@ export default function Page() {
         enabled: false,
       }),
     ],
+    onTransaction: ({transaction, appendedTransactions}) => console.log({transaction, appendedTransactions})
   });
 
   useEffect(() => {
@@ -164,6 +166,7 @@ export default function Page() {
   const schemaAwarenessData = editor ? getSchemaAwarenessData(editor) : null;
   const schemaAwarenessDataRef = useRef(schemaAwarenessData);
   schemaAwarenessDataRef.current = schemaAwarenessData;
+  sessionIdRef.current = sessionId;
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
@@ -171,7 +174,7 @@ export default function Page() {
       body: () => ({
         schemaAwarenessData: schemaAwarenessDataRef.current,
         documentId,
-        sessionId,
+        sessionId: sessionIdRef.current,
       }),
     }),
   });
