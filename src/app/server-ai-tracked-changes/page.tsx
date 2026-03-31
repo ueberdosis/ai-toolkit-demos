@@ -61,7 +61,6 @@ export default function Page() {
         enabled: false,
       }),
     ],
-    onTransaction: ({transaction, appendedTransactions}) => console.log({transaction, appendedTransactions})
   });
 
   useEffect(() => {
