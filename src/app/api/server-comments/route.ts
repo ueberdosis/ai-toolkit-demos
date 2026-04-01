@@ -37,17 +37,11 @@ export async function POST(req: Request) {
     messages,
     schemaAwarenessData,
     documentId,
-    sessionId,
   }: {
     messages: UIMessage[];
     schemaAwarenessData: unknown;
     documentId: string;
-    sessionId?: string;
   } = await req.json();
-
-  if (!sessionId) {
-    throw new Error("Missing sessionId");
-  }
 
   const tiptapCloudDocumentServerId =
     process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
@@ -94,7 +88,6 @@ export async function POST(req: Request) {
               document,
               schemaAwarenessData,
               commentsOptions,
-              sessionId,
             );
 
             // Update the document after executing the tool if it changed

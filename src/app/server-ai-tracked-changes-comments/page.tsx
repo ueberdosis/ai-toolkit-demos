@@ -34,10 +34,7 @@ import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
 import "../../demos/comments/React/styles.scss";
 import "../../demos/comments/style.scss";
 import "../../styles/tracked-changes.css";
-import {
-  createDemoSession,
-  getCollabConfig,
-} from "../server-ai-agent-chatbot/actions";
+import { getCollabConfig } from "../server-ai-agent-chatbot/actions";
 
 type SuggestionTooltipMount = {
   suggestionId: string;
@@ -63,7 +60,6 @@ export default function Page() {
   const [documentId] = useState(
     () => `server-ai-tracked-changes-comments/${uuid()}`,
   );
-  const [sessionId, setSessionId] = useState<string | null>(null);
   const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
 
   useEffect(() => {
@@ -79,11 +75,10 @@ export default function Page() {
 
     const setupProvider = async () => {
       try {
-        const [{ token, appId, collabBaseUrl }, nextSessionId] =
-          await Promise.all([
-            getCollabConfig("user-1", documentId),
-            createDemoSession(),
-          ]);
+        const { token, appId, collabBaseUrl } = await getCollabConfig(
+          "user-1",
+          documentId,
+        );
 
         collabProvider = new TiptapCollabProvider({
           ...(collabBaseUrl ? { baseUrl: collabBaseUrl } : { appId }),
@@ -94,7 +89,6 @@ export default function Page() {
         });
 
         setProvider(collabProvider);
-        setSessionId(nextSessionId);
       } catch (error) {
         console.error("Failed to setup collaboration:", error);
       }
@@ -111,11 +105,11 @@ export default function Page() {
     return null;
   }
 
-  if (!provider || !sessionId) {
+  if (!provider) {
     return (
       <div className="tracked-changes-comments-demo flex h-screen items-center justify-center bg-white">
         <div className="space-y-2 text-center">
-          <div className="label-large">Starting collaboration session</div>
+          <div className="label-large">Loading collaboration document</div>
           <p className="label-small text-slate-500">
             Mounting the comments provider before the editor initializes.
           </p>
@@ -129,7 +123,6 @@ export default function Page() {
       doc={doc}
       documentId={documentId}
       provider={provider}
-      sessionId={sessionId}
     />
   );
 }
@@ -138,17 +131,14 @@ type TrackedChangesCommentsEditorProps = {
   doc: Y.Doc;
   documentId: string;
   provider: TiptapCollabProvider;
-  sessionId: string;
 };
 
 function TrackedChangesCommentsEditor({
   doc,
   documentId,
   provider,
-  sessionId,
 }: TrackedChangesCommentsEditorProps) {
   const user = useUser();
-  const sessionIdRef = useRef(sessionId);
   const [hasSuggestions, setHasSuggestions] = useState(false);
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
   const [tooltipMount, setTooltipMount] =
@@ -168,7 +158,7 @@ function TrackedChangesCommentsEditor({
       ServerAiToolkit,
       TrackedChanges.configure({
         enabled: false,
-        userId: "foo"
+        userId: "foo",
       }),
       CommentsKit.configure({
         provider,
@@ -213,7 +203,6 @@ function TrackedChangesCommentsEditor({
   const threads: DemoThread[] = Array.isArray(threadsResult.threads)
     ? threadsResult.threads
     : [];
-  console.log(threads)
 
   useEffect(() => {
     if (!editor) {
@@ -260,7 +249,10 @@ function TrackedChangesCommentsEditor({
       let firstComment = null;
 
       if (typeof matchingThreadId === "string") {
-        const threadComments = provider.getThreadComments(matchingThreadId, true);
+        const threadComments = provider.getThreadComments(
+          matchingThreadId,
+          true,
+        );
         firstComment = Array.isArray(threadComments) ? threadComments[0] : null;
       }
 
@@ -294,7 +286,6 @@ function TrackedChangesCommentsEditor({
   const schemaAwarenessData = editor ? getSchemaAwarenessData(editor) : null;
   const schemaAwarenessDataRef = useRef(schemaAwarenessData);
   schemaAwarenessDataRef.current = schemaAwarenessData;
-  sessionIdRef.current = sessionId;
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
@@ -302,7 +293,6 @@ function TrackedChangesCommentsEditor({
       body: () => ({
         schemaAwarenessData: schemaAwarenessDataRef.current,
         documentId,
-        sessionId: sessionIdRef.current,
       }),
     }),
   });

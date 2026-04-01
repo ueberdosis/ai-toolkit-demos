@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { ChatSidebar } from "../../components/chat-sidebar";
-import { createDemoSession, getCollabConfig } from "./actions";
+import { getCollabConfig } from "./actions";
 
 const initialContent = `<h1>AI agent demo</h1>
 <p>Reprehenderit id exercitation commodo aliquip magna. Quis sunt proident consectetur magna Lorem nulla. Ullamco in aute proident sit qui nulla voluptate incididunt aliquip nostrud aliqua. Irure veniam ea labore commodo culpa sunt tempor mollit labore dolor eiusmod cupidatat ipsum ullamco. Reprehenderit aliqua est esse ad tempor occaecat occaecat. Laborum et enim incididunt incididunt ipsum anim aliqua consequat amet ex commodo aliqua ipsum id sint. Nulla quis exercitation aute exercitation elit sint in irure proident elit aliqua fugiat.</p>
@@ -24,8 +24,6 @@ const initialContent = `<h1>AI agent demo</h1>
 export default function Page() {
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-ai-agent-chatbot/${uuid()}`);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const sessionIdRef = useRef<string | null>(null);
   const providerRef = useRef<TiptapCollabProvider | null>(null);
 
   const editor = useEditor({
@@ -41,11 +39,10 @@ export default function Page() {
   useEffect(() => {
     const setupProvider = async () => {
       try {
-        const [{ token, appId, collabBaseUrl }, nextSessionId] =
-          await Promise.all([
-            getCollabConfig("user-1", documentId),
-            createDemoSession(),
-          ]);
+        const { token, appId, collabBaseUrl } = await getCollabConfig(
+          "user-1",
+          documentId,
+        );
 
         const collabProvider = new TiptapCollabProvider({
           ...(collabBaseUrl ? { baseUrl: collabBaseUrl } : { appId }),
@@ -62,7 +59,6 @@ export default function Page() {
         });
 
         providerRef.current = collabProvider;
-        setSessionId(nextSessionId);
       } catch (error) {
         console.error("Failed to setup collaboration:", error);
       }
@@ -82,7 +78,6 @@ export default function Page() {
   const schemaAwarenessData = editor ? getSchemaAwarenessData(editor) : null;
   const schemaAwarenessDataRef = useRef(schemaAwarenessData);
   schemaAwarenessDataRef.current = schemaAwarenessData;
-  sessionIdRef.current = sessionId;
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
@@ -90,7 +85,6 @@ export default function Page() {
       body: () => ({
         schemaAwarenessData: schemaAwarenessDataRef.current,
         documentId,
-        sessionId: sessionIdRef.current,
       }),
     }),
   });
@@ -103,13 +97,13 @@ export default function Page() {
 
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
-    if (input.trim() && sessionId) {
+    if (input.trim()) {
       sendMessage({ text: input });
       setInput("");
     }
   };
 
-  if (!editor || !sessionId) return null;
+  if (!editor) return null;
 
   return (
     <div className="flex h-screen">

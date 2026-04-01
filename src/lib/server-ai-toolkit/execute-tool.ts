@@ -3,7 +3,6 @@ import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 export interface ExecuteToolOptions {
   documentId?: string;
   userId?: string;
-  sessionId?: string;
   reviewOptions?: {
     mode?: "disabled" | "trackedChanges";
   };
@@ -52,7 +51,6 @@ export async function executeTool(
             },
           }
         : { document }),
-      ...(options.sessionId ? { sessionId: options.sessionId } : {}),
       ...(options.reviewOptions
         ? { reviewOptions: options.reviewOptions }
         : {}),

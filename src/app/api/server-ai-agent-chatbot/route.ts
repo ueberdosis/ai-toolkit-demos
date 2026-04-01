@@ -37,17 +37,11 @@ export async function POST(req: Request) {
     messages,
     schemaAwarenessData,
     documentId,
-    sessionId,
   }: {
     messages: UIMessage[];
     schemaAwarenessData: unknown;
     documentId: string;
-    sessionId?: string;
   } = await req.json();
-
-  if (!sessionId) {
-    throw new Error("Missing sessionId");
-  }
 
   // Get tool definitions from the Server AI Toolkit API
   const toolDefinitions = await getToolDefinitions({
@@ -75,7 +69,6 @@ export async function POST(req: Request) {
               input,
               document,
               schemaAwarenessData,
-              { sessionId },
             );
 
             // Update the document after executing the tool if it changed

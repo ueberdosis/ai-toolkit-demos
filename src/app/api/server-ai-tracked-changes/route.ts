@@ -32,17 +32,11 @@ export async function POST(req: Request) {
     messages,
     schemaAwarenessData,
     documentId,
-    sessionId,
   }: {
     messages: UIMessage[];
     schemaAwarenessData: unknown;
     documentId: string;
-    sessionId?: string;
   } = await req.json();
-
-  if (!sessionId) {
-    throw new Error("Missing sessionId");
-  }
   const toolDefinitions = await getToolDefinitions({
     schemaAwarenessData,
   });
@@ -65,7 +59,6 @@ export async function POST(req: Request) {
               {
                 documentId,
                 userId: "ai-assistant",
-                sessionId,
                 reviewOptions: {
                   mode: "trackedChanges",
                 },
