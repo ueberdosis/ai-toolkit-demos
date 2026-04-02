@@ -262,9 +262,9 @@ function TrackedChangesCommentsEditor({
         text:
           typeof firstComment?.content === "string" && firstComment.content
             ? firstComment.content
-            : typeof firstComment?.data?.suggestionReason === "string" &&
-                firstComment.data.suggestionReason
-              ? firstComment.data.suggestionReason
+            : typeof matchingThread?.data?.suggestionReason === "string" &&
+                matchingThread.data.suggestionReason
+              ? matchingThread.data.suggestionReason
               : "Review this tracked change",
       });
     };
@@ -378,6 +378,7 @@ function TrackedChangesCommentsEditor({
   if (!editor) {
     return null;
   }
+  console.log(threads)
 
   return (
     <ThreadsProvider
