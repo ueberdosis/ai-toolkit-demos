@@ -96,11 +96,6 @@ Rule: In your messages to the user, never mention hashes, tool internals, or raw
 
 ${schemaAwarenessPrompt}`,
     tools,
-    providerOptions: {
-      openai: {
-        reasoningEffort: "minimal",
-      },
-    },
   });
 
   return createAgentUIStreamResponse({

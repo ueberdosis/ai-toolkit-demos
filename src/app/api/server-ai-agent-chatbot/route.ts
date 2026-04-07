@@ -105,11 +105,6 @@ Rule: In your responses, never mention the hashes of the document.
 
 ${schemaAwarenessPrompt}`,
     tools,
-    providerOptions: {
-      openai: {
-        reasoningEffort: "minimal",
-      },
-    },
   });
 
   return createAgentUIStreamResponse({
