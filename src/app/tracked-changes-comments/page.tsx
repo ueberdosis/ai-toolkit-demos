@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useChat } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -61,7 +60,7 @@ const provider = new TiptapCollabProvider({
   document: documentModel,
 });
 
-function Page() {
+export default function Page() {
   const user = useUser();
   const [hasSuggestions, setHasSuggestions] = useState(false);
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
@@ -431,4 +430,3 @@ function Page() {
   );
 }
 
-export default dynamic(() => Promise.resolve(Page), { ssr: false });

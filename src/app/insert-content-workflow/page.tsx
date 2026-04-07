@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { AiCaret, AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
@@ -11,7 +10,7 @@ import "../../styles/ai-caret.css";
 import "./selection.css";
 import { Selection } from "@tiptap/extensions";
 
-function Page() {
+export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit, Selection, AiCaret],
@@ -120,4 +119,3 @@ function Page() {
   );
 }
 
-export default dynamic(() => Promise.resolve(Page), { ssr: false });

@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useChat } from "@ai-sdk/react";
 import { Decoration } from "@tiptap/pm/view";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -25,7 +24,7 @@ type SuggestionTooltipMount = {
   element: HTMLElement;
 };
 
-function Page() {
+export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit],
@@ -230,4 +229,3 @@ function Page() {
   );
 }
 
-export default dynamic(() => Promise.resolve(Page), { ssr: false });

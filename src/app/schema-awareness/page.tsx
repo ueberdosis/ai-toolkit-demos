@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useChat } from "@ai-sdk/react";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -77,7 +76,7 @@ It can NOT contain a paragraph tag or any other block element inside.`,
   },
 });
 
-function Page() {
+export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit, CustomAlertExtension],
@@ -193,4 +192,3 @@ Make sure each alert contains relevant, helpful information that enhances the do
   );
 }
 
-export default dynamic(() => Promise.resolve(Page), { ssr: false });

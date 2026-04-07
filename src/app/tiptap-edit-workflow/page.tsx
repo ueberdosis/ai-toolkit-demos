@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -22,7 +21,7 @@ const INITIAL_CONTENT = `<h1>Document Editor Demo</h1>
 <p>You can ask the AI to make the text more formal, add more details, simplify it, or transform it in any way you like.</p>
 <p>Try different tasks to see how the AI can help you edit your documents!</p>`;
 
-function Page() {
+export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit, AiCaret],
@@ -102,4 +101,3 @@ function Page() {
   );
 }
 
-export default dynamic(() => Promise.resolve(Page), { ssr: false });

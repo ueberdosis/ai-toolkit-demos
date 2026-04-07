@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { Decoration } from "@tiptap/pm/view";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -24,7 +23,7 @@ Users can easyly create content, but sometimes they makes small mistake's that a
 The tool also help you to edit faster and more effeciently, althou it not always perfect.
 Its interface are simple, but it contain option's that may confuse new user's at first.</p>`;
 
-function Page() {
+export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit],
@@ -194,4 +193,3 @@ function Page() {
   );
 }
 
-export default dynamic(() => Promise.resolve(Page), { ssr: false });

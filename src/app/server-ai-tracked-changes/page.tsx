@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useChat } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -33,7 +32,7 @@ type SuggestionTooltipMount = {
   text: string;
 };
 
-function Page() {
+export default function Page() {
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-ai-tracked-changes/${uuid()}`);
   const [hasSuggestions, setHasSuggestions] = useState(false);
@@ -256,4 +255,3 @@ function Page() {
   );
 }
 
-export default dynamic(() => Promise.resolve(Page), { ssr: false });

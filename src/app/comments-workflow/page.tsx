@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
@@ -44,7 +43,7 @@ const provider = new TiptapCollabProvider({
 const initialBinary = fromBase64String(initialContent);
 Y.applyUpdate(provider.document, initialBinary);
 
-function Page() {
+export default function Page() {
   const [showUnresolved, setShowUnresolved] = useState(true);
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
   // biome-ignore lint/suspicious/noExplicitAny: Interop with js file
@@ -319,4 +318,3 @@ function Page() {
   );
 }
 
-export default dynamic(() => Promise.resolve(Page), { ssr: false });
