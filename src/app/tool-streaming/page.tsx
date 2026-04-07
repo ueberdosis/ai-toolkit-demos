@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useChat } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -12,7 +13,7 @@ import { useEffect, useState } from "react";
 import { ChatSidebar } from "../../components/chat-sidebar";
 import "../../styles/ai-caret.css";
 
-export default function Page() {
+function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit, AiCaret],
@@ -109,3 +110,5 @@ export default function Page() {
     </div>
   );
 }
+
+export default dynamic(() => Promise.resolve(Page), { ssr: false });

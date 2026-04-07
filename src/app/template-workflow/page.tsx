@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -151,7 +152,7 @@ const INITIAL_CONTENT = `<h1>Non-Disclosure Agreement</h1>
 <h2>5. Governing Law</h2>
 <p><code>Governing law details will be generated here.</code></p>`;
 
-export default function Page() {
+function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, AiToolkit],
@@ -219,3 +220,5 @@ export default function Page() {
     </div>
   );
 }
+
+export default dynamic(() => Promise.resolve(Page), { ssr: false });

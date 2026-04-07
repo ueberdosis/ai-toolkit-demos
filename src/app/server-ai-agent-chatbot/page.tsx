@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useChat } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -21,7 +22,7 @@ const initialContent = `<h1>AI agent demo</h1>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 `;
 
-export default function Page() {
+function Page() {
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-ai-agent-chatbot/${uuid()}`);
   const providerRef = useRef<TiptapCollabProvider | null>(null);
@@ -121,3 +122,5 @@ export default function Page() {
     </div>
   );
 }
+
+export default dynamic(() => Promise.resolve(Page), { ssr: false });

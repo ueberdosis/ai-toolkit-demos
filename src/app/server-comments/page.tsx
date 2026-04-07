@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useChat } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
@@ -32,7 +33,7 @@ import "../../demos/comments/React/styles.scss";
 import "../../demos/comments/style.scss";
 import { getCollabConfig } from "./actions";
 
-export default function Page() {
+function Page() {
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-comments/${uuid()}`);
   const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
@@ -326,3 +327,5 @@ export default function Page() {
     </ThreadsProvider>
   );
 }
+
+export default dynamic(() => Promise.resolve(Page), { ssr: false });

@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useChat } from "@ai-sdk/react";
 import { type Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -33,7 +34,7 @@ const initialDocuments: Document[] = [
   },
 ];
 
-export default function Page() {
+function Page() {
   // The editor instance of the current active document
   const editorRef = useRef<Editor | null>(null);
   // The list of documents
@@ -289,3 +290,5 @@ function EditorComponent({
     />
   );
 }
+
+export default dynamic(() => Promise.resolve(Page), { ssr: false });
