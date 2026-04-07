@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   }: { messages: UIMessage[]; schemaAwareness: string } = await req.json();
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5-mini"),
+    model: openai("gpt-5.4-nano"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
@@ -50,7 +50,7 @@ ${schemaAwareness}`,
     tools: toolDefinitions(),
     providerOptions: {
       openai: {
-        reasoningEffort: "minimal",
+        reasoningEffort: "low",
       },
     },
   });

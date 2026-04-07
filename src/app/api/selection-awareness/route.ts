@@ -46,7 +46,7 @@ Rule: In your messages to the user, never mention the hashes of the document.
     tools: toolDefinitions(),
     // providerOptions: {
     //   openai: {
-    //     reasoningEffort: "minimal",
+    //     reasoningEffort: "low",
     //   },
     // },
   });
