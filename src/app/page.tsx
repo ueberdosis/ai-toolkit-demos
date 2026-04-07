@@ -202,12 +202,12 @@ const COLOR_MAP: Record<
 export default function Home() {
   return (
     <div className="min-h-screen bg-white py-16 px-6">
-      <div className="mx-auto max-w-5xl">
+      <div className="max-w-5xl mx-auto">
         <div className="mb-14 text-center">
-          <h1 className="mb-1 text-2xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-1">
             Tiptap AI Toolkit Demos
           </h1>
-          <p className="text-sm text-gray-400">
+          <p className="text-gray-400 text-sm">
             Explore the demos below to see the AI Toolkit in action.
           </p>
         </div>
@@ -218,15 +218,15 @@ export default function Home() {
 
             return (
               <section key={category.title}>
-                <div className="mb-1 flex items-center gap-2.5">
+                <div className="flex items-center gap-2.5 mb-1">
                   <span
-                    className={`inline-block h-2 w-2 rounded-full ${colors.dot}`}
+                    className={`inline-block w-2 h-2 rounded-full ${colors.dot}`}
                   />
                   <h2 className="text-base font-semibold text-gray-900">
                     {category.title}
                   </h2>
                 </div>
-                <p className="mb-5 ml-[18px] text-sm text-gray-400">
+                <p className="text-sm text-gray-400 mb-5 ml-[18px]">
                   {category.description}
                 </p>
 
@@ -234,11 +234,11 @@ export default function Home() {
                   {category.groups.map((group) => (
                     <div key={group.heading ?? "main"}>
                       {group.heading && (
-                        <h3 className="mb-2 ml-[18px] text-xs font-medium uppercase tracking-widest text-gray-400">
+                        <h3 className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-2 ml-[18px]">
                           {group.heading}
                         </h3>
                       )}
-                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                         {group.items.map((item) => (
                           <Link
                             key={item.href}
@@ -249,7 +249,7 @@ export default function Home() {
                               {item.title}
                             </span>
                             {"description" in item && item.description && (
-                              <span className="mt-0.5 block text-[11px] leading-snug text-gray-400">
+                              <span className="block text-[11px] leading-snug text-gray-400 mt-0.5">
                                 {item.description}
                               </span>
                             )}
@@ -265,14 +265,9 @@ export default function Home() {
         </div>
 
         <div className="mt-14 text-center text-xs text-gray-300">
-          Set{" "}
-          <code className="rounded bg-gray-50 px-1.5 py-0.5 text-gray-400">
-            OPENAI_API_KEY
-          </code>{" "}
+          Set <code className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-400">OPENAI_API_KEY</code>{" "}
           and{" "}
-          <code className="rounded bg-gray-50 px-1.5 py-0.5 text-gray-400">
-            ANTHROPIC_API_KEY
-          </code>{" "}
+          <code className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-400">ANTHROPIC_API_KEY</code>{" "}
           environment variables to use these demos.
         </div>
       </div>
