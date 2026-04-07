@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useChat } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -54,7 +55,7 @@ type DemoThread = {
 const initialTrackedChangesCommentsContent =
   "<h1>Tracked changes demo</h1><p>Ask the AI to improve this document. AI edits are written as tracked changes so you can accept or reject them one by one.</p>";
 
-export default function Page() {
+function Page() {
   const [isMounted, setIsMounted] = useState(false);
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(
@@ -489,3 +490,5 @@ function TrackedChangesCommentsEditor({
     </ThreadsProvider>
   );
 }
+
+export default dynamic(() => Promise.resolve(Page), { ssr: false });

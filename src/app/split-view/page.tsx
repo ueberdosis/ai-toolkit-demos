@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useChat } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -46,7 +47,7 @@ interface PopoverState {
   left: number;
 }
 
-export default function Page() {
+function Page() {
   const [hasSuggestions, setHasSuggestions] = useState(false);
   const [isCompareMode, setIsCompareMode] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
@@ -493,3 +494,5 @@ export default function Page() {
     </div>
   );
 }
+
+export default dynamic(() => Promise.resolve(Page), { ssr: false });
