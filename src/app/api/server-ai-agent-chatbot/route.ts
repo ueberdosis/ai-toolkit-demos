@@ -89,7 +89,7 @@ export async function POST(req: Request) {
   );
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5.4-nano"),
+    model: openai("gpt-5-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
@@ -107,7 +107,7 @@ ${schemaAwarenessPrompt}`,
     tools,
     providerOptions: {
       openai: {
-        reasoningEffort: "low",
+        reasoningEffort: "minimal",
       },
     },
   });

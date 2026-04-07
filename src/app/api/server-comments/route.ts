@@ -108,7 +108,7 @@ export async function POST(req: Request) {
   );
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5.4-nano"),
+    model: openai("gpt-5.4-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
@@ -125,11 +125,6 @@ Rule: Do not add comments to empty paragraphs. When told to add comments to a pa
 
 ${schemaAwarenessPrompt}`,
     tools,
-    providerOptions: {
-      openai: {
-        reasoningEffort: "low",
-      },
-    },
   });
 
   return createAgentUIStreamResponse({
