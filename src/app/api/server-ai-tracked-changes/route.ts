@@ -10,15 +10,10 @@ import {
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
-import { getDocument } from "@/lib/server-ai-toolkit/get-document";
 import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
 import { getToolDefinitions } from "@/lib/server-ai-toolkit/get-tool-definitions";
-import { updateDocument } from "@/lib/server-ai-toolkit/update-document";
-
-const collabBaseUrl = process.env.TIPTAP_CLOUD_COLLAB_BASE_URL;
 
 export async function POST(req: Request) {
-  // Rate limiting
   if (process.env.UPSTASH_REDIS_REST_URL) {
     const ip = await getIp();
     const isAllowed = await rateLimit(ip);
@@ -42,17 +37,12 @@ export async function POST(req: Request) {
     schemaAwarenessData: unknown;
     documentId: string;
   } = await req.json();
-
-  // Get tool definitions from the Server AI Toolkit API
   const toolDefinitions = await getToolDefinitions({
     schemaAwarenessData,
   });
-
-  // Get schema awareness prompt from the Server AI Toolkit API
   const schemaAwarenessPrompt =
     await getSchemaAwarenessPrompt(schemaAwarenessData);
 
-  // Convert API tool definitions to AI SDK tool format
   const tools = Object.fromEntries(
     toolDefinitions.map((toolDef) => [
       toolDef.name,
@@ -61,20 +51,19 @@ export async function POST(req: Request) {
         inputSchema: z.fromJSONSchema(toolDef.inputSchema),
         execute: async (input) => {
           try {
-            // Get the latest version of the document before executing the tool
-            const document = await getDocument(documentId, collabBaseUrl);
-
             const result = await executeTool(
               toolDef.name,
               input,
-              document,
+              null,
               schemaAwarenessData,
+              {
+                documentId,
+                userId: "ai-assistant",
+                reviewOptions: {
+                  mode: "trackedChanges",
+                },
+              },
             );
-
-            // Update the document after executing the tool if it changed
-            if (result.docChanged && result.document && documentId) {
-              await updateDocument(documentId, result.document, collabBaseUrl);
-            }
 
             return result.output;
           } catch (error) {
@@ -96,12 +85,14 @@ export async function POST(req: Request) {
 
   const agent = new ToolLoopAgent({
     model,
-    instructions: `You are an assistant that can edit rich text documents.
-In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
-Before calling any tools, summarize you're going to do (in a sentence or less), as a high-level view of the task, like a human writer would describe it.
-Rule: In your responses, do not give any details of the tool calls
-Rule: In your responses, do not give any details of the HTML content of the document.
-Rule: In your responses, never mention the hashes of the document.
+    instructions: `You are an assistant that can edit rich text documents with tracked changes.
+In your messages to the user, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
+Before calling any tools, summarize what you're going to do in one short sentence.
+Rule: Use tiptapRead before tiptapEdit.
+Rule: Keep user-facing responses to a single short sentence before tool calls and a single short sentence after completion.
+Rule: In your messages to the user, do not give any details of the tool calls.
+Rule: In your messages to the user, do not give any details of the document content or the individual edits.
+Rule: In your messages to the user, never mention hashes, tool internals, or raw document JSON.
 
 ${schemaAwarenessPrompt}`,
     tools,

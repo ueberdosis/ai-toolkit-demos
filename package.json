@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "turbo run dev:web dev:devtools",
+    "dev:web": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "biome check",
     "lint:fix": "biome check --write && tsc --noEmit",
+    "dev:devtools": "pnpx @ai-sdk/devtools",
     "ai-sdk-devtools": "pnpx @ai-sdk/devtools"
   },
   "dependencies": {
@@ -17,13 +19,13 @@
     "@ai-sdk/react": "^3.0.140",
     "@floating-ui/react": "^0.27.19",
     "@hocuspocus/provider": "^3.4.4",
-    "@tiptap-pro/ai-toolkit": "0.3.2",
-    "@tiptap-pro/ai-toolkit-ai-sdk": "0.3.2",
-    "@tiptap-pro/ai-toolkit-tool-definitions": "0.3.2",
-    "@tiptap-pro/extension-comments": "^3.6.2",
-    "@tiptap-pro/extension-tracked-changes": "0.3.0",
+    "@tiptap-pro/ai-toolkit": "0.3.5",
+    "@tiptap-pro/ai-toolkit-ai-sdk": "0.3.5",
+    "@tiptap-pro/ai-toolkit-tool-definitions": "0.3.5",
+    "@tiptap-pro/extension-comments": "^3.6.3",
+    "@tiptap-pro/extension-tracked-changes": "0.4.1",
     "@tiptap-pro/provider": "^3.6.2",
-    "@tiptap-pro/server-ai-toolkit": "0.3.2",
+    "@tiptap-pro/server-ai-toolkit": "0.3.5",
     "@tiptap/core": "^3.20.5",
     "@tiptap/extension-collaboration": "^3.20.5",
     "@tiptap/extension-collaboration-caret": "^3.20.5",
@@ -53,6 +55,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "tailwindcss": "^4.2.2",
+    "turbo": "^2.8.20",
     "typescript": "^6.0.2"
   },
   "packageManager": "pnpm@10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316"

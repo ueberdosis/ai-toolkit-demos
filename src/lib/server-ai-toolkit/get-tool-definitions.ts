@@ -1,10 +1,17 @@
 import type z from "zod";
 import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
+export interface GetToolDefinitionsOptions {
+  schemaAwarenessData: unknown;
+  operationMeta?: string;
+}
+
 /**
  * Gets tool definitions from the Server AI Toolkit API
  */
-export async function getToolDefinitions(schemaAwarenessData: unknown): Promise<
+export async function getToolDefinitions(
+  options: GetToolDefinitionsOptions,
+): Promise<
   {
     name: string;
     description: string;
@@ -29,7 +36,8 @@ export async function getToolDefinitions(schemaAwarenessData: unknown): Promise<
       Origin: "http://localhost:3000",
     },
     body: JSON.stringify({
-      schemaAwarenessData,
+      schemaAwarenessData: options.schemaAwarenessData,
+      operationMeta: options.operationMeta ?? "",
     }),
   });
 

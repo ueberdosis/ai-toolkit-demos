@@ -1,5 +1,5 @@
-import { anthropic } from "@ai-sdk/anthropic";
 import { devToolsMiddleware } from "@ai-sdk/devtools";
+import { openai } from "@ai-sdk/openai";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import {
   createAgentUIStreamResponse,
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const model = wrapLanguageModel({
-    model: anthropic("claude-haiku-4-5"),
+    model: openai("gpt-5.4-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   const agent = new ToolLoopAgent({
     model,
     instructions: `
-You are an assistant that can add comments to a rich text document. 
+You are an assistant that can add comments to a rich text document.
 In your messages to the user, be concise and to the point. However, the content of the comments you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
 Rule: In your messages to the user, do not give any details of the tool calls.
 Rule: In your messages to the user, do not give any details of the HTML content of the document. Just briefly explain what you're going to do (in a sentence or less).
