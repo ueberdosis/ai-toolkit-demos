@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5.1"),
+    model: openai("gpt-5.4-nano"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
