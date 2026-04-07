@@ -1,5 +1,17 @@
 import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
+export interface ExecuteToolOptions {
+  documentId?: string;
+  userId?: string;
+  reviewOptions?: {
+    mode?: "disabled" | "trackedChanges";
+  };
+  commentsOptions?: {
+    threadData?: Record<string, unknown>;
+    commentData?: Record<string, unknown>;
+  };
+}
+
 /**
  * Executes a tool via the Server AI Toolkit API
  */
@@ -8,6 +20,7 @@ export async function executeTool(
   input: unknown,
   document: unknown,
   schemaAwarenessData: unknown,
+  options: ExecuteToolOptions = {},
 ): Promise<{ output: unknown; docChanged: boolean; document?: unknown }> {
   const apiBaseUrl =
     process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
@@ -29,8 +42,21 @@ export async function executeTool(
     body: JSON.stringify({
       toolName,
       input,
-      document,
       schemaAwarenessData,
+      ...(options.documentId
+        ? {
+            experimental_documentOptions: {
+              documentId: options.documentId,
+              userId: options.userId ?? null,
+            },
+          }
+        : { document }),
+      ...(options.reviewOptions
+        ? { reviewOptions: options.reviewOptions }
+        : {}),
+      ...(options.commentsOptions
+        ? { experimental_commentsOptions: options.commentsOptions }
+        : {}),
     }),
   });
 

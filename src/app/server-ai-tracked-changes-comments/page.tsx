@@ -5,7 +5,6 @@ import { Collaboration } from "@tiptap/extension-collaboration";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import {
   CommentsKit,
   hoverOffThread,
@@ -17,9 +16,10 @@ import {
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import {
-  DefaultChatTransport,
-  lastAssistantMessageIsCompleteWithToolCalls,
-} from "ai";
+  getSchemaAwarenessData,
+  ServerAiToolkit,
+} from "@tiptap-pro/server-ai-toolkit";
+import { DefaultChatTransport } from "ai";
 import { MessageSquareText } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -34,6 +34,7 @@ import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
 import "../../demos/comments/React/styles.scss";
 import "../../demos/comments/style.scss";
 import "../../styles/tracked-changes.css";
+import { getCollabConfig } from "../server-ai-agent-chatbot/actions";
 
 type SuggestionTooltipMount = {
   suggestionId: string;
@@ -46,21 +47,97 @@ type DemoThread = {
   resolvedAt?: string | null;
   data?: {
     suggestionId?: string;
+    suggestionReason?: string;
   };
 };
 
 const initialTrackedChangesCommentsContent =
   "<h1>Tracked changes demo</h1><p>Ask the AI to improve this document. AI edits are written as tracked changes so you can accept or reject them one by one.</p>";
 
-const documentModel = new Y.Doc();
-
-const provider = new TiptapCollabProvider({
-  appId: "7j9y6m10",
-  name: `tiptap-tracked-changes-comments-demo/${uuid()}`,
-  document: documentModel,
-});
-
 export default function Page() {
+  const [isMounted, setIsMounted] = useState(false);
+  const [doc] = useState(() => new Y.Doc());
+  const [documentId] = useState(
+    () => `server-ai-tracked-changes-comments/${uuid()}`,
+  );
+  const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) {
+      return;
+    }
+
+    let collabProvider: TiptapCollabProvider | null = null;
+
+    const setupProvider = async () => {
+      try {
+        const { token, appId, collabBaseUrl } = await getCollabConfig(
+          "user-1",
+          documentId,
+        );
+
+        collabProvider = new TiptapCollabProvider({
+          ...(collabBaseUrl ? { baseUrl: collabBaseUrl } : { appId }),
+          name: documentId,
+          token,
+          document: doc,
+          user: "user-1",
+        });
+
+        setProvider(collabProvider);
+      } catch (error) {
+        console.error("Failed to setup collaboration:", error);
+      }
+    };
+
+    setupProvider();
+
+    return () => {
+      collabProvider?.destroy();
+    };
+  }, [documentId, doc, isMounted]);
+
+  if (!isMounted) {
+    return null;
+  }
+
+  if (!provider) {
+    return (
+      <div className="tracked-changes-comments-demo flex h-screen items-center justify-center bg-white">
+        <div className="space-y-2 text-center">
+          <div className="label-large">Loading collaboration document</div>
+          <p className="label-small text-slate-500">
+            Mounting the comments provider before the editor initializes.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <TrackedChangesCommentsEditor
+      doc={doc}
+      documentId={documentId}
+      provider={provider}
+    />
+  );
+}
+
+type TrackedChangesCommentsEditorProps = {
+  doc: Y.Doc;
+  documentId: string;
+  provider: TiptapCollabProvider;
+};
+
+function TrackedChangesCommentsEditor({
+  doc,
+  documentId,
+  provider,
+}: TrackedChangesCommentsEditorProps) {
   const user = useUser();
   const [hasSuggestions, setHasSuggestions] = useState(false);
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
@@ -72,15 +149,16 @@ export default function Page() {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      AiToolkit,
       StarterKit.configure({
         undoRedo: false,
       }),
       Collaboration.configure({
-        document: documentModel,
+        document: doc,
       }),
+      ServerAiToolkit,
       TrackedChanges.configure({
         enabled: false,
+        userId: "foo",
       }),
       CommentsKit.configure({
         provider,
@@ -108,12 +186,9 @@ export default function Page() {
         spellcheck: false,
       },
     },
+    // onTransaction: ({ transaction, appendedTransactions }) =>
+    //   console.log({ transaction, appendedTransactions }),
   });
-
-  const threadsResult = useThreads(provider, editor, user);
-  const threads: DemoThread[] = Array.isArray(threadsResult.threads)
-    ? threadsResult.threads
-    : [];
 
   useEffect(() => {
     if (!editor || didSetInitialContentRef.current || !editor.isEmpty) {
@@ -123,6 +198,11 @@ export default function Page() {
     editor.commands.setContent(initialTrackedChangesCommentsContent);
     didSetInitialContentRef.current = true;
   }, [editor]);
+
+  const threadsResult = useThreads(provider, editor, user);
+  const threads: DemoThread[] = Array.isArray(threadsResult.threads)
+    ? threadsResult.threads
+    : [];
 
   useEffect(() => {
     if (!editor) {
@@ -173,7 +253,6 @@ export default function Page() {
           matchingThreadId,
           true,
         );
-
         firstComment = Array.isArray(threadComments) ? threadComments[0] : null;
       }
 
@@ -183,7 +262,10 @@ export default function Page() {
         text:
           typeof firstComment?.content === "string" && firstComment.content
             ? firstComment.content
-            : "Review this tracked change",
+            : typeof matchingThread?.data?.suggestionReason === "string" &&
+                matchingThread.data.suggestionReason
+              ? matchingThread.data.suggestionReason
+              : "Review this tracked change",
       });
     };
 
@@ -199,104 +281,20 @@ export default function Page() {
       anchorRef.current?.remove();
       anchorRef.current = null;
     };
-  }, [editor, threads]);
+  }, [editor, provider, threads]);
 
-  const selectThreadInEditor = useCallback(
-    (threadId: string) => {
-      editor.chain().selectThread({ id: threadId }).run();
-    },
-    [editor],
-  );
+  const schemaAwarenessData = editor ? getSchemaAwarenessData(editor) : null;
+  const schemaAwarenessDataRef = useRef(schemaAwarenessData);
+  schemaAwarenessDataRef.current = schemaAwarenessData;
 
-  const deleteThread = useCallback(
-    (threadId: string) => {
-      provider.deleteThread(threadId);
-      editor.commands.removeThread({ id: threadId });
-    },
-    [editor],
-  );
-
-  const resolveThread = useCallback(
-    (threadId: string) => {
-      editor.commands.resolveThread({ id: threadId });
-    },
-    [editor],
-  );
-
-  const unresolveThread = useCallback(
-    (threadId: string) => {
-      editor.commands.unresolveThread({ id: threadId });
-    },
-    [editor],
-  );
-
-  const updateComment = useCallback(
-    (
-      threadId: string,
-      commentId: string,
-      content: string,
-      metaData: Record<string, string>,
-    ) => {
-      editor.commands.updateComment({
-        threadId,
-        id: commentId,
-        content,
-        data: metaData,
-      });
-    },
-    [editor],
-  );
-
-  const onHoverThread = useCallback(
-    (threadId: number) => {
-      hoverThread(editor, [threadId]);
-    },
-    [editor],
-  );
-
-  const onLeaveThread = useCallback(() => {
-    hoverOffThread(editor);
-  }, [editor]);
-
-  const { messages, sendMessage, addToolOutput, status } = useChat({
+  const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
-      api: "/api/tracked-changes-comments",
+      api: "/api/server-ai-tracked-changes-comments",
+      body: () => ({
+        schemaAwarenessData: schemaAwarenessDataRef.current,
+        documentId,
+      }),
     }),
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
-    async onToolCall({ toolCall }) {
-      if (!editor) {
-        return;
-      }
-
-      const toolkit = getAiToolkit(editor);
-      const result = toolkit.executeTool({
-        toolName: toolCall.toolName,
-        input: toolCall.input,
-        reviewOptions: {
-          mode: "trackedChanges",
-          trackedChangesOptions: {
-            userId: "ai-assistant",
-            userMetadata: {
-              name: "AI",
-            },
-          },
-        },
-        commentsOptions: {
-          threadData: {
-            userName: "AI",
-          },
-          commentData: {
-            userName: "AI",
-          },
-        },
-      });
-
-      addToolOutput({
-        tool: toolCall.toolName,
-        toolCallId: toolCall.toolCallId,
-        output: result.output,
-      });
-    },
   });
 
   const [input, setInput] = useState(
@@ -316,9 +314,71 @@ export default function Page() {
     }
   };
 
+  const selectThreadInEditor = useCallback(
+    (threadId: string) => {
+      editor?.chain().selectThread({ id: threadId }).run();
+    },
+    [editor],
+  );
+
+  const deleteThread = useCallback(
+    (threadId: string) => {
+      provider.deleteThread(threadId);
+      editor?.commands.removeThread({ id: threadId });
+    },
+    [editor, provider],
+  );
+
+  const resolveThread = useCallback(
+    (threadId: string) => {
+      editor?.commands.resolveThread({ id: threadId });
+    },
+    [editor],
+  );
+
+  const unresolveThread = useCallback(
+    (threadId: string) => {
+      editor?.commands.unresolveThread({ id: threadId });
+    },
+    [editor],
+  );
+
+  const updateComment = useCallback(
+    (
+      threadId: string,
+      commentId: string,
+      content: string,
+      metaData: Record<string, string>,
+    ) => {
+      editor?.commands.updateComment({
+        threadId,
+        id: commentId,
+        content,
+        data: metaData,
+      });
+    },
+    [editor],
+  );
+
+  const onHoverThread = useCallback(
+    (threadId: number) => {
+      if (editor) {
+        hoverThread(editor, [threadId]);
+      }
+    },
+    [editor],
+  );
+
+  const onLeaveThread = useCallback(() => {
+    if (editor) {
+      hoverOffThread(editor);
+    }
+  }, [editor]);
+
   if (!editor) {
     return null;
   }
+  console.log(threads)
 
   return (
     <ThreadsProvider
@@ -337,7 +397,7 @@ export default function Page() {
       // @ts-expect-error JSX interop with JS comments demo code
       onUnresolveThread={unresolveThread}
       // @ts-expect-error JSX interop with JS comments demo code
-      selectedThreads={editor.storage.comments.focusedThreads}
+      selectedThreads={editor.storage.comments?.focusedThreads ?? []}
       // @ts-expect-error JSX interop with JS comments demo code
       selectedThread={selectedThread}
       // @ts-expect-error JSX interop with JS comments demo code

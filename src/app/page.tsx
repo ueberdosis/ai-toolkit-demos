@@ -161,6 +161,17 @@ const CATEGORIES = [
             description: "Server-side comment threads stored on Tiptap Cloud",
             href: "/server-comments",
           },
+          {
+            title: "Server Tracked Changes",
+            description: "Review server-side AI edits as tracked changes",
+            href: "/server-ai-tracked-changes",
+          },
+          {
+            title: "Server Tracked + Comments",
+            description:
+              "Tracked changes with server-side comments explaining each edit",
+            href: "/server-ai-tracked-changes-comments",
+          },
         ],
       },
     ],

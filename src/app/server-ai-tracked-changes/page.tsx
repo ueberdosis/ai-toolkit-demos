@@ -1,22 +1,30 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import { Collaboration } from "@tiptap/extension-collaboration";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
 import {
   findSuggestions,
   TrackedChanges,
 } from "@tiptap-pro/extension-tracked-changes";
+import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import {
-  DefaultChatTransport,
-  lastAssistantMessageIsCompleteWithToolCalls,
-} from "ai";
+  getSchemaAwarenessData,
+  ServerAiToolkit,
+} from "@tiptap-pro/server-ai-toolkit";
+import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { v4 as uuid } from "uuid";
+import * as Y from "yjs";
 import { ChatSidebar } from "../../components/chat-sidebar";
 import { SuggestionReviewTooltip } from "../../components/suggestion-review-tooltip";
 import "../../styles/tracked-changes.css";
+import { getCollabConfig } from "../server-ai-agent-chatbot/actions";
+
+const initialTrackedChangesContent =
+  "<h1>Tracked changes demo</h1><p>Ask the AI to improve this document. AI edits are written as tracked changes so you can accept or reject them one by one.</p>";
 
 type SuggestionTooltipMount = {
   suggestionId: string;
@@ -25,22 +33,74 @@ type SuggestionTooltipMount = {
 };
 
 export default function Page() {
+  const [doc] = useState(() => new Y.Doc());
+  const [documentId] = useState(() => `server-ai-tracked-changes/${uuid()}`);
   const [hasSuggestions, setHasSuggestions] = useState(false);
   const [tooltipMount, setTooltipMount] =
     useState<SuggestionTooltipMount | null>(null);
+  const providerRef = useRef<TiptapCollabProvider | null>(null);
   const anchorRef = useRef<HTMLSpanElement | null>(null);
+  const didSetInitialContentRef = useRef(false);
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        undoRedo: false,
+      }),
+      Collaboration.configure({
+        document: doc,
+      }),
+      ServerAiToolkit,
       TrackedChanges.configure({
         enabled: false,
       }),
-      AiToolkit,
     ],
-    content: `<h1>Tracked changes demo</h1><p>Ask the AI to improve this document. AI edits are written as tracked changes so you can accept or reject them one by one.</p>`,
   });
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    let collabProvider: TiptapCollabProvider | null = null;
+
+    const setupProvider = async () => {
+      try {
+        const { token, appId, collabBaseUrl } = await getCollabConfig(
+          "user-1",
+          documentId,
+        );
+
+        collabProvider = new TiptapCollabProvider({
+          ...(collabBaseUrl ? { baseUrl: collabBaseUrl } : { appId }),
+          name: documentId,
+          token,
+          document: doc,
+          user: "user-1",
+          onConnect() {
+            if (!didSetInitialContentRef.current) {
+              editor.commands.setContent(initialTrackedChangesContent);
+              didSetInitialContentRef.current = true;
+            }
+          },
+        });
+
+        providerRef.current = collabProvider;
+      } catch (error) {
+        console.error("Failed to setup collaboration:", error);
+      }
+    };
+
+    setupProvider();
+
+    return () => {
+      collabProvider?.destroy();
+      if (providerRef.current === collabProvider) {
+        providerRef.current = null;
+      }
+    };
+  }, [documentId, doc, editor]);
 
   useEffect(() => {
     if (!editor) {
@@ -95,35 +155,18 @@ export default function Page() {
     };
   }, [editor]);
 
-  const { messages, sendMessage, addToolOutput, status } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/tracked-changes" }),
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
-    async onToolCall({ toolCall }) {
-      if (!editor) {
-        return;
-      }
+  const schemaAwarenessData = editor ? getSchemaAwarenessData(editor) : null;
+  const schemaAwarenessDataRef = useRef(schemaAwarenessData);
+  schemaAwarenessDataRef.current = schemaAwarenessData;
 
-      const toolkit = getAiToolkit(editor);
-      const result = toolkit.executeTool({
-        toolName: toolCall.toolName,
-        input: toolCall.input,
-        reviewOptions: {
-          mode: "trackedChanges",
-          trackedChangesOptions: {
-            userId: "ai-assistant",
-            userMetadata: {
-              name: "AI",
-            },
-          },
-        },
-      });
-
-      addToolOutput({
-        tool: toolCall.toolName,
-        toolCallId: toolCall.toolCallId,
-        output: result.output,
-      });
-    },
+  const { messages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/server-ai-tracked-changes",
+      body: () => ({
+        schemaAwarenessData: schemaAwarenessDataRef.current,
+        documentId,
+      }),
+    }),
   });
 
   const [input, setInput] = useState(
