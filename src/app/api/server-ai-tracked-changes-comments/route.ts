@@ -104,11 +104,6 @@ Rule: Put justifications only in the meta field so they become linked Tiptap Com
 
 ${schemaAwarenessPrompt}`,
     tools,
-    providerOptions: {
-      openai: {
-        reasoningEffort: "low",
-      },
-    },
   });
 
   return createAgentUIStreamResponse({
