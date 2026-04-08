@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   const workflow = createTiptapEditWorkflow();
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5-mini"),
+    model: openai("gpt-5.4-nano"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
@@ -41,11 +41,11 @@ export async function POST(req: Request) {
       task,
     }),
     output: Output.object({ schema: workflow.zodOutputSchema }),
-    // If you use gpt-5-mini, set the reasoning effort to minimal to improve the
+    // If you use gpt-5.4-nano, set the reasoning effort to low to improve the
     // response time.
     providerOptions: {
       openai: {
-        reasoningEffort: "minimal",
+        reasoningEffort: "low",
       },
     },
   });

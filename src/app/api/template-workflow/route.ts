@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const workflow = createTemplateWorkflow({ htmlTemplate });
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5-mini"),
+    model: openai("gpt-5.4-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     output: Output.object({ schema: workflow.zodOutputSchema }),
     providerOptions: {
       openai: {
-        reasoningEffort: "minimal",
+        reasoningEffort: "low",
       },
     },
   });

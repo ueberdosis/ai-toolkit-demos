@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5-mini"),
+    model: openai("gpt-5.4-nano"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
@@ -48,7 +48,7 @@ Rule: In your messages to the user, never mention the hashes of the document.
     }),
     providerOptions: {
       openai: {
-        reasoningEffort: "minimal",
+        reasoningEffort: "low",
       },
     },
   });
