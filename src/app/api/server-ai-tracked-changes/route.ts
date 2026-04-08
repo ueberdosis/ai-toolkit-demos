@@ -98,7 +98,7 @@ ${schemaAwarenessPrompt}`,
     tools,
     providerOptions: {
       openai: {
-        reasoningEffort: "minimal",
+        reasoningEffort: "low",
       },
     },
   });

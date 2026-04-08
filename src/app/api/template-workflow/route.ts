@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     output: Output.object({ schema: workflow.zodOutputSchema }),
     providerOptions: {
       openai: {
-        reasoningEffort: "minimal",
+        reasoningEffort: "low",
       },
     },
   });
