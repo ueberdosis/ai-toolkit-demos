@@ -378,7 +378,7 @@ function TrackedChangesCommentsEditor({
   if (!editor) {
     return null;
   }
-  console.log(threads)
+  console.log(threads);
 
   return (
     <ThreadsProvider
@@ -489,4 +489,3 @@ function TrackedChangesCommentsEditor({
     </ThreadsProvider>
   );
 }
-

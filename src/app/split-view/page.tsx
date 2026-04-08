@@ -201,11 +201,17 @@ export default function Page() {
       const padding = 8;
 
       let top = rect.bottom + 4;
-      let left = rect.left + (rect.width / 2) - (popoverWidth / 2);
+      let left = rect.left + rect.width / 2 - popoverWidth / 2;
 
       // Clamp to viewport bounds
-      left = Math.max(padding, Math.min(left, window.innerWidth - popoverWidth - padding));
-      top = Math.max(padding, Math.min(top, window.innerHeight - popoverHeight - padding));
+      left = Math.max(
+        padding,
+        Math.min(left, window.innerWidth - popoverWidth - padding),
+      );
+      top = Math.max(
+        padding,
+        Math.min(top, window.innerHeight - popoverHeight - padding),
+      );
 
       setPopover({ diffId, top, left });
     };
@@ -372,7 +378,9 @@ export default function Page() {
         {/* Top bar when chat is closed: review toolbar + chat toggle */}
         {!isChatOpen && (
           <div className="flex items-center justify-center border-b border-slate-200 px-4 py-2 bg-white flex-shrink-0">
-            {reviewToolbar && <div className="flex-1 flex justify-center">{reviewToolbar}</div>}
+            {reviewToolbar && (
+              <div className="flex-1 flex justify-center">{reviewToolbar}</div>
+            )}
             <button
               type="button"
               onClick={() => setIsChatOpen(true)}
@@ -493,4 +501,3 @@ export default function Page() {
     </div>
   );
 }
-

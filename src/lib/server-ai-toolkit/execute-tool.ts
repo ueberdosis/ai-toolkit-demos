@@ -3,6 +3,7 @@ import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 export interface ExecuteToolOptions {
   documentId?: string;
   userId?: string;
+  sessionId?: string;
   reviewOptions?: {
     mode?: "disabled" | "trackedChanges";
   };
@@ -21,7 +22,12 @@ export async function executeTool(
   document: unknown,
   schemaAwarenessData: unknown,
   options: ExecuteToolOptions = {},
-): Promise<{ output: unknown; docChanged: boolean; document?: unknown }> {
+): Promise<{
+  output: unknown;
+  docChanged: boolean;
+  document?: unknown;
+  sessionId: string;
+}> {
   const apiBaseUrl =
     process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
   const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
@@ -43,6 +49,7 @@ export async function executeTool(
       toolName,
       input,
       schemaAwarenessData,
+      sessionId: options.sessionId,
       ...(options.documentId
         ? {
             experimental_documentOptions: {

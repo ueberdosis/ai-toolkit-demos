@@ -265,9 +265,14 @@ export default function Home() {
         </div>
 
         <div className="mt-14 text-center text-xs text-gray-300">
-          Set <code className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-400">OPENAI_API_KEY</code>{" "}
+          Set{" "}
+          <code className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-400">
+            OPENAI_API_KEY
+          </code>{" "}
           and{" "}
-          <code className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-400">ANTHROPIC_API_KEY</code>{" "}
+          <code className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-400">
+            ANTHROPIC_API_KEY
+          </code>{" "}
           environment variables to use these demos.
         </div>
       </div>

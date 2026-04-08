@@ -4,7 +4,6 @@ import {
   createAgentUIStreamResponse,
   ToolLoopAgent,
   tool,
-  type UIMessage,
   wrapLanguageModel,
 } from "ai";
 import z from "zod";
@@ -13,6 +12,10 @@ import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
 import { getDocument } from "@/lib/server-ai-toolkit/get-document";
 import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
 import { getToolDefinitions } from "@/lib/server-ai-toolkit/get-tool-definitions";
+import {
+  getSessionIdFromConversationHistory,
+  type ServerAiToolkitMessage,
+} from "@/lib/server-ai-toolkit/session-id";
 import { updateDocument } from "@/lib/server-ai-toolkit/update-document";
 
 const collabBaseUrl = process.env.TIPTAP_CLOUD_COLLAB_BASE_URL;
@@ -38,10 +41,11 @@ export async function POST(req: Request) {
     schemaAwarenessData,
     documentId,
   }: {
-    messages: UIMessage[];
+    messages: ServerAiToolkitMessage[];
     schemaAwarenessData: unknown;
     documentId: string;
   } = await req.json();
+  let sessionId = getSessionIdFromConversationHistory(messages);
 
   // Get tool definitions from the Server AI Toolkit API
   const toolDefinitions = await getToolDefinitions({
@@ -69,7 +73,9 @@ export async function POST(req: Request) {
               input,
               document,
               schemaAwarenessData,
+              { sessionId },
             );
+            sessionId = result.sessionId;
 
             // Update the document after executing the tool if it changed
             if (result.docChanged && result.document && documentId) {
@@ -109,6 +115,8 @@ ${schemaAwarenessPrompt}`,
 
   return createAgentUIStreamResponse({
     agent,
+    messageMetadata: ({ part }) =>
+      part.type === "finish" && sessionId ? { sessionId } : undefined,
     uiMessages: messages,
   });
 }
