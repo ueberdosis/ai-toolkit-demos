@@ -378,7 +378,6 @@ function TrackedChangesCommentsEditor({
   if (!editor) {
     return null;
   }
-  console.log(threads)
 
   return (
     <ThreadsProvider
