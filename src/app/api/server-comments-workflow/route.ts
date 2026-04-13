@@ -69,7 +69,7 @@ export async function POST(req: Request) {
     );
   }
 
-  if (threadsReadResult.hasError) {
+  if (threadsReadResult.output.error) {
     throw new Error(threadsReadResult.output.error ?? "Failed to read threads");
   }
 
@@ -107,6 +107,5 @@ export async function POST(req: Request) {
 
   return Response.json({
     operations: executeResult.output.operations ?? [],
-    hasError: executeResult.hasError,
   });
 }

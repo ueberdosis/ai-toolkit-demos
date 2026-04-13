@@ -86,7 +86,6 @@ export async function readWorkflowDocument(
       content?: unknown;
       error?: string;
     };
-    hasError: boolean;
     docChanged: boolean;
     document: Record<string, unknown> | null;
   }>("/toolkit/read/read-document", input);
@@ -103,15 +102,17 @@ export async function readWorkflowSelection(
 ) {
   return postWorkflowRequest<{
     sessionId: string;
-    output: {
-      success: boolean;
-      content?: unknown;
-      nodeHashes?: string[];
-      nodeRange?: [number, number];
-      prompt?: string;
-      error?: string;
-    };
-    hasError: boolean;
+    output:
+      | {
+          isEmpty: false;
+          content: unknown;
+          nodeHashes: string[];
+          nodeRange: { from: number; to: number };
+          prompt: string;
+        }
+      | {
+          isEmpty: true;
+        };
     docChanged: boolean;
     document: Record<string, unknown> | null;
   }>("/toolkit/read/read-selection", input);
@@ -130,7 +131,6 @@ export async function readWorkflowThreads(input: {
       threads?: unknown[];
       error?: string;
     };
-    hasError: boolean;
     docChanged: boolean;
     document: Record<string, unknown> | null;
   }>("/toolkit/read/threads", input);
@@ -156,7 +156,6 @@ export async function executeWorkflowEdit(
       reason?: "validationError" | "unexpectedError";
       error?: string;
     };
-    hasError: boolean;
     docChanged: boolean;
     document: Record<string, unknown> | null;
   }>("/toolkit/execute-workflow/edit", input);
@@ -180,7 +179,6 @@ export async function executeWorkflowProofreader(
         error: string | null;
       }>;
     };
-    hasError: boolean;
     docChanged: boolean;
     document: Record<string, unknown> | null;
   }>("/toolkit/execute-workflow/proofreader", input);
@@ -201,7 +199,6 @@ export async function executeWorkflowInsertContent(
     output: {
       error?: string;
     };
-    hasError: boolean;
     docChanged: boolean;
     document: Record<string, unknown> | null;
   }>("/toolkit/execute-workflow/insert-content", input);
@@ -230,7 +227,6 @@ export async function executeWorkflowThreads(input: {
       }>;
       error?: string;
     };
-    hasError: boolean;
     docChanged: boolean;
     document: Record<string, unknown> | null;
   }>("/toolkit/execute-workflow/threads", input);

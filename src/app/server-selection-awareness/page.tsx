@@ -28,6 +28,7 @@ export default function Page() {
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-selection-awareness/${uuid()}`);
   const providerRef = useRef<TiptapCollabProvider | null>(null);
+  const selectionRangeRef = useRef({ from: 0, to: 0 });
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -37,6 +38,12 @@ export default function Page() {
       ServerAiToolkit,
       Selection,
     ],
+    onSelectionUpdate: ({ editor: currentEditor }) => {
+      selectionRangeRef.current = {
+        from: currentEditor.state.selection.from,
+        to: currentEditor.state.selection.to,
+      };
+    },
   });
 
   useEffect(() => {
@@ -78,18 +85,20 @@ export default function Page() {
   const schemaAwarenessDataRef = useRef(schemaAwarenessData);
   schemaAwarenessDataRef.current = schemaAwarenessData;
 
+  if (editor) {
+    selectionRangeRef.current = {
+      from: editor.state.selection.from,
+      to: editor.state.selection.to,
+    };
+  }
+
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/server-selection-awareness",
       body: () => ({
         schemaAwarenessData: schemaAwarenessDataRef.current,
         documentId,
-        selectionRange: editor
-          ? {
-              from: editor.state.selection.from,
-              to: editor.state.selection.to,
-            }
-          : null,
+        selectionRange: selectionRangeRef.current,
       }),
     }),
   });
@@ -99,11 +108,10 @@ export default function Page() {
   );
 
   const isLoading = status !== "ready";
-  const selectionEmpty = editor?.state.selection.empty ?? true;
 
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
-    if (!editor || !input.trim() || selectionEmpty) {
+    if (!editor || !input.trim()) {
       return;
     }
 
@@ -125,12 +133,7 @@ export default function Page() {
         onInputChange={setInput}
         onSubmit={handleSubmit}
         isLoading={isLoading}
-        disabled={selectionEmpty}
-        placeholder={
-          selectionEmpty
-            ? "Select some content in the document first..."
-            : "Describe how the selected content should change..."
-        }
+        placeholder="Describe how the selected content should change..."
       />
     </div>
   );

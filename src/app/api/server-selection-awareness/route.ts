@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     messages: UIMessage[];
     schemaAwarenessData: unknown;
     documentId: string;
-    selectionRange: { from: number; to: number };
+    selectionRange?: { from: number; to: number } | null;
   } = await req.json();
 
   const [toolDefinitions, schemaAwarenessPrompt, selectionResult] =
@@ -47,25 +47,25 @@ export async function POST(req: Request) {
         schemaAwarenessData,
       }),
       getSchemaAwarenessPrompt(schemaAwarenessData),
-      readWorkflowSelection({
-        schemaAwarenessData,
-        format: "shorthand",
-        range: selectionRange,
-        reviewOptions: {
-          mode: "disabled",
-        },
-        experimental_documentOptions: {
-          documentId,
-          userId: "ai-assistant",
-        },
-      }),
+      selectionRange &&
+        readWorkflowSelection({
+          schemaAwarenessData,
+          range: selectionRange,
+          reviewOptions: {
+            mode: "disabled",
+          },
+          format: "json",
+          experimental_documentOptions: {
+            documentId,
+            userId: "ai-assistant",
+          },
+        }),
     ]);
 
-  const selectionPrompt = selectionResult.output.success
-    ? `${selectionResult.output.prompt ?? "The current selection is the active edit target."}
-Only edit the currently selected content or its containing selected nodes.
-Do not change content outside the current selection context unless the user explicitly asks for it and it is required to complete the selected edit.`
-    : "The current selection could not be read. Ask the user to reselect the content and try again.";
+  const selectionPrompt =
+    selectionResult && !selectionResult.output.isEmpty
+      ? selectionResult.output.prompt
+      : "There is currently no active selection.";
 
   const tools = Object.fromEntries(
     toolDefinitions.map((toolDef) => [
@@ -112,8 +112,8 @@ Before calling any tools, summarize what you're going to do in one short sentenc
 Rule: In your responses, do not give any details of the tool calls.
 Rule: In your responses, do not give any details of the HTML content of the document.
 Rule: In your responses, never mention the hashes of the document.
-Rule: Treat the current selection as the primary editing scope.
 Rule: Use tiptapRead before tiptapEdit when you need more document context.
+The "selection-context" contains information about the selected content of the document. This is the content that the user has selected in the rich text document.
 
 <selection-context>
 ${selectionPrompt}
@@ -121,6 +121,12 @@ ${selectionPrompt}
 
 ${schemaAwarenessPrompt}`,
     tools,
+    providerOptions: {
+      openai: {
+        // Selection awareness works better with medium effort.
+        reasoningEffort: "medium",
+      },
+    },
   });
 
   return createAgentUIStreamResponse({

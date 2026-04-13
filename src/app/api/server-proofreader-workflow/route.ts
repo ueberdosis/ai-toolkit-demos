@@ -99,6 +99,5 @@ export async function POST(req: Request) {
   return Response.json({
     sessionId: executeResult.sessionId,
     operationResults: executeResult.output.operationResults,
-    hasError: executeResult.hasError,
   });
 }

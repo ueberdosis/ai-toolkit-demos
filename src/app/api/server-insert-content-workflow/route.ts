@@ -51,8 +51,8 @@ export async function POST(req: Request) {
     },
   });
 
-  if (!readResult.output.success) {
-    throw new Error(readResult.output.error ?? "Failed to read selection");
+  if (readResult.output.isEmpty) {
+    throw new Error("No selection available for insert-content workflow");
   }
 
   const workflow = createInsertContentWorkflow();
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     system: workflow.systemPrompt,
     prompt: JSON.stringify({
       task,
-      replace: readResult.output.content ?? "",
+      replace: readResult.output.content,
       context: readResult.output.prompt,
     }),
     providerOptions: {
@@ -94,6 +94,5 @@ export async function POST(req: Request) {
 
   return Response.json({
     sessionId: executeResult.sessionId,
-    hasError: executeResult.hasError,
   });
 }
