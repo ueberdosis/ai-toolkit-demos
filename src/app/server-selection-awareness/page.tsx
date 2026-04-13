@@ -81,25 +81,9 @@ export default function Page() {
     };
   }, [documentId, doc, editor]);
 
-  const schemaAwarenessData = editor ? getSchemaAwarenessData(editor) : null;
-  const schemaAwarenessDataRef = useRef(schemaAwarenessData);
-  schemaAwarenessDataRef.current = schemaAwarenessData;
-
-  if (editor) {
-    selectionRangeRef.current = {
-      from: editor.state.selection.from,
-      to: editor.state.selection.to,
-    };
-  }
-
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/server-selection-awareness",
-      body: () => ({
-        schemaAwarenessData: schemaAwarenessDataRef.current,
-        documentId,
-        selectionRange: selectionRangeRef.current,
-      }),
     }),
   });
 
@@ -115,7 +99,16 @@ export default function Page() {
       return;
     }
 
-    sendMessage({ text: input });
+    sendMessage(
+      { text: input },
+      {
+        body: {
+          schemaAwarenessData: getSchemaAwarenessData(editor),
+          documentId,
+          selectionRange: selectionRangeRef.current,
+        },
+      },
+    );
     setInput("");
   };
 
