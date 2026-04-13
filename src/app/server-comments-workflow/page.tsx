@@ -254,7 +254,7 @@ export default function Page() {
       // @ts-expect-error Interop with js files
       onUnresolveThread={unresolveThread}
       // @ts-expect-error Interop with js files
-      selectedThreads={editor.storage.comments.focusedThreads}
+      selectedThreads={editor.storage.comments?.focusedThreads ?? []}
       // @ts-expect-error Interop with js files
       selectedThread={selectedThread}
       // @ts-expect-error Interop with js files

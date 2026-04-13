@@ -1,10 +1,12 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { openai } from "@ai-sdk/openai";
-import { createInsertContentWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
-import { generateText, wrapLanguageModel } from "ai";
+import { Output, streamText, wrapLanguageModel } from "ai";
+import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
+import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
 import {
   executeWorkflowInsertContent,
+  getWorkflowDefinition,
   readWorkflowSelection,
 } from "@/lib/server-ai-toolkit/workflow-api";
 
@@ -55,32 +57,37 @@ export async function POST(req: Request) {
     throw new Error("No selection available for insert-content workflow");
   }
 
-  const workflow = createInsertContentWorkflow();
+  const [workflow, schemaAwarenessPrompt] = await Promise.all([
+    getWorkflowDefinition("insert-content", "shorthand"),
+    getSchemaAwarenessPrompt(schemaAwarenessData),
+  ]);
   const model = wrapLanguageModel({
     model: openai("gpt-5.4-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
-  const result = await generateText({
+  const result = streamText({
     model,
-    system: workflow.systemPrompt,
+    system: `${workflow.systemPrompt}\n\n${schemaAwarenessPrompt}`,
     prompt: JSON.stringify({
       task,
       replace: readResult.output.content,
       context: readResult.output.prompt,
     }),
+    output: Output.object({ schema: z.fromJSONSchema(workflow.outputSchema) }),
     providerOptions: {
       openai: {
         reasoningEffort: "low",
       },
     },
   });
+  const workflowOutput = (await result.output) as { content: string };
 
   const executeResult = await executeWorkflowInsertContent({
     schemaAwarenessData,
     format: "shorthand",
-    input: result.text,
+    input: workflowOutput.content,
     range,
     sessionId: readResult.sessionId,
     reviewOptions: {
@@ -94,5 +101,6 @@ export async function POST(req: Request) {
 
   return Response.json({
     sessionId: executeResult.sessionId,
+    range: executeResult.output.range ?? null,
   });
 }

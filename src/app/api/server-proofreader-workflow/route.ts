@@ -1,8 +1,9 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { openai } from "@ai-sdk/openai";
-import { generateObject, wrapLanguageModel } from "ai";
+import { Output, streamText, wrapLanguageModel } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
+import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
 import {
   executeWorkflowProofreader,
   getWorkflowDefinition,
@@ -57,32 +58,44 @@ export async function POST(req: Request) {
     throw new Error(readResult.output.error ?? "Failed to read document");
   }
 
-  const workflow = await getWorkflowDefinition("proofreader", "shorthand");
+  const [workflow, schemaAwarenessPrompt] = await Promise.all([
+    getWorkflowDefinition("proofreader", "shorthand"),
+    getSchemaAwarenessPrompt(schemaAwarenessData),
+  ]);
+  const systemPrompt = `${workflow.systemPrompt}
+
+You are reviewing a demo document that intentionally contains grammar and spelling mistakes.
+If the content contains mistakes, do not return an empty operations array.
+Return the concrete proofreader operations needed to correct the mistakes.
+
+${schemaAwarenessPrompt}`;
+  const prompt = JSON.stringify({
+    content: readResult.output.content,
+    task: "Correct all grammar and spelling mistakes",
+  });
   const model = wrapLanguageModel({
     model: openai("gpt-5.4-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
-  const result = await generateObject({
+  const result = streamText({
     model,
-    system: workflow.systemPrompt,
-    prompt: JSON.stringify({
-      content: readResult.output.content,
-      task: "Correct all grammar and spelling mistakes",
-    }),
-    schema: z.fromJSONSchema(workflow.outputSchema),
+    system: systemPrompt,
+    prompt,
+    output: Output.object({ schema: z.fromJSONSchema(workflow.outputSchema) }),
     providerOptions: {
       openai: {
         reasoningEffort: "low",
       },
     },
   });
+  const output = (await result.output) as { operations?: unknown[] };
 
   const executeResult = await executeWorkflowProofreader({
     schemaAwarenessData,
     format: "shorthand",
-    input: result.object,
+    input: output,
     sessionId: readResult.sessionId,
     reviewOptions: {
       mode: "trackedChanges",

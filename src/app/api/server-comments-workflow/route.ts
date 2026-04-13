@@ -1,8 +1,9 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { openai } from "@ai-sdk/openai";
-import { generateObject, wrapLanguageModel } from "ai";
+import { Output, streamText, wrapLanguageModel } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
+import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
 import {
   executeWorkflowThreads,
   getWorkflowDefinition,
@@ -73,28 +74,49 @@ export async function POST(req: Request) {
     throw new Error(threadsReadResult.output.error ?? "Failed to read threads");
   }
 
-  const workflow = await getWorkflowDefinition("threads", "shorthand");
+  const [workflow, schemaAwarenessPrompt] = await Promise.all([
+    getWorkflowDefinition("threads", "shorthand"),
+    getSchemaAwarenessPrompt(schemaAwarenessData),
+  ]);
   const model = wrapLanguageModel({
     model: openai("gpt-5.4-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
-  const result = await generateObject({
+  const result = streamText({
     model,
-    system: workflow.systemPrompt,
+    system: `${workflow.systemPrompt}\n\n${schemaAwarenessPrompt}`,
     prompt: JSON.stringify({
       content: documentReadResult.output.content,
       threads: threadsReadResult.output.threads ?? [],
       task,
     }),
-    schema: z.fromJSONSchema(workflow.outputSchema),
+    output: Output.object({ schema: z.fromJSONSchema(workflow.outputSchema) }),
   });
+  const output = (await result.output) as {
+    operations?: Array<{
+      type: string;
+      nodeHash?: string | null;
+      threadId?: string | null;
+      commentId?: string | null;
+      content?: string | null;
+    }>;
+  };
+  const normalizedOutput = {
+    operations: (output.operations ?? []).map((operation) => ({
+      ...operation,
+      nodeHash: operation.nodeHash ?? undefined,
+      threadId: operation.threadId ?? undefined,
+      commentId: operation.commentId ?? undefined,
+      content: operation.content ?? undefined,
+    })),
+  };
 
   const executeResult = await executeWorkflowThreads({
     schemaAwarenessData,
     format: "shorthand",
-    input: result.object,
+    input: normalizedOutput,
     experimental_documentOptions: {
       documentId,
       userId: "ai-assistant",

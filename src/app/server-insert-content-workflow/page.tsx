@@ -84,6 +84,28 @@ export default function Page() {
     return null;
   }
 
+  const selectRangeWhenReady = (range: { from: number; to: number }) => {
+    let attempts = 0;
+
+    const trySelect = () => {
+      const maxPosition = editor.state.doc.content.size;
+
+      if (range.to > maxPosition && attempts < 20) {
+        attempts += 1;
+        window.setTimeout(trySelect, 100);
+        return;
+      }
+
+      editor.commands.focus();
+      editor.commands.setTextSelection({
+        from: Math.min(range.from, maxPosition),
+        to: Math.min(range.to, maxPosition),
+      });
+    };
+
+    trySelect();
+  };
+
   const editSelection = async (task: string) => {
     setIsLoading(true);
 
@@ -107,8 +129,15 @@ export default function Page() {
         throw new Error(`HTTP error ${response.status}`);
       }
 
-      const result: { sessionId: string } = await response.json();
+      const result: {
+        sessionId: string;
+        range: { from: number; to: number } | null;
+      } = await response.json();
       setSessionId(result.sessionId);
+
+      if (result.range) {
+        selectRangeWhenReady(result.range);
+      }
     } finally {
       setIsLoading(false);
     }

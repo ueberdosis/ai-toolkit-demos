@@ -25,6 +25,31 @@ interface RemoteDocumentSource {
 
 type DocumentSource = InlineDocumentSource | RemoteDocumentSource;
 
+function shouldRetryWorkflowRequest(
+  status: number,
+  errorText: string,
+): boolean {
+  if (status !== 502) {
+    return false;
+  }
+
+  try {
+    const parsedError = JSON.parse(errorText) as {
+      error?: { code?: string };
+    };
+
+    return parsedError.error?.code === "document_load_failed";
+  } catch {
+    return false;
+  }
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 async function postWorkflowRequest<TResponse>(
   path: string,
   body: unknown,
@@ -37,29 +62,48 @@ async function postWorkflowRequest<TResponse>(
     throw new Error("Missing TIPTAP_CLOUD_AI_APP_ID");
   }
 
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
-      "X-App-Id": appId,
-      Origin: "http://localhost:3000",
-    },
-    body: JSON.stringify(body),
-  });
+  const requestHeaders = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
+    "X-App-Id": appId,
+    Origin: "http://localhost:3000",
+  };
+  const requestBody = JSON.stringify(body);
+  const retryDelays = [200, 500, 1000];
 
-  if (!response.ok) {
+  for (let attempt = 0; attempt <= retryDelays.length; attempt += 1) {
+    const response = await fetch(`${apiBaseUrl}${path}`, {
+      method: "POST",
+      headers: requestHeaders,
+      body: requestBody,
+    });
+
+    if (response.ok) {
+      return response.json() as Promise<TResponse>;
+    }
+
     const errorText = await response.text();
+
+    if (
+      attempt < retryDelays.length &&
+      shouldRetryWorkflowRequest(response.status, errorText)
+    ) {
+      await sleep(retryDelays[attempt]);
+      continue;
+    }
+
     throw new Error(
       `Server AI Toolkit request failed for ${path}: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ""}`,
     );
   }
 
-  return response.json() as Promise<TResponse>;
+  throw new Error(
+    `Server AI Toolkit request failed for ${path}: exhausted retries`,
+  );
 }
 
 export async function getWorkflowDefinition(
-  name: "edit" | "proofreader" | "threads",
+  name: "edit" | "insert-content" | "proofreader" | "threads",
   format: WorkflowFormat,
 ) {
   return postWorkflowRequest<{
@@ -198,6 +242,7 @@ export async function executeWorkflowInsertContent(
     sessionId: string;
     output: {
       error?: string;
+      range?: { from: number; to: number };
     };
     docChanged: boolean;
     document: Record<string, unknown> | null;

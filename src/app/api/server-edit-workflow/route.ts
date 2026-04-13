@@ -1,8 +1,9 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { openai } from "@ai-sdk/openai";
-import { generateObject, wrapLanguageModel } from "ai";
+import { Output, streamText, wrapLanguageModel } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
+import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
 import {
   executeWorkflowEdit,
   getWorkflowDefinition,
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
     schemaAwarenessData,
     range,
     sessionId,
-    format: "json",
+    format: "shorthand",
     reviewOptions: {
       mode: "disabled",
     },
@@ -56,32 +57,36 @@ export async function POST(req: Request) {
     throw new Error(readResult.output.error ?? "Failed to read document");
   }
 
-  const workflow = await getWorkflowDefinition("edit", "json");
+  const [workflow, schemaAwarenessPrompt] = await Promise.all([
+    getWorkflowDefinition("edit", "shorthand"),
+    getSchemaAwarenessPrompt(schemaAwarenessData),
+  ]);
   const model = wrapLanguageModel({
     model: openai("gpt-5.4-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
-  const result = await generateObject({
+  const result = streamText({
     model,
-    system: workflow.systemPrompt,
+    system: `${workflow.systemPrompt}\n\n${schemaAwarenessPrompt}`,
     prompt: JSON.stringify({
       content: readResult.output.content,
       task,
     }),
-    schema: z.fromJSONSchema(workflow.outputSchema),
+    output: Output.object({ schema: z.fromJSONSchema(workflow.outputSchema) }),
     providerOptions: {
       openai: {
         reasoningEffort: "low",
       },
     },
   });
+  const output = await result.output;
 
   const executeResult = await executeWorkflowEdit({
     schemaAwarenessData,
-    format: "json",
-    input: result.object,
+    format: "shorthand",
+    input: output,
     sessionId: readResult.sessionId,
     reviewOptions: {
       mode: "disabled",
