@@ -100,20 +100,11 @@ export async function POST(req: Request) {
       content?: string | null;
     }>;
   };
-  const normalizedOutput = {
-    operations: (output.operations ?? []).map((operation) => ({
-      ...operation,
-      nodeHash: operation.nodeHash ?? undefined,
-      threadId: operation.threadId ?? undefined,
-      commentId: operation.commentId ?? undefined,
-      content: operation.content ?? undefined,
-    })),
-  };
 
   const executeResult = await executeWorkflowThreads({
     schemaAwarenessData,
     format: "shorthand",
-    input: normalizedOutput,
+    input: output,
     experimental_documentOptions: {
       documentId,
       userId: "ai-assistant",
