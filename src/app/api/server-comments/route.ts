@@ -4,7 +4,6 @@ import {
   createAgentUIStreamResponse,
   ToolLoopAgent,
   tool,
-  type UIMessage,
   wrapLanguageModel,
 } from "ai";
 import z from "zod";
@@ -13,6 +12,10 @@ import { executeCommentsTool } from "@/lib/server-ai-toolkit/execute-comments-to
 import { getCommentsToolDefinitions } from "@/lib/server-ai-toolkit/get-comments-tool-definitions";
 import { getDocument } from "@/lib/server-ai-toolkit/get-document";
 import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
+import {
+  getSessionIdFromConversationHistory,
+  type ServerAiToolkitMessage,
+} from "@/lib/server-ai-toolkit/session-id";
 import { updateDocument } from "@/lib/server-ai-toolkit/update-document";
 
 const collabBaseUrl = process.env.TIPTAP_CLOUD_COLLAB_BASE_URL;
@@ -38,10 +41,11 @@ export async function POST(req: Request) {
     schemaAwarenessData,
     documentId,
   }: {
-    messages: UIMessage[];
+    messages: ServerAiToolkitMessage[];
     schemaAwarenessData: unknown;
     documentId: string;
   } = await req.json();
+  let sessionId = getSessionIdFromConversationHistory(messages);
 
   const tiptapCloudDocumentServerId =
     process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
@@ -61,6 +65,7 @@ export async function POST(req: Request) {
     apiSecret: documentManagementApiSecret,
     userId: "ai-assistant",
     appId: tiptapCloudDocumentServerId,
+    sessionId,
   };
 
   // Get tool definitions from the Server AI Toolkit API (with comments tools)
@@ -87,8 +92,12 @@ export async function POST(req: Request) {
               input,
               document,
               schemaAwarenessData,
-              commentsOptions,
+              {
+                ...commentsOptions,
+                sessionId,
+              },
             );
+            sessionId = result.sessionId;
 
             // Update the document after executing the tool if it changed
             if (result.docChanged && result.document && documentId) {
@@ -129,6 +138,8 @@ ${schemaAwarenessPrompt}`,
 
   return createAgentUIStreamResponse({
     agent,
+    messageMetadata: ({ part }) =>
+      part.type === "finish" && sessionId ? { sessionId } : undefined,
     uiMessages: messages,
   });
 }

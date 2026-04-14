@@ -253,6 +253,7 @@ export async function executeWorkflowThreads(input: {
   schemaAwarenessData: unknown;
   format: WorkflowFormat;
   input: unknown;
+  sessionId?: string | null;
   experimental_documentOptions: {
     documentId: string;
     userId?: string | null;
@@ -263,6 +264,7 @@ export async function executeWorkflowThreads(input: {
   };
 }) {
   return postWorkflowRequest<{
+    sessionId: string;
     output: {
       operations?: Array<{
         type: string;
