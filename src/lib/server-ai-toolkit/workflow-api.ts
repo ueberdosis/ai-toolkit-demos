@@ -202,7 +202,7 @@ export async function executeWorkflowEdit(
     };
     docChanged: boolean;
     document: Record<string, unknown> | null;
-  }>("/toolkit/execute-workflow/edit", input);
+  }>("/toolkit/execute-workflow/tiptap-edit", input);
 }
 
 export async function executeWorkflowProofreader(
