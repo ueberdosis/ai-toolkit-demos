@@ -6,6 +6,7 @@ export interface CommentsOptions {
   apiSecret: string;
   userId: string;
   appId: string;
+  sessionId?: string;
 }
 
 /**

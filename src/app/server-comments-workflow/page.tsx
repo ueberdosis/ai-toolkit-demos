@@ -41,6 +41,7 @@ export default function Page() {
     "Add short, example comments suggesting improvements to sentences in this document",
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [resultMessage, setResultMessage] = useState("");
   // biome-ignore lint/suspicious/noExplicitAny: Interop with js files
   const threadsRef = useRef<any[]>([]);
@@ -209,6 +210,7 @@ export default function Page() {
           documentId,
           schemaAwarenessData: getSchemaAwarenessData(editor),
           task,
+          sessionId,
         }),
       });
 
@@ -217,9 +219,11 @@ export default function Page() {
       }
 
       const result: {
+        sessionId: string;
         operations: Array<{ success: boolean }>;
       } = await response.json();
 
+      setSessionId(result.sessionId);
       setResultMessage(
         `Applied ${result.operations.filter((operation) => operation.success).length} comment operation(s)`,
       );

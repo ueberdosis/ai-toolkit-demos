@@ -30,15 +30,18 @@ export async function POST(req: Request) {
     documentId,
     schemaAwarenessData,
     task,
+    sessionId,
   }: {
     documentId: string;
     schemaAwarenessData: unknown;
     task: string;
+    sessionId?: string | null;
   } = await req.json();
 
   const [documentReadResult, threadsReadResult] = await Promise.all([
     readWorkflowDocument({
       schemaAwarenessData,
+      sessionId,
       format: "shorthand",
       reviewOptions: {
         mode: "disabled",
@@ -105,6 +108,7 @@ export async function POST(req: Request) {
     schemaAwarenessData,
     format: "shorthand",
     input: output,
+    sessionId: documentReadResult.sessionId,
     experimental_documentOptions: {
       documentId,
       userId: "ai-assistant",
@@ -116,6 +120,7 @@ export async function POST(req: Request) {
   });
 
   return Response.json({
+    sessionId: executeResult.sessionId,
     operations: executeResult.output.operations ?? [],
   });
 }

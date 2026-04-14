@@ -4,7 +4,6 @@ import {
   createAgentUIStreamResponse,
   ToolLoopAgent,
   tool,
-  type UIMessage,
   wrapLanguageModel,
 } from "ai";
 import z from "zod";
@@ -12,6 +11,10 @@ import { getIp, rateLimit } from "@/lib/rate-limit";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
 import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
 import { getToolDefinitions } from "@/lib/server-ai-toolkit/get-tool-definitions";
+import {
+  getSessionIdFromConversationHistory,
+  type ServerAiToolkitMessage,
+} from "@/lib/server-ai-toolkit/session-id";
 
 export async function POST(req: Request) {
   if (process.env.UPSTASH_REDIS_REST_URL) {
@@ -33,10 +36,11 @@ export async function POST(req: Request) {
     schemaAwarenessData,
     documentId,
   }: {
-    messages: UIMessage[];
+    messages: ServerAiToolkitMessage[];
     schemaAwarenessData: unknown;
     documentId: string;
   } = await req.json();
+  let sessionId = getSessionIdFromConversationHistory(messages);
   const toolDefinitions = await getToolDefinitions({
     schemaAwarenessData,
   });
@@ -58,12 +62,14 @@ export async function POST(req: Request) {
               schemaAwarenessData,
               {
                 documentId,
+                sessionId,
                 userId: "ai-assistant",
                 reviewOptions: {
                   mode: "trackedChanges",
                 },
               },
             );
+            sessionId = result.sessionId;
 
             return result.output;
           } catch (error) {
@@ -100,6 +106,8 @@ ${schemaAwarenessPrompt}`,
 
   return createAgentUIStreamResponse({
     agent,
+    messageMetadata: ({ part }) =>
+      part.type === "finish" && sessionId ? { sessionId } : undefined,
     uiMessages: messages,
   });
 }
