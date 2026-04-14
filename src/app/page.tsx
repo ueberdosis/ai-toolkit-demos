@@ -148,13 +148,19 @@ const CATEGORIES = [
     color: "violet",
     groups: [
       {
-        heading: null,
+        heading: "Agents",
         items: [
           {
             title: "Server Chatbot",
             description:
               "AI agent running server-side via Tiptap Cloud for enhanced security",
             href: "/server-ai-agent-chatbot",
+          },
+          {
+            title: "Server Selection Awareness",
+            description:
+              "Selection-aware server agent that edits only the active selection",
+            href: "/server-selection-awareness",
           },
           {
             title: "Server Comments",
@@ -171,6 +177,35 @@ const CATEGORIES = [
             description:
               "Tracked changes with server-side comments explaining each edit",
             href: "/server-ai-tracked-changes-comments",
+          },
+        ],
+      },
+      {
+        heading: "Workflows",
+        items: [
+          {
+            title: "Server Insert Content",
+            description:
+              "Selection-based insert workflow executed on the server",
+            href: "/server-insert-content-workflow",
+          },
+          {
+            title: "Server Proofreader",
+            description:
+              "Proofreading workflow with server-side tracked changes output",
+            href: "/server-proofreader-workflow",
+          },
+          {
+            title: "Server Edit Workflow",
+            description:
+              "Prompt-driven document editing via server workflow endpoints",
+            href: "/server-edit-workflow",
+          },
+          {
+            title: "Server Comments Workflow",
+            description:
+              "Thread and comment workflows powered by the server toolkit",
+            href: "/server-comments-workflow",
           },
         ],
       },
@@ -265,9 +300,14 @@ export default function Home() {
         </div>
 
         <div className="mt-14 text-center text-xs text-gray-300">
-          Set <code className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-400">OPENAI_API_KEY</code>{" "}
+          Set{" "}
+          <code className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-400">
+            OPENAI_API_KEY
+          </code>{" "}
           and{" "}
-          <code className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-400">ANTHROPIC_API_KEY</code>{" "}
+          <code className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-400">
+            ANTHROPIC_API_KEY
+          </code>{" "}
           environment variables to use these demos.
         </div>
       </div>
