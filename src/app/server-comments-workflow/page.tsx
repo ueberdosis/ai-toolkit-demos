@@ -209,10 +209,6 @@ export default function Page() {
           documentId,
           schemaAwarenessData: getSchemaAwarenessData(editor),
           task,
-          range: {
-            from: 0,
-            to: editor.state.doc.content.size,
-          },
         }),
       });
 

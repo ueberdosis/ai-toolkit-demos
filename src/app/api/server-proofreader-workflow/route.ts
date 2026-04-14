@@ -28,18 +28,15 @@ export async function POST(req: Request) {
   const {
     documentId,
     schemaAwarenessData,
-    range,
     sessionId,
   }: {
     documentId: string;
     schemaAwarenessData: unknown;
-    range: { from: number; to: number };
     sessionId?: string | null;
   } = await req.json();
 
   const readResult = await readWorkflowDocument({
     schemaAwarenessData,
-    range,
     sessionId,
     format: "shorthand",
     reviewOptions: {

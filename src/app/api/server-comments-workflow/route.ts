@@ -30,18 +30,15 @@ export async function POST(req: Request) {
     documentId,
     schemaAwarenessData,
     task,
-    range,
   }: {
     documentId: string;
     schemaAwarenessData: unknown;
     task: string;
-    range: { from: number; to: number };
   } = await req.json();
 
   const [documentReadResult, threadsReadResult] = await Promise.all([
     readWorkflowDocument({
       schemaAwarenessData,
-      range,
       format: "shorthand",
       reviewOptions: {
         mode: "disabled",

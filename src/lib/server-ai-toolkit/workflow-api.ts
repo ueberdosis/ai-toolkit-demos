@@ -118,7 +118,7 @@ export async function readWorkflowDocument(
   input: {
     schemaAwarenessData: unknown;
     format: WorkflowFormat;
-    range: { from: number; to: number };
+    range?: { from: number; to: number };
     sessionId?: string | null;
     reviewOptions?: ReviewOptions;
   } & DocumentSource,
