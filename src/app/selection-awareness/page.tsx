@@ -19,6 +19,9 @@ export default function Page() {
     extensions: [StarterKit, AiToolkit, Selection],
     content: `<p>This is another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>
 <p>This is yet another paragraph that you can select. Tiptap is a rich text editor that you can use to edit your text. It is a powerful tool that you can use to create beautiful documents. With the AI Toolkit, you can give your AI the ability to edit your document in real time.</p>`,
+    onCreate: ({ editor: e }) => {
+      e.commands.setTextSelection({ from: 274, to: 324 });
+    },
   });
 
   const { messages, sendMessage, addToolOutput, status } = useChat({
