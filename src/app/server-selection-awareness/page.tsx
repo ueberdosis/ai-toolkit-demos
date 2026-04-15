@@ -62,6 +62,7 @@ export default function Page() {
           user: "user-1",
           onConnect() {
             editor?.commands.setContent(initialContent);
+            editor?.commands.setTextSelection({ from: 243, to: 291 });
           },
         });
 
