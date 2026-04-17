@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5.4-nano"),
+    model: openai("gpt-5.4-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
@@ -44,11 +44,11 @@ Rule: In your messages to the user, do not give any details of the HTML content 
 Rule: In your messages to the user, never mention the hashes of the document.
 `,
     tools: toolDefinitions(),
-    // providerOptions: {
-    //   openai: {
-    //     reasoningEffort: "low",
-    //   },
-    // },
+    providerOptions: {
+      openai: {
+        reasoningEffort: "low",
+      },
+    },
   });
 
   return createAgentUIStreamResponse({
