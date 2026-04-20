@@ -28,7 +28,7 @@
 .split-view-demo .split-diff-spacer {
   background-color: rgba(244, 244, 245, 0.6);
   border-radius: 6px;
-  cursor: pointer !important;
+  cursor: pointer;
   transition: background-color 0.15s ease;
 }
 

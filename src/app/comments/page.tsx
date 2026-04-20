@@ -6,4 +6,3 @@ import "../../demos/comments/style.scss";
 export default function Page() {
   return <Comments />;
 }
-

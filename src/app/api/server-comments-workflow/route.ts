@@ -1,6 +1,5 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { openai } from "@ai-sdk/openai";
-import { Output, streamText, wrapLanguageModel } from "ai";
+import { gateway, Output, streamText, wrapLanguageModel } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
@@ -79,7 +78,7 @@ export async function POST(req: Request) {
     getSchemaAwarenessPrompt(schemaAwarenessData),
   ]);
   const model = wrapLanguageModel({
-    model: openai("gpt-5.4-mini"),
+    model: gateway("openai/gpt-5.4-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });

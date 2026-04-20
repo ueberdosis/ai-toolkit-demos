@@ -1,8 +1,8 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { openai } from "@ai-sdk/openai";
 import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
 import {
   createAgentUIStreamResponse,
+  gateway,
   ToolLoopAgent,
   type UIMessage,
   wrapLanguageModel,
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5.4-nano"),
+    model: gateway("openai/gpt-5.4-nano"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });

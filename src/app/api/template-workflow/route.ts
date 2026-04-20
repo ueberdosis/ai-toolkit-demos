@@ -1,7 +1,6 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { openai } from "@ai-sdk/openai";
 import { createTemplateWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
-import { Output, streamText, wrapLanguageModel } from "ai";
+import { gateway, Output, streamText, wrapLanguageModel } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -27,7 +26,7 @@ export async function POST(req: Request) {
   const workflow = createTemplateWorkflow({ htmlTemplate });
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5.4-mini"),
+    model: gateway("openai/gpt-5.4-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });

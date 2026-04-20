@@ -1,7 +1,7 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { openai } from "@ai-sdk/openai";
 import {
   createAgentUIStreamResponse,
+  gateway,
   ToolLoopAgent,
   tool,
   type UIMessage,
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
   );
 
   const model = wrapLanguageModel({
-    model: openai("gpt-5.4-mini"),
+    model: gateway("openai/gpt-5.4-mini"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
