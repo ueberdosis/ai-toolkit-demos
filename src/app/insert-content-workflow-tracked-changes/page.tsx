@@ -130,6 +130,7 @@ export default function Page() {
       position: selectionRange,
       reviewOptions: {
         mode: "trackedChanges",
+        useDiffUtility: false,
         trackedChangesOptions: {
           userId: "ai-assistant",
           userMetadata: {

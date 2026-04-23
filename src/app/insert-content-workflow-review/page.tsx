@@ -73,6 +73,7 @@ export default function Page() {
       position: selectionRange,
       reviewOptions: {
         mode: "review",
+        useDiffUtility: false,
         displayOptions: {
           renderDecorations(options) {
             const decorations = [...options.defaultRenderDecorations()];
