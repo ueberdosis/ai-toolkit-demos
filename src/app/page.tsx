@@ -139,6 +139,29 @@ const CATEGORIES = [
           },
         ],
       },
+      {
+        heading: "Insert Content + Review UI",
+        items: [
+          {
+            title: "Preview Changes",
+            description:
+              "Insert content workflow with preview mode — review before applying",
+            href: "/insert-content-workflow-preview",
+          },
+          {
+            title: "Review Changes",
+            description:
+              "Insert content workflow with review mode — changes applied, then accept or reject",
+            href: "/insert-content-workflow-review",
+          },
+          {
+            title: "Tracked Changes",
+            description:
+              "Insert content workflow with tracked changes — persistent collaborative review",
+            href: "/insert-content-workflow-tracked-changes",
+          },
+        ],
+      },
     ],
   },
   {
