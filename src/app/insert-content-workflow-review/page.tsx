@@ -11,8 +11,8 @@ import { createPortal } from "react-dom";
 import { SuggestionReviewTooltip } from "../../components/suggestion-review-tooltip";
 import { ToolbarPanel } from "../../components/toolbar-panel";
 import "../../styles/ai-caret.css";
-import "../../styles/suggestions-review-mode.css";
 import "../insert-content-workflow/selection.css";
+import "../../styles/suggestions-review-mode.css";
 
 type SuggestionTooltipMount = {
   suggestionId: string;
