@@ -10,15 +10,11 @@ import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { executeCommentsTool } from "@/lib/server-ai-toolkit/execute-comments-tool";
 import { getCommentsToolDefinitions } from "@/lib/server-ai-toolkit/get-comments-tool-definitions";
-import { getDocument } from "@/lib/server-ai-toolkit/get-document";
 import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
 import {
   getSessionIdFromConversationHistory,
   type ServerAiToolkitMessage,
 } from "@/lib/server-ai-toolkit/session-id";
-import { updateDocument } from "@/lib/server-ai-toolkit/update-document";
-
-const collabBaseUrl = process.env.TIPTAP_CLOUD_COLLAB_BASE_URL;
 
 export async function POST(req: Request) {
   // Rate limiting
@@ -84,13 +80,9 @@ export async function POST(req: Request) {
         inputSchema: z.fromJSONSchema(toolDef.inputSchema),
         execute: async (input) => {
           try {
-            // Get the latest version of the document before executing the tool
-            const document = await getDocument(documentId, collabBaseUrl);
-
             const result = await executeCommentsTool(
               toolDef.name,
               input,
-              document,
               schemaAwarenessData,
               {
                 ...commentsOptions,
@@ -98,11 +90,6 @@ export async function POST(req: Request) {
               },
             );
             sessionId = result.sessionId;
-
-            // Update the document after executing the tool if it changed
-            if (result.docChanged && result.document && documentId) {
-              await updateDocument(documentId, result.document, collabBaseUrl);
-            }
 
             return result.output;
           } catch (error) {

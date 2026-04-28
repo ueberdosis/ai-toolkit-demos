@@ -7,8 +7,6 @@ import { getTiptapCloudAiJwtTokenComments } from "./get-tiptap-cloud-ai-jwt-toke
 export async function executeCommentsTool(
   toolName: string,
   input: unknown,
-  // TODO remove this property
-  _document: unknown,
   schemaAwarenessData: unknown,
   commentsOptions: CommentsOptions,
 ): Promise<{
