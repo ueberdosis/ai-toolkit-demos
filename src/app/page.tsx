@@ -213,6 +213,12 @@ const CATEGORIES = [
             href: "/server-insert-content-workflow",
           },
           {
+            title: "Server Insert + Tracked",
+            description:
+              "Insert content workflow that writes AI changes as tracked changes for review",
+            href: "/server-insert-content-workflow-tracked-changes",
+          },
+          {
             title: "Server Proofreader",
             description:
               "Proofreading workflow with server-side tracked changes output",
@@ -223,6 +229,12 @@ const CATEGORIES = [
             description:
               "Prompt-driven document editing via server workflow endpoints",
             href: "/server-edit-workflow",
+          },
+          {
+            title: "Server Edit + Tracked",
+            description:
+              "Edit workflow that writes AI changes as tracked changes for review",
+            href: "/server-edit-workflow-tracked-changes",
           },
           {
             title: "Server Comments Workflow",
