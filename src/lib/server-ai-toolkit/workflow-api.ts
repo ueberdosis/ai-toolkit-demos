@@ -8,6 +8,7 @@ interface ReviewOptions {
     userId: string;
     userMetadata?: Record<string, unknown> | null;
   };
+  useDiffUtility?: boolean;
 }
 
 interface InlineDocumentSource {
