@@ -19,6 +19,7 @@ declare global {
       // Tiptap Cloud
       TIPTAP_CLOUD_DOCUMENT_SERVER_ID?: string;
       TIPTAP_CLOUD_SECRET?: string;
+      TIPTAP_CLOUD_COLLAB_BASE_URL?: string;
 
       // Tiptap Cloud Document Management REST API
       TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET?: string;
