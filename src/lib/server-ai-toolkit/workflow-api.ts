@@ -106,12 +106,16 @@ async function postWorkflowRequest<TResponse>(
 export async function getWorkflowDefinition(
   name: "edit" | "insert-content" | "proofreader" | "threads",
   format: WorkflowFormat,
+  options?: {
+    operationMeta?: string;
+  },
 ) {
   return postWorkflowRequest<{
     systemPrompt: string;
     outputSchema: Record<string, unknown>;
   }>(`/toolkit/workflows/${name}`, {
     format,
+    ...(options?.operationMeta ? { operationMeta: options.operationMeta } : {}),
   });
 }
 
@@ -188,6 +192,10 @@ export async function executeWorkflowEdit(
     input: unknown;
     sessionId?: string | null;
     reviewOptions?: ReviewOptions;
+    experimental_commentsOptions?: {
+      threadData?: Record<string, unknown>;
+      commentData?: Record<string, unknown>;
+    };
   } & DocumentSource,
 ) {
   return postWorkflowRequest<{
@@ -213,6 +221,10 @@ export async function executeWorkflowProofreader(
     sessionId?: string | null;
     reviewOptions?: ReviewOptions;
     format: "shorthand";
+    experimental_commentsOptions?: {
+      threadData?: Record<string, unknown>;
+      commentData?: Record<string, unknown>;
+    };
   } & DocumentSource,
 ) {
   return postWorkflowRequest<{
