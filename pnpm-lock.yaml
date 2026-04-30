@@ -27,14 +27,14 @@ importers:
         specifier: ^3.4.4
         version: 3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
       '@tiptap-pro/ai-toolkit':
-        specifier: 0.6.1
-        version: 0.6.1(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)
+        specifier: 0.7.0
+        version: 0.7.0(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)
       '@tiptap-pro/ai-toolkit-ai-sdk':
-        specifier: 0.6.1
-        version: 0.6.1(zod@4.3.6)
+        specifier: 0.7.0
+        version: 0.7.0(zod@4.3.6)
       '@tiptap-pro/ai-toolkit-tool-definitions':
-        specifier: 0.6.1
-        version: 0.6.1
+        specifier: 0.7.0
+        version: 0.7.0
       '@tiptap-pro/extension-comments':
         specifier: ^3.6.3
         version: 3.6.3(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.7)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(yjs@13.6.30))(@tiptap-pro/provider@3.6.2(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(lib0@0.2.117)(yjs@13.6.30))(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)
@@ -45,8 +45,8 @@ importers:
         specifier: ^3.6.2
         version: 3.6.2(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(lib0@0.2.117)(yjs@13.6.30)
       '@tiptap-pro/server-ai-toolkit':
-        specifier: 0.6.1
-        version: 0.6.1(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)
+        specifier: 0.7.0
+        version: 0.7.0(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)
       '@tiptap/core':
         specifier: ^3.20.5
         version: 3.20.5(@tiptap/pm@3.20.5)
@@ -676,15 +676,15 @@ packages:
   '@tailwindcss/postcss@4.2.2':
     resolution: {integrity: sha512-n4goKQbW8RVXIbNKRB/45LzyUqN451deQK0nzIeauVEqjlI49slUlgKYJM2QyUzap/PcpnS7kzSUmPb1sCRvYQ==}
 
-  '@tiptap-pro/ai-toolkit-ai-sdk@0.6.1':
-    resolution: {integrity: sha512-3KGFzFas6BxJDTBWGiGl7mEv7by77hrMcuWDLZYdxTsBZZtV2NiHZnh5Py+hTW2RwDipruy0E66v9NIS0cWv6w==}
+  '@tiptap-pro/ai-toolkit-ai-sdk@0.7.0':
+    resolution: {integrity: sha512-zpTjVALd8+EL9M08HPIURqbOSsPH429czL6Z04vxCOPaRZq9HTPFpVfXsREY9GxOX/0IRXNefd6zLvKAVOknCg==}
 
-  '@tiptap-pro/ai-toolkit-tool-definitions@0.6.1':
-    resolution: {integrity: sha512-1jqtaE7TRFoYLwsrU98OqcXw4DlcWGuZ1Nnzpt7HN9so+nUU2iL5Zvj+XS6ZQbuS5Wq8quwkUfBgzyBYhZC5DQ==}
+  '@tiptap-pro/ai-toolkit-tool-definitions@0.7.0':
+    resolution: {integrity: sha512-BSd6sr11Pao5g2AAeXMFokP50sux1iUxC7gkn9rkT9rv0llx6sKPyTiw9s0knXoiCOBgZHO6OqL956tfj+7ifw==}
     hasBin: true
 
-  '@tiptap-pro/ai-toolkit@0.6.1':
-    resolution: {integrity: sha512-lf4G9Cz3j8TCiZH/hLGIkW/43YGx84emZcFm/vmDg2i/4q/OMkOBaByl+jSW6Z9M1Qdu0su8Ue1QtcErEmwuYA==}
+  '@tiptap-pro/ai-toolkit@0.7.0':
+    resolution: {integrity: sha512-QHn5pCaHFV0dborv9EZz6Ov78VH7D6FJaEWD8iuww4MqCcMkOQv9ZnDcSBok1Cm8ooHoGlMOE3P89fLGTKPD6A==}
     peerDependencies:
       '@tiptap/core': ^3.12.0
       '@tiptap/pm': ^3.12.0
@@ -711,8 +711,8 @@ packages:
       lib0: ^0.2.99
       yjs: ^13.6.20
 
-  '@tiptap-pro/server-ai-toolkit@0.6.1':
-    resolution: {integrity: sha512-sR49hfxdKJT9AckdELCe0KP+3QB2jhT2QrwMji1xW48dgadlLJdvdP3rtwH5OEtBt2u85v/yS9oPuG2+fDepJA==}
+  '@tiptap-pro/server-ai-toolkit@0.7.0':
+    resolution: {integrity: sha512-c3fqME3LCn6rWZhq7S+OtX+ifXyY6bjbaG4gwMQp3dTicNgillCZikCAIy2Hgg90bgsm6zLcAErajs5V/Ylycw==}
     peerDependencies:
       '@tiptap/core': ^3.0.1
       '@tiptap/pm': ^3.0.1
@@ -2024,19 +2024,19 @@ snapshots:
       postcss: 8.5.8
       tailwindcss: 4.2.2
 
-  '@tiptap-pro/ai-toolkit-ai-sdk@0.6.1(zod@4.3.6)':
+  '@tiptap-pro/ai-toolkit-ai-sdk@0.7.0(zod@4.3.6)':
     dependencies:
-      '@tiptap-pro/ai-toolkit-tool-definitions': 0.6.1
+      '@tiptap-pro/ai-toolkit-tool-definitions': 0.7.0
       ai: 6.0.138(zod@4.3.6)
     transitivePeerDependencies:
       - zod
 
-  '@tiptap-pro/ai-toolkit-tool-definitions@0.6.1':
+  '@tiptap-pro/ai-toolkit-tool-definitions@0.7.0':
     dependencies:
       commander: 14.0.3
       zod: 4.3.6
 
-  '@tiptap-pro/ai-toolkit@0.6.1(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)':
+  '@tiptap-pro/ai-toolkit@0.7.0(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)':
     dependencies:
       '@tiptap/core': 3.20.5(@tiptap/pm@3.20.5)
       '@tiptap/pm': 3.20.5
@@ -2063,7 +2063,7 @@ snapshots:
       lib0: 0.2.117
       yjs: 13.6.30
 
-  '@tiptap-pro/server-ai-toolkit@0.6.1(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)':
+  '@tiptap-pro/server-ai-toolkit@0.7.0(@tiptap/core@3.20.5(@tiptap/pm@3.20.5))(@tiptap/pm@3.20.5)':
     dependencies:
       '@tiptap/core': 3.20.5(@tiptap/pm@3.20.5)
       '@tiptap/pm': 3.20.5
