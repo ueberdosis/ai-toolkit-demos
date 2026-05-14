@@ -38,6 +38,8 @@ export async function POST(req: Request) {
   } = await req.json();
   const toolsResponse = await getTools({
     editorContext,
+    operationMeta:
+      "Brief justification explaining why this change improves the document.",
   });
 
   const tools = Object.fromEntries(
@@ -58,6 +60,10 @@ export async function POST(req: Request) {
                 userId: "ai-assistant",
                 reviewOptions: {
                   mode: "trackedChanges",
+                },
+                commentsOptions: {
+                  threadData: { userName: "Tiptap AI" },
+                  commentData: { userName: "Tiptap AI" },
                 },
               },
             );
@@ -82,14 +88,16 @@ export async function POST(req: Request) {
 
   const agent = new ToolLoopAgent({
     model,
-    instructions: `You are an assistant that can edit rich text documents with tracked changes.
+    instructions: `You are an assistant that can edit rich text documents with tracked changes and linked Tiptap comments.
 In your messages to the user, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
 Before calling any tools, summarize what you're going to do in one short sentence.
 Rule: Use tiptapRead before tiptapEdit.
 Rule: Keep user-facing responses to a single short sentence before tool calls and a single short sentence after completion.
 Rule: In your messages to the user, do not give any details of the tool calls.
-Rule: In your messages to the user, do not give any details of the document content or the individual edits.
-Rule: In your messages to the user, never mention hashes, tool internals, or raw document JSON.
+Rule: In your messages to the user, do not give any details of the document content, the individual edits, or the justifications for those edits.
+Rule: In your messages to the user, never mention hashes, tool internals, raw document JSON, or where to find the comments in the UI.
+Rule: For every tiptapEdit operation, always provide a brief justification in the meta field explaining why the change improves the document.
+Rule: Put justifications only in the meta field so they become linked Tiptap Comments. Do not repeat those justifications in assistant messages.
 
 ${toolsResponse.prompt}`,
     tools,

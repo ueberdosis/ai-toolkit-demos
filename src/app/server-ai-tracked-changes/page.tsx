@@ -2,26 +2,36 @@
 
 import { useChat } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
+import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { getEditorContext, ServerAiToolkit } from "@tiptap/server-ai-toolkit";
 import StarterKit from "@tiptap/starter-kit";
+import {
+  CommentsKit,
+  hoverOffThread,
+  hoverThread,
+} from "@tiptap-pro/extension-comments";
 import {
   findSuggestions,
   TrackedChanges,
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { DefaultChatTransport } from "ai";
-import { useEffect, useRef, useState } from "react";
+import { MessageSquareText } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { ChatSidebar } from "../../components/chat-sidebar";
 import { SuggestionReviewTooltip } from "../../components/suggestion-review-tooltip";
+import { ThreadsList } from "../../demos/comments/React/components/ThreadsList.jsx";
+import { ThreadsProvider } from "../../demos/comments/React/context.jsx";
+import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
+import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
+import "../../demos/comments/React/styles.scss";
+import "../../demos/comments/style.scss";
 import "../../styles/tracked-changes.css";
 import { getCollabConfig } from "../server-ai-agent-chatbot/actions";
-
-const initialTrackedChangesContent =
-  "<h1>Tracked changes demo</h1><p>Ask the AI to improve this document. AI edits are written as tracked changes so you can accept or reject them one by one.</p>";
 
 type SuggestionTooltipMount = {
   suggestionId: string;
@@ -29,34 +39,30 @@ type SuggestionTooltipMount = {
   text: string;
 };
 
+type DemoThread = {
+  id: string;
+  resolvedAt?: string | null;
+  data?: {
+    suggestionId?: string;
+    suggestionReason?: string;
+  };
+};
+
+const initialTrackedChangesContent =
+  "<h1>Tracked changes demo</h1><p>Ask the AI to improve this document. AI edits are written as tracked changes so you can accept or reject them one by one.</p>";
+
 export default function Page() {
+  const [isMounted, setIsMounted] = useState(false);
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-ai-tracked-changes/${uuid()}`);
-  const [hasSuggestions, setHasSuggestions] = useState(false);
-  const [tooltipMount, setTooltipMount] =
-    useState<SuggestionTooltipMount | null>(null);
-  const providerRef = useRef<TiptapCollabProvider | null>(null);
-  const anchorRef = useRef<HTMLSpanElement | null>(null);
-  const didSetInitialContentRef = useRef(false);
-
-  const editor = useEditor({
-    immediatelyRender: false,
-    extensions: [
-      StarterKit.configure({
-        undoRedo: false,
-      }),
-      Collaboration.configure({
-        document: doc,
-      }),
-      ServerAiToolkit,
-      TrackedChanges.configure({
-        enabled: false,
-      }),
-    ],
-  });
+  const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
 
   useEffect(() => {
-    if (!editor) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) {
       return;
     }
 
@@ -75,15 +81,9 @@ export default function Page() {
           token,
           document: doc,
           user: "user-1",
-          onConnect() {
-            if (!didSetInitialContentRef.current) {
-              editor.commands.setContent(initialTrackedChangesContent);
-              didSetInitialContentRef.current = true;
-            }
-          },
         });
 
-        providerRef.current = collabProvider;
+        setProvider(collabProvider);
       } catch (error) {
         console.error("Failed to setup collaboration:", error);
       }
@@ -93,11 +93,111 @@ export default function Page() {
 
     return () => {
       collabProvider?.destroy();
-      if (providerRef.current === collabProvider) {
-        providerRef.current = null;
-      }
     };
-  }, [documentId, doc, editor]);
+  }, [documentId, doc, isMounted]);
+
+  if (!isMounted) {
+    return null;
+  }
+
+  if (!provider) {
+    return (
+      <div className="tracked-changes-comments-demo flex h-screen items-center justify-center bg-white">
+        <div className="space-y-2 text-center">
+          <div className="label-large">Loading collaboration document</div>
+          <p className="label-small text-slate-500">
+            Mounting the comments provider before the editor initializes.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <TrackedChangesCommentsEditor
+      doc={doc}
+      documentId={documentId}
+      provider={provider}
+    />
+  );
+}
+
+type TrackedChangesCommentsEditorProps = {
+  doc: Y.Doc;
+  documentId: string;
+  provider: TiptapCollabProvider;
+};
+
+function TrackedChangesCommentsEditor({
+  doc,
+  documentId,
+  provider,
+}: TrackedChangesCommentsEditorProps) {
+  const user = useUser();
+  const [hasSuggestions, setHasSuggestions] = useState(false);
+  const [selectedThread, setSelectedThread] = useState<string | null>(null);
+  const [tooltipMount, setTooltipMount] =
+    useState<SuggestionTooltipMount | null>(null);
+  const anchorRef = useRef<HTMLSpanElement | null>(null);
+  const didSetInitialContentRef = useRef(false);
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        undoRedo: false,
+      }),
+      Collaboration.configure({
+        document: doc,
+      }),
+      ServerAiToolkit,
+      TrackedChanges.configure({
+        enabled: false,
+        userId: "foo",
+      }),
+      CommentsKit.configure({
+        provider,
+        onClickThread: (threadId: string | null) => {
+          if (!threadId) {
+            setSelectedThread(null);
+            editor?.chain().unselectThread().run();
+            return;
+          }
+
+          setSelectedThread(threadId);
+          editor
+            ?.chain()
+            .selectThread({ id: threadId, updateSelection: false })
+            .run();
+        },
+      }),
+      Placeholder.configure({
+        placeholder: "Ask the AI to improve this document…",
+      }),
+    ],
+    editorProps: {
+      attributes: {
+        // @ts-expect-error spellcheck is a valid DOM attribute
+        spellcheck: false,
+      },
+    },
+    // onTransaction: ({ transaction, appendedTransactions }) =>
+    //   console.log({ transaction, appendedTransactions }),
+  });
+
+  useEffect(() => {
+    if (!editor || didSetInitialContentRef.current || !editor.isEmpty) {
+      return;
+    }
+
+    editor.commands.setContent(initialTrackedChangesContent);
+    didSetInitialContentRef.current = true;
+  }, [editor]);
+
+  const threadsResult = useThreads(provider, editor, user);
+  const threads: DemoThread[] = Array.isArray(threadsResult.threads)
+    ? threadsResult.threads
+    : [];
 
   useEffect(() => {
     if (!editor) {
@@ -128,13 +228,39 @@ export default function Page() {
         document.body.appendChild(anchorRef.current);
       }
 
-      anchorRef.current.style.left = `${coords.left}px`;
-      anchorRef.current.style.top = `${coords.top}px`;
+      const anchorElement = anchorRef.current;
+
+      if (!anchorElement) {
+        return;
+      }
+
+      anchorElement.style.left = `${coords.left}px`;
+      anchorElement.style.top = `${coords.top}px`;
+
+      const matchingThread = threads.find(
+        (thread) => thread.data?.suggestionId === selectedSuggestion.id,
+      );
+      const matchingThreadId = matchingThread?.id ?? null;
+      let firstComment = null;
+
+      if (typeof matchingThreadId === "string") {
+        const threadComments = provider.getThreadComments(
+          matchingThreadId,
+          true,
+        );
+        firstComment = Array.isArray(threadComments) ? threadComments[0] : null;
+      }
 
       setTooltipMount({
         suggestionId: selectedSuggestion.id,
-        element: anchorRef.current,
-        text: "Review this tracked change",
+        element: anchorElement,
+        text:
+          typeof firstComment?.content === "string" && firstComment.content
+            ? firstComment.content
+            : typeof matchingThread?.data?.suggestionReason === "string" &&
+                matchingThread.data.suggestionReason
+              ? matchingThread.data.suggestionReason
+              : "Review this tracked change",
       });
     };
 
@@ -150,7 +276,7 @@ export default function Page() {
       anchorRef.current?.remove();
       anchorRef.current = null;
     };
-  }, [editor]);
+  }, [editor, provider, threads]);
 
   const editorContext = editor ? getEditorContext(editor) : null;
   const editorContextRef = useRef(editorContext);
@@ -172,6 +298,7 @@ export default function Page() {
 
   const isLoading = status !== "ready";
   const showReviewUi = !isLoading && hasSuggestions;
+  const openThreads = threads.filter((thread) => !thread.resolvedAt);
 
   const handleSubmit = (event: SubmitEvent) => {
     event.preventDefault();
@@ -182,72 +309,177 @@ export default function Page() {
     }
   };
 
+  const selectThreadInEditor = useCallback(
+    (threadId: string) => {
+      editor?.chain().selectThread({ id: threadId }).run();
+    },
+    [editor],
+  );
+
+  const deleteThread = useCallback(
+    (threadId: string) => {
+      provider.deleteThread(threadId);
+      editor?.commands.removeThread({ id: threadId });
+    },
+    [editor, provider],
+  );
+
+  const resolveThread = useCallback(
+    (threadId: string) => {
+      editor?.commands.resolveThread({ id: threadId });
+    },
+    [editor],
+  );
+
+  const unresolveThread = useCallback(
+    (threadId: string) => {
+      editor?.commands.unresolveThread({ id: threadId });
+    },
+    [editor],
+  );
+
+  const updateComment = useCallback(
+    (
+      threadId: string,
+      commentId: string,
+      content: string,
+      metaData: Record<string, string>,
+    ) => {
+      editor?.commands.updateComment({
+        threadId,
+        id: commentId,
+        content,
+        data: metaData,
+      });
+    },
+    [editor],
+  );
+
+  const onHoverThread = useCallback(
+    (threadId: number) => {
+      if (editor) {
+        hoverThread(editor, [threadId]);
+      }
+    },
+    [editor],
+  );
+
+  const onLeaveThread = useCallback(() => {
+    if (editor) {
+      hoverOffThread(editor);
+    }
+  }, [editor]);
+
   if (!editor) {
     return null;
   }
 
   return (
-    <div className="flex h-screen tracked-changes-demo">
-      <div className="flex-1 overflow-y-auto">
-        <EditorContent editor={editor} />
-        {tooltipMount &&
-          createPortal(
-            <SuggestionReviewTooltip
-              referenceElement={tooltipMount.element}
-              text={tooltipMount.text}
-              onAccept={() => {
-                editor.commands.acceptSuggestion({
-                  id: tooltipMount.suggestionId,
-                });
-              }}
-              onReject={() => {
-                editor.commands.rejectSuggestion({
-                  id: tooltipMount.suggestionId,
-                });
-              }}
-            />,
-            tooltipMount.element,
-          )}
-      </div>
-
-      <ChatSidebar
-        messages={messages}
-        input={input}
-        onInputChange={setInput}
-        onSubmit={handleSubmit}
-        isLoading={isLoading}
-      >
-        {showReviewUi && (
-          <div className="border-t border-slate-200 p-4 space-y-2">
-            <p className="text-xs text-slate-500">
-              Review tracked changes in the document.
-            </p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  editor.commands.acceptAllSuggestions();
-                }}
-                className="flex-1 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--green)] text-white hover:opacity-90 transition-all duration-200"
-              >
-                Accept all
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  editor.commands.rejectAllSuggestions();
-                  sendMessage({
-                    text: "Some changes were rejected. Ask the user what should be improved before you edit the document again.",
-                  });
-                }}
-                className="flex-1 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--gray-2)] text-[var(--black)] hover:bg-[var(--gray-3)] transition-all duration-200"
-              >
-                Reject all
-              </button>
+    <ThreadsProvider
+      // @ts-expect-error JSX interop with JS comments demo code
+      onClickThread={selectThreadInEditor}
+      // @ts-expect-error JSX interop with JS comments demo code
+      onDeleteThread={deleteThread}
+      // @ts-expect-error JSX interop with JS comments demo code
+      onHoverThread={onHoverThread}
+      // @ts-expect-error JSX interop with JS comments demo code
+      onLeaveThread={onLeaveThread}
+      // @ts-expect-error JSX interop with JS comments demo code
+      onResolveThread={resolveThread}
+      // @ts-expect-error JSX interop with JS comments demo code
+      onUpdateComment={updateComment}
+      // @ts-expect-error JSX interop with JS comments demo code
+      onUnresolveThread={unresolveThread}
+      // @ts-expect-error JSX interop with JS comments demo code
+      selectedThreads={editor.storage.comments?.focusedThreads ?? []}
+      // @ts-expect-error JSX interop with JS comments demo code
+      selectedThread={selectedThread}
+      // @ts-expect-error JSX interop with JS comments demo code
+      setSelectedThread={setSelectedThread}
+      // @ts-expect-error JSX interop with JS comments demo code
+      threads={threads}
+    >
+      <div className="tracked-changes-comments-demo flex h-screen">
+        <div
+          className="col-group divide-x divide-gray-200 flex-1 overflow-hidden"
+          data-viewmode="open"
+        >
+          <aside className="sidebar border-r border-gray-200 bg-white">
+            <div className="space-y-3">
+              <div>
+                <div className="label-large">Comments</div>
+                <p className="label-small mt-1">
+                  Each non-empty operation meta becomes a comment thread linked
+                  to its tracked change.
+                </p>
+              </div>
+              <ThreadsList provider={provider} threads={openThreads} />
             </div>
+          </aside>
+
+          <div className="main overflow-y-auto">
+            <EditorContent editor={editor} />
+            {tooltipMount &&
+              createPortal(
+                <SuggestionReviewTooltip
+                  referenceElement={tooltipMount.element}
+                  text={tooltipMount.text}
+                  onAccept={() => {
+                    editor.commands.acceptSuggestion({
+                      id: tooltipMount.suggestionId,
+                    });
+                  }}
+                  onReject={() => {
+                    editor.commands.rejectSuggestion({
+                      id: tooltipMount.suggestionId,
+                    });
+                  }}
+                />,
+                tooltipMount.element,
+              )}
           </div>
-        )}
-      </ChatSidebar>
-    </div>
+        </div>
+
+        <ChatSidebar
+          messages={messages}
+          input={input}
+          onInputChange={setInput}
+          onSubmit={handleSubmit}
+          isLoading={isLoading}
+        >
+          {showReviewUi && (
+            <div className="border-t border-slate-200 p-4 space-y-2">
+              <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                <MessageSquareText size={14} />
+                Review tracked changes and their linked comments.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    editor.commands.acceptAllSuggestions();
+                  }}
+                  className="flex-1 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--green)] text-white hover:opacity-90 transition-all duration-200"
+                >
+                  Accept all
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    editor.commands.rejectAllSuggestions();
+                    sendMessage({
+                      text: "Some changes were rejected. Ask the user what should be improved before you edit the document again.",
+                    });
+                  }}
+                  className="flex-1 rounded-lg px-3 py-2 text-sm font-medium bg-[var(--gray-2)] text-[var(--black)] hover:bg-[var(--gray-3)] transition-all duration-200"
+                >
+                  Reject all
+                </button>
+              </div>
+            </div>
+          )}
+        </ChatSidebar>
+      </div>
+    </ThreadsProvider>
   );
 }
