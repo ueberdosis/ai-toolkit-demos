@@ -4,6 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { getEditorContext, ServerAiToolkit } from "@tiptap/server-ai-toolkit";
 import StarterKit from "@tiptap/starter-kit";
 import {
   CommentsKit,
@@ -15,10 +16,6 @@ import {
   TrackedChanges,
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import {
-  getSchemaAwarenessData,
-  ServerAiToolkit,
-} from "@tiptap-pro/server-ai-toolkit";
 import { DefaultChatTransport } from "ai";
 import { MessageSquareText } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -283,15 +280,15 @@ function TrackedChangesCommentsEditor({
     };
   }, [editor, provider, threads]);
 
-  const schemaAwarenessData = editor ? getSchemaAwarenessData(editor) : null;
-  const schemaAwarenessDataRef = useRef(schemaAwarenessData);
-  schemaAwarenessDataRef.current = schemaAwarenessData;
+  const editorContext = editor ? getEditorContext(editor) : null;
+  const editorContextRef = useRef(editorContext);
+  editorContextRef.current = editorContext;
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/server-ai-tracked-changes-comments",
       body: () => ({
-        schemaAwarenessData: schemaAwarenessDataRef.current,
+        editorContext: editorContextRef.current,
         documentId,
       }),
     }),

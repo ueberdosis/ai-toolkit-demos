@@ -3,16 +3,13 @@
 import { useChat } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { getEditorContext, ServerAiToolkit } from "@tiptap/server-ai-toolkit";
 import StarterKit from "@tiptap/starter-kit";
 import {
   findSuggestions,
   TrackedChanges,
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import {
-  getSchemaAwarenessData,
-  ServerAiToolkit,
-} from "@tiptap-pro/server-ai-toolkit";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -155,15 +152,15 @@ export default function Page() {
     };
   }, [editor]);
 
-  const schemaAwarenessData = editor ? getSchemaAwarenessData(editor) : null;
-  const schemaAwarenessDataRef = useRef(schemaAwarenessData);
-  schemaAwarenessDataRef.current = schemaAwarenessData;
+  const editorContext = editor ? getEditorContext(editor) : null;
+  const editorContextRef = useRef(editorContext);
+  editorContextRef.current = editorContext;
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/server-ai-tracked-changes",
       body: () => ({
-        schemaAwarenessData: schemaAwarenessDataRef.current,
+        editorContext: editorContextRef.current,
         documentId,
       }),
     }),

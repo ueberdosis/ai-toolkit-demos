@@ -4,12 +4,9 @@ import { useChat } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { Selection } from "@tiptap/extensions";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { getEditorContext, ServerAiToolkit } from "@tiptap/server-ai-toolkit";
 import StarterKit from "@tiptap/starter-kit";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import {
-  getSchemaAwarenessData,
-  ServerAiToolkit,
-} from "@tiptap-pro/server-ai-toolkit";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
@@ -104,7 +101,7 @@ export default function Page() {
       { text: input },
       {
         body: {
-          schemaAwarenessData: getSchemaAwarenessData(editor),
+          editorContext: getEditorContext(editor),
           documentId,
           selectionRange: selectionRangeRef.current,
         },

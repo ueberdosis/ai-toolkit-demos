@@ -6,21 +6,21 @@ export interface CommentsOptions {
   apiSecret: string;
   userId: string;
   appId: string;
-  sessionId?: string;
 }
 
 /**
  * Gets comments tool definitions from the Server AI Toolkit API
  */
 export async function getCommentsToolDefinitions(
-  schemaAwarenessData: unknown,
-): Promise<
-  {
+  editorContext: unknown,
+): Promise<{
+  prompt: string;
+  tools: {
     name: string;
     description: string;
     inputSchema: z.core.JSONSchema.JSONSchema;
-  }[]
-> {
+  }[];
+}> {
   const apiBaseUrl =
     process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
   const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
@@ -39,7 +39,7 @@ export async function getCommentsToolDefinitions(
       Origin: "http://localhost:3000",
     },
     body: JSON.stringify({
-      schemaAwarenessData,
+      editorContext,
       tools: {
         // Disable tiptap edit tool so that the AI can not edit the document,
         // only add comments
@@ -54,7 +54,5 @@ export async function getCommentsToolDefinitions(
   if (!response.ok) {
     throw new Error(`Failed to fetch tools: ${response.statusText}`);
   }
-  const responseData = await response.json();
-
-  return responseData.tools;
+  return response.json();
 }

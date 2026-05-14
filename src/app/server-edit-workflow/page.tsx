@@ -2,12 +2,9 @@
 
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { getEditorContext, ServerAiToolkit } from "@tiptap/server-ai-toolkit";
 import StarterKit from "@tiptap/starter-kit";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import {
-  getSchemaAwarenessData,
-  ServerAiToolkit,
-} from "@tiptap-pro/server-ai-toolkit";
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
@@ -87,7 +84,7 @@ export default function Page() {
         },
         body: JSON.stringify({
           documentId,
-          schemaAwarenessData: getSchemaAwarenessData(editor),
+          schemaAwarenessData: getEditorContext(editor),
           task,
           sessionId,
         }),

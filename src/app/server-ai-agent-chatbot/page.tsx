@@ -3,12 +3,9 @@
 import { useChat } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { getEditorContext, ServerAiToolkit } from "@tiptap/server-ai-toolkit";
 import StarterKit from "@tiptap/starter-kit";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import {
-  getSchemaAwarenessData,
-  ServerAiToolkit,
-} from "@tiptap-pro/server-ai-toolkit";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
@@ -75,15 +72,15 @@ export default function Page() {
   }, [documentId, doc, editor]);
 
   // Fixes issue: https://github.com/vercel/ai/issues/7819
-  const schemaAwarenessData = editor ? getSchemaAwarenessData(editor) : null;
-  const schemaAwarenessDataRef = useRef(schemaAwarenessData);
-  schemaAwarenessDataRef.current = schemaAwarenessData;
+  const editorContext = editor ? getEditorContext(editor) : null;
+  const editorContextRef = useRef(editorContext);
+  editorContextRef.current = editorContext;
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/server-ai-agent-chatbot",
       body: () => ({
-        schemaAwarenessData: schemaAwarenessDataRef.current,
+        editorContext: editorContextRef.current,
         documentId,
       }),
     }),

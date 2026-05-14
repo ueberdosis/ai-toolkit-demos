@@ -7,13 +7,13 @@ import { getTiptapCloudAiJwtTokenComments } from "./get-tiptap-cloud-ai-jwt-toke
 export async function executeCommentsTool(
   toolName: string,
   input: unknown,
-  schemaAwarenessData: unknown,
+  editorContext: unknown,
   commentsOptions: CommentsOptions,
 ): Promise<{
   output: unknown;
+  toolResult: unknown;
   docChanged: boolean;
   document?: unknown;
-  sessionId: string;
 }> {
   const apiBaseUrl =
     process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
@@ -36,8 +36,7 @@ export async function executeCommentsTool(
       toolName,
       input,
       // document,
-      schemaAwarenessData,
-      sessionId: commentsOptions.sessionId,
+      editorContext,
       experimental_documentOptions: {
         documentId: commentsOptions.documentId,
         userId: commentsOptions.userId,
