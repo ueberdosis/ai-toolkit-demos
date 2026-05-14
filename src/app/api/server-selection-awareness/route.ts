@@ -10,8 +10,7 @@ import {
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
-import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
-import { getToolDefinitions } from "@/lib/server-ai-toolkit/get-tool-definitions";
+import { getTools } from "@/lib/server-ai-toolkit/get-tools";
 import { readWorkflowSelection } from "@/lib/server-ai-toolkit/workflow-api";
 
 export async function POST(req: Request) {
@@ -31,36 +30,34 @@ export async function POST(req: Request) {
 
   const {
     messages,
-    schemaAwarenessData,
+    editorContext,
     documentId,
     selectionRange,
   }: {
     messages: UIMessage[];
-    schemaAwarenessData: unknown;
+    editorContext: unknown;
     documentId: string;
     selectionRange?: { from: number; to: number } | null;
   } = await req.json();
 
-  const [toolDefinitions, schemaAwarenessPrompt, selectionResult] =
-    await Promise.all([
-      getToolDefinitions({
-        schemaAwarenessData,
+  const [toolsResponse, selectionResult] = await Promise.all([
+    getTools({
+      editorContext,
+    }),
+    selectionRange &&
+      readWorkflowSelection({
+        schemaAwarenessData: editorContext,
+        range: selectionRange,
+        reviewOptions: {
+          mode: "disabled",
+        },
+        format: "json",
+        experimental_documentOptions: {
+          documentId,
+          userId: "ai-assistant",
+        },
       }),
-      getSchemaAwarenessPrompt(schemaAwarenessData),
-      selectionRange &&
-        readWorkflowSelection({
-          schemaAwarenessData,
-          range: selectionRange,
-          reviewOptions: {
-            mode: "disabled",
-          },
-          format: "json",
-          experimental_documentOptions: {
-            documentId,
-            userId: "ai-assistant",
-          },
-        }),
-    ]);
+  ]);
 
   const selectionPrompt =
     selectionResult && !selectionResult.output.isEmpty
@@ -68,7 +65,7 @@ export async function POST(req: Request) {
       : "There is currently no active selection.";
 
   const tools = Object.fromEntries(
-    toolDefinitions.map((toolDef) => [
+    toolsResponse.tools.map((toolDef) => [
       toolDef.name,
       tool({
         description: toolDef.description,
@@ -79,7 +76,7 @@ export async function POST(req: Request) {
               toolDef.name,
               input,
               null,
-              schemaAwarenessData,
+              editorContext,
               {
                 documentId,
                 userId: "ai-assistant",
@@ -119,7 +116,7 @@ The "selection-context" contains information about the selected content of the d
 ${selectionPrompt}
 </selection-context>
 
-${schemaAwarenessPrompt}`,
+${toolsResponse.prompt}`,
     tools,
     providerOptions: {
       openai: {
