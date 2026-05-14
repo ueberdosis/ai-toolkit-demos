@@ -2,6 +2,7 @@
 
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { getEditorContext, ServerAiToolkit } from "@tiptap/server-ai-toolkit";
 import StarterKit from "@tiptap/starter-kit";
 import {
   CommentsKit,
@@ -13,10 +14,6 @@ import {
   TrackedChanges,
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import {
-  getSchemaAwarenessData,
-  ServerAiToolkit,
-} from "@tiptap-pro/server-ai-toolkit";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
@@ -310,7 +307,7 @@ function ProofreaderCommentsEditor({
           },
           body: JSON.stringify({
             documentId,
-            schemaAwarenessData: getSchemaAwarenessData(editor),
+            schemaAwarenessData: getEditorContext(editor),
             sessionId,
           }),
         },
