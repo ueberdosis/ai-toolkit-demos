@@ -1,0 +1,210 @@
+.server-ai-tracked-changes-demo .tiptap {
+  min-height: 58vh;
+  color: rgb(15 23 42);
+  outline: none;
+}
+
+.server-ai-tracked-changes-demo .tiptap :first-child {
+  margin-top: 0;
+}
+
+.server-ai-tracked-changes-demo .tiptap p {
+  margin: 1rem 0;
+  line-height: 1.75;
+  word-break: break-word;
+}
+
+.server-ai-tracked-changes-demo .tiptap h1,
+.server-ai-tracked-changes-demo .tiptap h2,
+.server-ai-tracked-changes-demo .tiptap h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: pretty;
+}
+
+.server-ai-tracked-changes-demo .tiptap h1 {
+  font-size: 1.75rem;
+}
+
+.server-ai-tracked-changes-demo .tiptap h2 {
+  font-size: 1.35rem;
+}
+
+.server-ai-tracked-changes-demo .tiptap h3 {
+  font-size: 1.1rem;
+}
+
+.server-ai-tracked-changes-demo .tiptap ul,
+.server-ai-tracked-changes-demo .tiptap ol {
+  margin: 1.25rem 0;
+  padding-left: 1.5rem;
+}
+
+.server-ai-tracked-changes-demo .tiptap ul {
+  list-style: disc;
+}
+
+.server-ai-tracked-changes-demo .tiptap ol {
+  list-style: decimal;
+}
+
+.server-ai-tracked-changes-demo .tiptap blockquote {
+  margin: 1.5rem 0;
+  border-left: 3px solid rgb(203 213 225);
+  padding-left: 1rem;
+  color: rgb(71 85 105);
+}
+
+.server-ai-tracked-changes-demo .tiptap pre {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  background: rgb(15 23 42);
+  padding: 0.75rem 1rem;
+  color: white;
+}
+
+.server-ai-tracked-changes-demo .tiptap code {
+  border-radius: 0.35rem;
+  background: rgb(241 245 249);
+  padding: 0.15rem 0.3rem;
+  font-size: 0.875em;
+}
+
+.server-ai-tracked-changes-demo .tiptap pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.server-ai-tracked-changes-demo .tiptap .is-empty.is-editor-empty::before {
+  float: left;
+  height: 0;
+  color: rgb(148 163 184);
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
+.server-ai-tracked-changes-demo .tiptap span[data-suggestion] {
+  transition: all 0.2s ease;
+}
+
+.server-ai-tracked-changes-demo
+  .tiptap
+  span[data-suggestion][data-suggestion-type="add"] {
+  background-color: rgba(34, 197, 94, 0.3);
+  border-bottom: 2px solid rgb(34, 197, 94);
+}
+
+.server-ai-tracked-changes-demo
+  .tiptap
+  span[data-suggestion][data-suggestion-type="delete"] {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: rgb(127, 29, 29);
+  text-decoration: line-through;
+  text-decoration-color: rgb(239, 68, 68);
+}
+
+.server-ai-tracked-changes-demo
+  .tiptap
+  span[data-suggestion][data-suggestion-type="replaceDeletion"] {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: rgb(120, 53, 15);
+  text-decoration: line-through;
+  text-decoration-color: rgb(245, 158, 11);
+}
+
+.server-ai-tracked-changes-demo
+  .tiptap
+  span[data-suggestion][data-suggestion-type="replaceInsertion"] {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-bottom: 2px solid rgb(59, 130, 246);
+}
+
+.server-ai-tracked-changes-demo
+  .tiptap
+  span[data-suggestion][data-suggestion-type="markChange"] {
+  background-color: rgba(168, 85, 247, 0.2);
+  border-bottom: 2px solid rgb(168, 85, 247);
+  box-shadow: inset 0 0 0 1px rgba(126, 34, 206, 0.15);
+}
+
+.server-ai-tracked-changes-demo .tiptap pre span[data-suggestion] {
+  color: rgb(254 226 226);
+}
+
+.server-ai-tracked-changes-demo .tiptap img[data-suggestion-type] {
+  transition: all 0.2s ease;
+}
+
+.server-ai-tracked-changes-demo .tiptap img[data-suggestion-type="add"] {
+  outline: 3px solid rgb(34, 197, 94);
+  box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.2);
+}
+
+.server-ai-tracked-changes-demo .tiptap img[data-suggestion-type="delete"] {
+  outline: 3px solid rgb(239, 68, 68);
+  box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.2);
+  opacity: 0.5;
+}
+
+.server-ai-tracked-changes-demo
+  .tiptap
+  [data-suggestion-id][data-suggestion-type="add"]:not(span):not(img):not(hr) {
+  background-color: rgba(34, 197, 94, 0.3);
+}
+
+.server-ai-tracked-changes-demo
+  .tiptap
+  [data-suggestion-id][data-suggestion-type="delete"]:not(span):not(img):not(
+    hr
+  ) {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: rgb(127, 29, 29);
+  text-decoration: line-through;
+  text-decoration-color: rgb(239, 68, 68);
+}
+
+.server-ai-tracked-changes-demo
+  .tiptap
+  [data-suggestion-id][data-suggestion-type="replaceDeletion"]:not(span):not(
+    img
+  ):not(hr) {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: rgb(120, 53, 15);
+  text-decoration: line-through;
+  text-decoration-color: rgb(245, 158, 11);
+}
+
+.server-ai-tracked-changes-demo
+  .tiptap
+  [data-suggestion-id][data-suggestion-type="replaceInsertion"]:not(span):not(
+    img
+  ):not(hr) {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+.server-ai-tracked-changes-demo
+  .tiptap
+  [data-suggestion-id][data-suggestion-type="sink"]:not(span):not(img):not(hr) {
+  background-color: rgba(20, 184, 166, 0.18);
+  box-shadow: inset 2px 0 0 rgb(20, 184, 166);
+}
+
+.server-ai-tracked-changes-demo
+  .tiptap
+  [data-suggestion-id][data-suggestion-type="lift"]:not(span):not(img):not(hr) {
+  background-color: rgba(139, 92, 246, 0.18);
+  box-shadow: inset 2px 0 0 rgb(139, 92, 246);
+}
+
+.server-ai-tracked-changes-demo .tiptap .tiptap-thread[data-type="inline"] {
+  border-bottom: 2px solid rgba(168, 85, 247, 0.45);
+}
+
+.server-ai-tracked-changes-demo .tiptap .tiptap-thread[data-state="selected"],
+.server-ai-tracked-changes-demo .tiptap .tiptap-thread[data-state="hovered"] {
+  background-color: rgba(168, 85, 247, 0.14);
+}
