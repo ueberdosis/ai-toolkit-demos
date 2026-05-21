@@ -1,3 +1,10 @@
+/*
+ * Generic editor styling for the server-AI tracked-changes demo.
+ *
+ * Suggestion mark / thread colors come from `src/styles/tracked-changes.css`
+ * (shared with the other tracked-changes demos) — do not duplicate them here.
+ */
+
 .server-ai-tracked-changes-demo .tiptap {
   min-height: 58vh;
   color: rgb(15 23 42);
@@ -87,119 +94,8 @@
   pointer-events: none;
 }
 
-.server-ai-tracked-changes-demo .tiptap span[data-suggestion] {
-  transition: all 0.2s ease;
-}
-
-.server-ai-tracked-changes-demo
-  .tiptap
-  span[data-suggestion][data-suggestion-type="add"] {
-  background-color: rgba(34, 197, 94, 0.3);
-  border-bottom: 2px solid rgb(34, 197, 94);
-}
-
-.server-ai-tracked-changes-demo
-  .tiptap
-  span[data-suggestion][data-suggestion-type="delete"] {
-  background-color: rgba(239, 68, 68, 0.2);
-  color: rgb(127, 29, 29);
-  text-decoration: line-through;
-  text-decoration-color: rgb(239, 68, 68);
-}
-
-.server-ai-tracked-changes-demo
-  .tiptap
-  span[data-suggestion][data-suggestion-type="replaceDeletion"] {
-  background-color: rgba(245, 158, 11, 0.2);
-  color: rgb(120, 53, 15);
-  text-decoration: line-through;
-  text-decoration-color: rgb(245, 158, 11);
-}
-
-.server-ai-tracked-changes-demo
-  .tiptap
-  span[data-suggestion][data-suggestion-type="replaceInsertion"] {
-  background-color: rgba(59, 130, 246, 0.2);
-  border-bottom: 2px solid rgb(59, 130, 246);
-}
-
-.server-ai-tracked-changes-demo
-  .tiptap
-  span[data-suggestion][data-suggestion-type="markChange"] {
-  background-color: rgba(168, 85, 247, 0.2);
-  border-bottom: 2px solid rgb(168, 85, 247);
-  box-shadow: inset 0 0 0 1px rgba(126, 34, 206, 0.15);
-}
-
-.server-ai-tracked-changes-demo .tiptap pre span[data-suggestion] {
-  color: rgb(254 226 226);
-}
-
-.server-ai-tracked-changes-demo .tiptap img[data-suggestion-type] {
-  transition: all 0.2s ease;
-}
-
-.server-ai-tracked-changes-demo .tiptap img[data-suggestion-type="add"] {
-  outline: 3px solid rgb(34, 197, 94);
-  box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.2);
-}
-
-.server-ai-tracked-changes-demo .tiptap img[data-suggestion-type="delete"] {
-  outline: 3px solid rgb(239, 68, 68);
-  box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.2);
-  opacity: 0.5;
-}
-
-.server-ai-tracked-changes-demo
-  .tiptap
-  [data-suggestion-id][data-suggestion-type="add"]:not(span):not(img):not(hr) {
-  background-color: rgba(34, 197, 94, 0.3);
-}
-
-.server-ai-tracked-changes-demo
-  .tiptap
-  [data-suggestion-id][data-suggestion-type="delete"]:not(span):not(img):not(
-    hr
-  ) {
-  background-color: rgba(239, 68, 68, 0.2);
-  color: rgb(127, 29, 29);
-  text-decoration: line-through;
-  text-decoration-color: rgb(239, 68, 68);
-}
-
-.server-ai-tracked-changes-demo
-  .tiptap
-  [data-suggestion-id][data-suggestion-type="replaceDeletion"]:not(span):not(
-    img
-  ):not(hr) {
-  background-color: rgba(245, 158, 11, 0.2);
-  color: rgb(120, 53, 15);
-  text-decoration: line-through;
-  text-decoration-color: rgb(245, 158, 11);
-}
-
-.server-ai-tracked-changes-demo
-  .tiptap
-  [data-suggestion-id][data-suggestion-type="replaceInsertion"]:not(span):not(
-    img
-  ):not(hr) {
-  background-color: rgba(59, 130, 246, 0.2);
-}
-
-.server-ai-tracked-changes-demo
-  .tiptap
-  [data-suggestion-id][data-suggestion-type="sink"]:not(span):not(img):not(hr) {
-  background-color: rgba(20, 184, 166, 0.18);
-  box-shadow: inset 2px 0 0 rgb(20, 184, 166);
-}
-
-.server-ai-tracked-changes-demo
-  .tiptap
-  [data-suggestion-id][data-suggestion-type="lift"]:not(span):not(img):not(hr) {
-  background-color: rgba(139, 92, 246, 0.18);
-  box-shadow: inset 2px 0 0 rgb(139, 92, 246);
-}
-
+/* Thread styling (server-AI demo only — comments demo defines its own
+   thread styles scoped to `.tracked-changes-comments-demo`). */
 .server-ai-tracked-changes-demo .tiptap .tiptap-thread[data-type="inline"] {
   border-bottom: 2px solid rgba(168, 85, 247, 0.45);
 }

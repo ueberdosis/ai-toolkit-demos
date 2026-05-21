@@ -51,13 +51,15 @@ export function getSuggestionPreview(suggestion: Suggestion) {
       ? "+"
       : suggestion.type === "delete"
         ? "-"
-        : suggestion.type === "markChange"
-          ? "◊"
-          : suggestion.type === "sink"
-            ? "⇥"
-            : suggestion.type === "lift"
-              ? "⇤"
-              : "~";
+        : suggestion.type === "replace"
+          ? "↔"
+          : suggestion.type === "markChange"
+            ? "◊"
+            : suggestion.type === "sink"
+              ? "⇥"
+              : suggestion.type === "lift"
+                ? "⇤"
+                : "~";
 
   if (
     suggestion.type === "markChange" &&

@@ -15,15 +15,7 @@ import {
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { DefaultChatTransport } from "ai";
-import {
-  Bold,
-  Italic,
-  Link,
-  MessageSquarePlus,
-  Pilcrow,
-  Redo2,
-  Undo2,
-} from "lucide-react";
+import { Bold, Italic, Link, MessageSquarePlus, Pilcrow } from "lucide-react";
 import {
   type FormEvent,
   useCallback,
@@ -32,17 +24,19 @@ import {
   useRef,
   useState,
 } from "react";
-import { createPortal } from "react-dom";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { getCollabConfig } from "@/app/server-ai-agent-chatbot/actions";
 import { SuggestionReviewTooltip } from "@/components/suggestion-review-tooltip";
+import { ToolbarPanel } from "@/components/toolbar-panel";
 import { CommentsPanel } from "./comments-panel";
+import type { PanelId } from "./panel-id";
 import { RightSidebar } from "./right-sidebar";
+import "../../styles/tracked-changes.css";
 import "./server-ai-tracked-changes.css";
 import { getUniqueSuggestions } from "./suggestion-utils";
 import { TrackedChangesPanel } from "./tracked-changes-panel";
-import { type DemoThread, useDemoThreads } from "./use-demo-threads";
+import { useDemoThreads } from "./use-demo-threads";
 
 type SuggestionTooltipMount = {
   suggestionId: string;
@@ -50,25 +44,11 @@ type SuggestionTooltipMount = {
   text: string;
 };
 
-type PanelId = "chat" | "tracked" | "comments" | "tracked-comments";
-
 function getTrackedChangesEnabled(editor: { storage: unknown }) {
   const storage = (editor.storage as { trackedChanges?: unknown })
     .trackedChanges as { enabled?: boolean } | undefined;
 
   return Boolean(storage?.enabled);
-}
-
-function setTrackedChangesEnabledStorage(
-  editor: { storage: unknown },
-  enabled: boolean,
-) {
-  const storage = (editor.storage as { trackedChanges?: unknown })
-    .trackedChanges as { enabled?: boolean } | undefined;
-
-  if (storage) {
-    storage.enabled = enabled;
-  }
 }
 
 const initialTrackedChangesContent =
@@ -195,7 +175,6 @@ function TrackedChangesEditor({
           }
 
           setSelectedThread(threadId);
-          setActivePanel("comments");
           editor
             ?.chain()
             .selectThread({ id: threadId, updateSelection: false })
@@ -233,10 +212,7 @@ function TrackedChangesEditor({
       return;
     }
 
-    const wasEnabled = getTrackedChangesEnabled(editor);
-    setTrackedChangesEnabledStorage(editor, false);
     editor.commands.setContent(initialTrackedChangesContent);
-    setTrackedChangesEnabledStorage(editor, wasEnabled);
     didSetInitialContentRef.current = true;
   }, [editor]);
 
@@ -263,26 +239,26 @@ function TrackedChangesEditor({
       return;
     }
 
-    const updateTooltip = () => {
-      const event = window.event;
-      const target = event instanceof MouseEvent ? event.target : null;
-      const suggestionElement =
-        target instanceof Element
-          ? target.closest("[data-suggestion-id]")
-          : null;
+    const handleClick = (event: MouseEvent) => {
+      const result = editor.view.posAtCoords({
+        left: event.clientX,
+        top: event.clientY,
+      });
+      if (!result) {
+        setTooltipMount(null);
+        return;
+      }
+      const selectedSuggestion = findSuggestions(editor, "suggestion").find(
+        (suggestion) =>
+          result.pos >= suggestion.from && result.pos <= suggestion.to,
+      );
 
-      if (!suggestionElement) {
+      if (!selectedSuggestion) {
         setTooltipMount(null);
         return;
       }
 
-      const suggestionId = suggestionElement.getAttribute("data-suggestion-id");
-      if (!suggestionId) {
-        setTooltipMount(null);
-        return;
-      }
-
-      const rect = suggestionElement.getBoundingClientRect();
+      const coords = editor.view.coordsAtPos(selectedSuggestion.to);
 
       if (!anchorRef.current) {
         anchorRef.current = document.createElement("span");
@@ -291,36 +267,33 @@ function TrackedChangesEditor({
         document.body.appendChild(anchorRef.current);
       }
 
-      anchorRef.current.style.left = `${rect.left + rect.width / 2}px`;
-      anchorRef.current.style.top = `${rect.top}px`;
+      anchorRef.current.style.left = `${coords.left}px`;
+      anchorRef.current.style.top = `${coords.top}px`;
 
       const matchingThread = threads.find(
-        (thread) => thread.data?.suggestionId === suggestionId,
+        (thread) => thread.data?.suggestionId === selectedSuggestion.id,
       );
       const comment = matchingThread
         ? provider.getThreadComments(matchingThread.id, true)?.[0]
         : null;
+      const text =
+        typeof comment?.content === "string" && comment.content
+          ? comment.content
+          : matchingThread?.data?.suggestionReason ||
+            "Review this tracked change";
 
       setTooltipMount({
-        suggestionId,
+        suggestionId: selectedSuggestion.id,
         element: anchorRef.current,
-        text:
-          typeof comment?.content === "string" && comment.content
-            ? comment.content
-            : matchingThread?.data?.suggestionReason ||
-              "Review this tracked change",
+        text,
       });
     };
 
-    const editorElement = editor.view.dom;
-    editorElement.addEventListener("mouseover", updateTooltip);
-    editorElement.addEventListener("mouseleave", () => setTooltipMount(null));
+    const dom = editor.view.dom;
+    dom.addEventListener("click", handleClick);
 
     return () => {
-      editorElement.removeEventListener("mouseover", updateTooltip);
-      editorElement.removeEventListener("mouseleave", () =>
-        setTooltipMount(null),
-      );
+      dom.removeEventListener("click", handleClick);
       anchorRef.current?.remove();
       anchorRef.current = null;
     };
@@ -360,11 +333,6 @@ function TrackedChangesEditor({
             thread.data?.suggestionReason as string,
           ]),
       ),
-    [threads],
-  );
-
-  const linkedSuggestionThreads = useMemo(
-    () => threads.filter((thread) => thread.data?.suggestionId),
     [threads],
   );
 
@@ -435,12 +403,11 @@ function TrackedChangesEditor({
   );
 
   return (
-    <div className="server-ai-tracked-changes-demo flex h-screen overflow-hidden bg-slate-50">
+    <div className="server-ai-tracked-changes-demo flex h-screen overflow-hidden bg-white">
       <main className="flex min-w-0 flex-1 flex-col">
         <Toolbar
           isTrackedChangesEnabled={isTrackedChangesEnabled}
           hasSelection={!editor.state.selection.empty}
-          hasSuggestions={suggestions.length > 0}
           onToggleTrackedChanges={() => {
             editor.commands.toggleTrackedChanges();
             setIsTrackedChangesEnabled(getTrackedChangesEnabled(editor));
@@ -482,32 +449,28 @@ function TrackedChangesEditor({
               });
             }
           }}
-          onAcceptAll={() => editor.commands.acceptAllSuggestions()}
-          onRejectAll={() => editor.commands.rejectAllSuggestions()}
         />
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-8 py-10">
-          <div className="mx-auto max-w-3xl rounded-sm border border-slate-200 bg-white px-12 py-10 shadow-sm">
-            <EditorContent editor={editor} />
-          </div>
-          {tooltipMount &&
-            createPortal(
-              <SuggestionReviewTooltip
-                referenceElement={tooltipMount.element}
-                text={tooltipMount.text}
-                onAccept={() =>
-                  editor.commands.acceptSuggestion({
-                    id: tooltipMount.suggestionId,
-                  })
-                }
-                onReject={() =>
-                  editor.commands.rejectSuggestion({
-                    id: tooltipMount.suggestionId,
-                  })
-                }
-              />,
-              tooltipMount.element,
-            )}
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <EditorContent editor={editor} />
+          {tooltipMount && (
+            <SuggestionReviewTooltip
+              referenceElement={tooltipMount.element}
+              text={tooltipMount.text}
+              onAccept={() => {
+                editor.commands.acceptSuggestion({
+                  id: tooltipMount.suggestionId,
+                });
+                setTooltipMount(null);
+              }}
+              onReject={() => {
+                editor.commands.rejectSuggestion({
+                  id: tooltipMount.suggestionId,
+                });
+                setTooltipMount(null);
+              }}
+            />
+          )}
         </div>
       </main>
 
@@ -521,29 +484,6 @@ function TrackedChangesEditor({
         isLoading={isLoading}
         trackedPanel={trackedPanel}
         commentsPanel={commentsPanel}
-        trackedCommentsPanel={
-          <div className="grid h-full grid-rows-2 overflow-hidden">
-            <div className="min-h-0 border-b border-slate-200">
-              <TrackedChangesPanel
-                editor={editor}
-                suggestions={suggestions}
-                reasonBySuggestionId={reasonBySuggestionId}
-              />
-            </div>
-            <div className="min-h-0">
-              <CommentsPanel
-                editor={editor}
-                provider={provider}
-                threads={linkedSuggestionThreads as DemoThread[]}
-                selectedThread={selectedThread}
-                showResolved={showResolvedThreads}
-                onShowResolvedChange={setShowResolvedThreads}
-                onSelectThread={selectThreadInEditor}
-                onCreateThread={createThread}
-              />
-            </div>
-          </div>
-        }
       />
     </div>
   );
@@ -552,7 +492,6 @@ function TrackedChangesEditor({
 function Toolbar({
   isTrackedChangesEnabled,
   hasSelection,
-  hasSuggestions,
   onToggleTrackedChanges,
   onBold,
   onItalic,
@@ -561,12 +500,9 @@ function Toolbar({
   onAddInsertion,
   onAddDeletion,
   onAddReplacement,
-  onAcceptAll,
-  onRejectAll,
 }: {
   isTrackedChangesEnabled: boolean;
   hasSelection: boolean;
-  hasSuggestions: boolean;
   onToggleTrackedChanges: () => void;
   onBold: () => void;
   onItalic: () => void;
@@ -575,14 +511,12 @@ function Toolbar({
   onAddInsertion: () => void;
   onAddDeletion: () => void;
   onAddReplacement: () => void;
-  onAcceptAll: () => void;
-  onRejectAll: () => void;
 }) {
   const buttonClass =
     "inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-100 disabled:cursor-default disabled:bg-slate-100 disabled:text-slate-400";
 
   return (
-    <div className="sticky top-0 z-10 flex shrink-0 flex-wrap items-center gap-2 border-b border-slate-200 bg-white px-4 py-3">
+    <ToolbarPanel>
       <button
         type="button"
         onClick={onBold}
@@ -647,25 +581,6 @@ function Toolbar({
         <MessageSquarePlus size={15} />
         Comment
       </button>
-      <span className="mx-1 h-6 w-px bg-slate-200" />
-      <button
-        type="button"
-        onClick={onAcceptAll}
-        disabled={!hasSuggestions}
-        className={buttonClass}
-      >
-        <Undo2 size={15} />
-        Accept all
-      </button>
-      <button
-        type="button"
-        onClick={onRejectAll}
-        disabled={!hasSuggestions}
-        className={buttonClass}
-      >
-        <Redo2 size={15} />
-        Reject all
-      </button>
-    </div>
+    </ToolbarPanel>
   );
 }

@@ -13,6 +13,8 @@ type SuggestionReviewTooltipProps = {
   referenceElement: HTMLElement;
   onAccept: () => void;
   onReject: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   text?: string;
 };
 
@@ -20,6 +22,8 @@ export function SuggestionReviewTooltip({
   referenceElement,
   onAccept,
   onReject,
+  onMouseEnter,
+  onMouseLeave,
   text,
 }: SuggestionReviewTooltipProps) {
   const arrowRef = useRef<HTMLDivElement | null>(null);
@@ -57,7 +61,10 @@ export function SuggestionReviewTooltip({
   return createPortal(
     <div
       ref={refs.setFloating}
+      role="tooltip"
       style={floatingStyles}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className="max-w-72 rounded-[18px] border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 shadow-[0_18px_42px_rgba(15,23,42,0.16)]"
     >
       {text && <p className="mb-2 leading-relaxed text-slate-600">{text}</p>}

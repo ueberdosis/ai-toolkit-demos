@@ -21,6 +21,9 @@ function suggestionAccent(type: string) {
   if (type === "delete") {
     return "border-l-rose-500";
   }
+  if (type === "replace") {
+    return "border-l-amber-500";
+  }
   if (type === "markChange") {
     return "border-l-purple-500";
   }
