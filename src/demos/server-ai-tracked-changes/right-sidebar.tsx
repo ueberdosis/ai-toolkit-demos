@@ -3,8 +3,7 @@
 import type { UIMessage } from "ai";
 import type { FormEvent, ReactNode } from "react";
 import { ChatSidebar } from "@/components/chat-sidebar";
-
-type PanelId = "chat" | "tracked" | "comments" | "tracked-comments";
+import type { PanelId } from "./panel-id";
 
 type RightSidebarProps = {
   activePanel: PanelId;
@@ -16,14 +15,12 @@ type RightSidebarProps = {
   isLoading: boolean;
   trackedPanel: ReactNode;
   commentsPanel: ReactNode;
-  trackedCommentsPanel: ReactNode;
 };
 
 const panels: Array<{ id: PanelId; label: string }> = [
   { id: "chat", label: "Chat" },
   { id: "tracked", label: "Tracked changes" },
   { id: "comments", label: "Comments" },
-  { id: "tracked-comments", label: "Tracked + comments" },
 ];
 
 export function RightSidebar({
@@ -36,18 +33,17 @@ export function RightSidebar({
   isLoading,
   trackedPanel,
   commentsPanel,
-  trackedCommentsPanel,
 }: RightSidebarProps) {
   return (
     <aside className="flex h-screen w-[420px] shrink-0 flex-col border-l border-slate-200 bg-white">
-      <div className="border-b border-slate-200 p-3">
-        <div className="grid grid-cols-2 gap-1 rounded-md bg-slate-100 p-1">
+      <div className="border-b border-slate-200 bg-white px-4 py-3">
+        <div className="grid h-8 w-full grid-cols-3 gap-1 rounded-md bg-slate-100 p-1">
           {panels.map((panel) => (
             <button
               key={panel.id}
               type="button"
               onClick={() => onActivePanelChange(panel.id)}
-              className={`rounded px-2 py-1.5 text-xs font-medium transition-colors ${
+              className={`flex items-center justify-center rounded text-xs font-medium transition-colors ${
                 activePanel === panel.id
                   ? "bg-white text-slate-950 shadow-sm"
                   : "text-slate-500 hover:text-slate-900"
@@ -75,7 +71,6 @@ export function RightSidebar({
         )}
         {activePanel === "tracked" && trackedPanel}
         {activePanel === "comments" && commentsPanel}
-        {activePanel === "tracked-comments" && trackedCommentsPanel}
       </div>
     </aside>
   );
