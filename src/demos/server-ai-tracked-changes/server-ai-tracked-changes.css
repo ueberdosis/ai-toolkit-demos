@@ -1,0 +1,106 @@
+/*
+ * Generic editor styling for the server-AI tracked-changes demo.
+ *
+ * Suggestion mark / thread colors come from `src/styles/tracked-changes.css`
+ * (shared with the other tracked-changes demos) — do not duplicate them here.
+ */
+
+.server-ai-tracked-changes-demo .tiptap {
+  min-height: 58vh;
+  color: rgb(15 23 42);
+  outline: none;
+}
+
+.server-ai-tracked-changes-demo .tiptap :first-child {
+  margin-top: 0;
+}
+
+.server-ai-tracked-changes-demo .tiptap p {
+  margin: 1rem 0;
+  line-height: 1.75;
+  word-break: break-word;
+}
+
+.server-ai-tracked-changes-demo .tiptap h1,
+.server-ai-tracked-changes-demo .tiptap h2,
+.server-ai-tracked-changes-demo .tiptap h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: pretty;
+}
+
+.server-ai-tracked-changes-demo .tiptap h1 {
+  font-size: 1.75rem;
+}
+
+.server-ai-tracked-changes-demo .tiptap h2 {
+  font-size: 1.35rem;
+}
+
+.server-ai-tracked-changes-demo .tiptap h3 {
+  font-size: 1.1rem;
+}
+
+.server-ai-tracked-changes-demo .tiptap ul,
+.server-ai-tracked-changes-demo .tiptap ol {
+  margin: 1.25rem 0;
+  padding-left: 1.5rem;
+}
+
+.server-ai-tracked-changes-demo .tiptap ul {
+  list-style: disc;
+}
+
+.server-ai-tracked-changes-demo .tiptap ol {
+  list-style: decimal;
+}
+
+.server-ai-tracked-changes-demo .tiptap blockquote {
+  margin: 1.5rem 0;
+  border-left: 3px solid rgb(203 213 225);
+  padding-left: 1rem;
+  color: rgb(71 85 105);
+}
+
+.server-ai-tracked-changes-demo .tiptap pre {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  background: rgb(15 23 42);
+  padding: 0.75rem 1rem;
+  color: white;
+}
+
+.server-ai-tracked-changes-demo .tiptap code {
+  border-radius: 0.35rem;
+  background: rgb(241 245 249);
+  padding: 0.15rem 0.3rem;
+  font-size: 0.875em;
+}
+
+.server-ai-tracked-changes-demo .tiptap pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.server-ai-tracked-changes-demo .tiptap .is-empty.is-editor-empty::before {
+  float: left;
+  height: 0;
+  color: rgb(148 163 184);
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
+/* Thread styling (server-AI demo only — comments demo defines its own
+   thread styles scoped to `.tracked-changes-comments-demo`). */
+.server-ai-tracked-changes-demo .tiptap .tiptap-thread[data-type="inline"] {
+  border-bottom: 2px solid rgba(168, 85, 247, 0.45);
+}
+
+.server-ai-tracked-changes-demo .tiptap .tiptap-thread[data-state="selected"],
+.server-ai-tracked-changes-demo .tiptap .tiptap-thread[data-state="hovered"] {
+  background-color: rgba(168, 85, 247, 0.14);
+}

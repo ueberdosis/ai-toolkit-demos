@@ -135,7 +135,7 @@ export default function Page() {
     }
   }, [editor, selectedThread]);
 
-  const { threads = [], createThread } = useThreads(provider, editor);
+  const { threads = [], createThread } = useThreads(provider, editor, user);
 
   threadsRef.current = threads;
 
