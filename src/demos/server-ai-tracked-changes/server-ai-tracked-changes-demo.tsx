@@ -521,7 +521,7 @@ function Toolbar({
     "bg-[var(--purple)] text-[var(--white)] hover:bg-[var(--purple-contrast)] hover:text-[var(--white)]";
 
   return (
-    <div className="flex flex-wrap gap-1 border-b border-slate-200 bg-white p-6">
+    <div className="flex flex-wrap gap-1 border-b border-slate-200 bg-white p-4">
       <button
         type="button"
         onClick={onBold}

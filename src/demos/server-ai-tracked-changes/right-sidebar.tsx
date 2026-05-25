@@ -36,7 +36,7 @@ export function RightSidebar({
 }: RightSidebarProps) {
   return (
     <aside className="flex h-screen w-[420px] shrink-0 flex-col border-l border-slate-200 bg-white">
-      <div className="border-b border-slate-200 bg-white p-6">
+      <div className="border-b border-slate-200 bg-white p-4">
         <div className="grid w-full grid-cols-3 gap-0 rounded-lg bg-[var(--gray-2)] p-0.5">
           {panels.map((panel) => (
             <button

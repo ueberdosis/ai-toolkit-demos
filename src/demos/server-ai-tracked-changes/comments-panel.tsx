@@ -54,7 +54,7 @@ export function CommentsPanel({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="space-y-4 border-b border-slate-200 p-6">
+      <div className="space-y-4 border-b border-slate-200 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold text-slate-950">Comments</h2>
@@ -98,7 +98,7 @@ export function CommentsPanel({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-6">
+      <div className="min-h-0 flex-1 overflow-y-auto p-4">
         {visibleThreads.length === 0 ? (
           <p className="text-sm italic text-slate-400">No threads.</p>
         ) : (
