@@ -2,7 +2,6 @@
 
 import type { Editor } from "@tiptap/react";
 import type { Suggestion } from "@tiptap-pro/extension-tracked-changes";
-import { Check, X } from "lucide-react";
 import {
   getSuggestionNodeLabels,
   getSuggestionPreview,
@@ -41,9 +40,12 @@ export function TrackedChangesPanel({
   suggestions,
   reasonBySuggestionId = {},
 }: TrackedChangesPanelProps) {
+  const buttonClass =
+    "cursor-pointer rounded-lg border-none bg-[var(--gray-2)] px-2.5 py-1.5 text-sm font-medium leading-[1.15] text-[var(--black)] transition-all duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] hover:bg-[var(--gray-3)] hover:text-[var(--black-contrast)] disabled:cursor-default disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)]";
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="border-b border-slate-200 p-4">
+      <div className="border-b border-slate-200 p-6">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold text-slate-950">
@@ -53,12 +55,12 @@ export function TrackedChangesPanel({
               Review pending tracked edits.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-1">
             <button
               type="button"
               onClick={() => editor.commands.acceptAllSuggestions()}
               disabled={suggestions.length === 0}
-              className="rounded-md bg-emerald-500 px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-600 disabled:cursor-default disabled:bg-slate-200 disabled:text-slate-400"
+              className={buttonClass}
             >
               Accept all
             </button>
@@ -66,7 +68,7 @@ export function TrackedChangesPanel({
               type="button"
               onClick={() => editor.commands.rejectAllSuggestions()}
               disabled={suggestions.length === 0}
-              className="rounded-md bg-rose-500 px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-rose-600 disabled:cursor-default disabled:bg-slate-200 disabled:text-slate-400"
+              className={buttonClass}
             >
               Reject all
             </button>
@@ -74,7 +76,7 @@ export function TrackedChangesPanel({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-4">
+      <div className="min-h-0 flex-1 overflow-y-auto p-6">
         {suggestions.length === 0 ? (
           <p className="text-sm italic text-slate-400">
             No pending suggestions.
@@ -118,15 +120,14 @@ export function TrackedChangesPanel({
                     | {new Date(suggestion.createdAt).toLocaleTimeString()}
                   </p>
 
-                  <div className="mt-3 flex gap-2">
+                  <div className="mt-3 flex gap-1">
                     <button
                       type="button"
                       onClick={() =>
                         editor.commands.acceptSuggestion({ id: suggestion.id })
                       }
-                      className="inline-flex flex-1 items-center justify-center gap-1 rounded-md bg-emerald-500 px-2 py-1.5 text-xs font-medium text-white hover:bg-emerald-600"
+                      className={`${buttonClass} flex-1`}
                     >
-                      <Check size={14} />
                       Accept
                     </button>
                     <button
@@ -134,9 +135,8 @@ export function TrackedChangesPanel({
                       onClick={() =>
                         editor.commands.rejectSuggestion({ id: suggestion.id })
                       }
-                      className="inline-flex flex-1 items-center justify-center gap-1 rounded-md bg-rose-500 px-2 py-1.5 text-xs font-medium text-white hover:bg-rose-600"
+                      className={`${buttonClass} flex-1`}
                     >
-                      <X size={14} />
                       Reject
                     </button>
                   </div>

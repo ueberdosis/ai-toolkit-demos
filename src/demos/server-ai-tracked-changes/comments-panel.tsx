@@ -3,12 +3,6 @@
 import type { Editor } from "@tiptap/react";
 import { hoverOffThread, hoverThread } from "@tiptap-pro/extension-comments";
 import type { TiptapCollabProvider } from "@tiptap-pro/provider";
-import {
-  CheckCircle2,
-  MessageSquarePlus,
-  RotateCcw,
-  Trash2,
-} from "lucide-react";
 import type { DemoThread } from "./use-demo-threads";
 
 type CommentsPanelProps = {
@@ -53,10 +47,14 @@ export function CommentsPanel({
   const visibleThreads = threads.filter((thread) =>
     showResolved ? Boolean(thread.resolvedAt) : !thread.resolvedAt,
   );
+  const buttonClass =
+    "cursor-pointer rounded-lg border-none bg-[var(--gray-2)] px-2.5 py-1.5 text-sm font-medium leading-[1.15] text-[var(--black)] transition-all duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] hover:bg-[var(--gray-3)] hover:text-[var(--black-contrast)] disabled:cursor-default disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)]";
+  const switchButtonClass =
+    "flex min-h-6 cursor-pointer items-center justify-center rounded-md px-1.5 text-xs font-medium leading-[1.15] transition-all duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)]";
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="space-y-3 border-b border-slate-200 p-4">
+      <div className="space-y-4 border-b border-slate-200 p-6">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold text-slate-950">Comments</h2>
@@ -68,21 +66,20 @@ export function CommentsPanel({
             type="button"
             onClick={onCreateThread}
             disabled={editor.state.selection.empty}
-            className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-slate-700 disabled:cursor-default disabled:bg-slate-200 disabled:text-slate-400"
+            className={buttonClass}
           >
-            <MessageSquarePlus size={14} />
-            Add
+            Add comment
           </button>
         </div>
 
-        <div className="grid grid-cols-2 rounded-md bg-slate-100 p-1">
+        <div className="grid grid-cols-2 rounded-lg bg-[var(--gray-2)] p-0.5">
           <button
             type="button"
             onClick={() => onShowResolvedChange(false)}
-            className={`rounded px-2 py-1 text-xs font-medium ${
+            className={`${switchButtonClass} ${
               !showResolved
-                ? "bg-white text-slate-950 shadow-sm"
-                : "text-slate-500 hover:text-slate-900"
+                ? "bg-white text-[var(--black-contrast)]"
+                : "text-[var(--gray-5)] hover:text-[var(--black)]"
             }`}
           >
             Open
@@ -90,10 +87,10 @@ export function CommentsPanel({
           <button
             type="button"
             onClick={() => onShowResolvedChange(true)}
-            className={`rounded px-2 py-1 text-xs font-medium ${
+            className={`${switchButtonClass} ${
               showResolved
-                ? "bg-white text-slate-950 shadow-sm"
-                : "text-slate-500 hover:text-slate-900"
+                ? "bg-white text-[var(--black-contrast)]"
+                : "text-[var(--gray-5)] hover:text-[var(--black)]"
             }`}
           >
             Resolved
@@ -101,7 +98,7 @@ export function CommentsPanel({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-4">
+      <div className="min-h-0 flex-1 overflow-y-auto p-6">
         {visibleThreads.length === 0 ? (
           <p className="text-sm italic text-slate-400">No threads.</p>
         ) : (
@@ -123,7 +120,7 @@ export function CommentsPanel({
                   <button
                     type="button"
                     onClick={() => onSelectThread(thread.id)}
-                    className="block w-full text-left"
+                    className="block w-full cursor-pointer text-left"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -140,16 +137,15 @@ export function CommentsPanel({
                     </div>
                   </button>
 
-                  <div className="mt-3 flex gap-2">
+                  <div className="mt-3 flex gap-1">
                     {thread.resolvedAt ? (
                       <button
                         type="button"
                         onClick={() =>
                           editor.commands.unresolveThread({ id: thread.id })
                         }
-                        className="inline-flex flex-1 items-center justify-center gap-1 rounded-md bg-slate-100 px-2 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200"
+                        className={`${buttonClass} flex-1`}
                       >
-                        <RotateCcw size={14} />
                         Reopen
                       </button>
                     ) : (
@@ -158,9 +154,8 @@ export function CommentsPanel({
                         onClick={() =>
                           editor.commands.resolveThread({ id: thread.id })
                         }
-                        className="inline-flex flex-1 items-center justify-center gap-1 rounded-md bg-emerald-500 px-2 py-1.5 text-xs font-medium text-white hover:bg-emerald-600"
+                        className={`${buttonClass} flex-1`}
                       >
-                        <CheckCircle2 size={14} />
                         Resolve
                       </button>
                     )}
@@ -173,10 +168,9 @@ export function CommentsPanel({
                         });
                         provider.deleteThread(thread.id);
                       }}
-                      className="inline-flex items-center justify-center rounded-md bg-rose-50 px-2 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-100"
-                      aria-label="Delete thread"
+                      className={buttonClass}
                     >
-                      <Trash2 size={14} />
+                      Delete
                     </button>
                   </div>
                 </article>

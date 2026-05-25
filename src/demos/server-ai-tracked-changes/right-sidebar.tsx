@@ -36,17 +36,17 @@ export function RightSidebar({
 }: RightSidebarProps) {
   return (
     <aside className="flex h-screen w-[420px] shrink-0 flex-col border-l border-slate-200 bg-white">
-      <div className="border-b border-slate-200 bg-white px-4 py-3">
-        <div className="grid h-8 w-full grid-cols-3 gap-1 rounded-md bg-slate-100 p-1">
+      <div className="border-b border-slate-200 bg-white p-6">
+        <div className="grid w-full grid-cols-3 gap-0 rounded-lg bg-[var(--gray-2)] p-0.5">
           {panels.map((panel) => (
             <button
               key={panel.id}
               type="button"
               onClick={() => onActivePanelChange(panel.id)}
-              className={`flex items-center justify-center rounded text-xs font-medium transition-colors ${
+              className={`flex min-h-6 cursor-pointer items-center justify-center rounded-md px-1.5 text-xs font-medium leading-[1.15] transition-all duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] ${
                 activePanel === panel.id
-                  ? "bg-white text-slate-950 shadow-sm"
-                  : "text-slate-500 hover:text-slate-900"
+                  ? "bg-white text-[var(--black-contrast)]"
+                  : "text-[var(--gray-5)] hover:text-[var(--black)]"
               }`}
             >
               {panel.label}

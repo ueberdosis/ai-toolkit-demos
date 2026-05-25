@@ -15,7 +15,6 @@ import {
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { DefaultChatTransport } from "ai";
-import { Bold, Italic, Link, MessageSquarePlus, Pilcrow } from "lucide-react";
 import {
   type FormEvent,
   useCallback,
@@ -28,7 +27,6 @@ import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { getCollabConfig } from "@/app/server-ai-agent-chatbot/actions";
 import { SuggestionReviewTooltip } from "@/components/suggestion-review-tooltip";
-import { ToolbarPanel } from "@/components/toolbar-panel";
 import { CommentsPanel } from "./comments-panel";
 import type { PanelId } from "./panel-id";
 import { RightSidebar } from "./right-sidebar";
@@ -142,7 +140,6 @@ function TrackedChangesEditor({
 }) {
   const [activePanel, setActivePanel] = useState<PanelId>("chat");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [isTrackedChangesEnabled, setIsTrackedChangesEnabled] = useState(false);
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
   const [showResolvedThreads, setShowResolvedThreads] = useState(false);
   const [tooltipMount, setTooltipMount] =
@@ -152,6 +149,7 @@ function TrackedChangesEditor({
 
   const editor = useEditor({
     immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
     extensions: [
       StarterKit.configure({ undoRedo: false }),
       LinkExtension.configure({ openOnClick: false }),
@@ -195,13 +193,11 @@ function TrackedChangesEditor({
       setSuggestions(
         getUniqueSuggestions(findSuggestions(currentEditor, "suggestion")),
       );
-      setIsTrackedChangesEnabled(getTrackedChangesEnabled(currentEditor));
     },
     onUpdate: ({ editor: currentEditor }) => {
       setSuggestions(
         getUniqueSuggestions(findSuggestions(currentEditor, "suggestion")),
       );
-      setIsTrackedChangesEnabled(getTrackedChangesEnabled(currentEditor));
     },
   });
 
@@ -225,7 +221,6 @@ function TrackedChangesEditor({
       setSuggestions(
         getUniqueSuggestions(findSuggestions(editor, "suggestion")),
       );
-      setIsTrackedChangesEnabled(getTrackedChangesEnabled(editor));
     };
 
     editor.on("transaction", updateSuggestions);
@@ -406,11 +401,13 @@ function TrackedChangesEditor({
     <div className="server-ai-tracked-changes-demo flex h-screen overflow-hidden bg-white">
       <main className="flex min-w-0 flex-1 flex-col">
         <Toolbar
-          isTrackedChangesEnabled={isTrackedChangesEnabled}
+          isTrackedChangesEnabled={getTrackedChangesEnabled(editor)}
+          isBoldActive={editor.isActive("bold")}
+          isItalicActive={editor.isActive("italic")}
+          isLinkActive={editor.isActive("link")}
           hasSelection={!editor.state.selection.empty}
           onToggleTrackedChanges={() => {
             editor.commands.toggleTrackedChanges();
-            setIsTrackedChangesEnabled(getTrackedChangesEnabled(editor));
           }}
           onBold={() => editor.chain().focus().toggleBold().run()}
           onItalic={() => editor.chain().focus().toggleItalic().run()}
@@ -491,6 +488,9 @@ function TrackedChangesEditor({
 
 function Toolbar({
   isTrackedChangesEnabled,
+  isBoldActive,
+  isItalicActive,
+  isLinkActive,
   hasSelection,
   onToggleTrackedChanges,
   onBold,
@@ -502,6 +502,9 @@ function Toolbar({
   onAddReplacement,
 }: {
   isTrackedChangesEnabled: boolean;
+  isBoldActive: boolean;
+  isItalicActive: boolean;
+  isLinkActive: boolean;
   hasSelection: boolean;
   onToggleTrackedChanges: () => void;
   onBold: () => void;
@@ -513,44 +516,40 @@ function Toolbar({
   onAddReplacement: () => void;
 }) {
   const buttonClass =
-    "inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-100 disabled:cursor-default disabled:bg-slate-100 disabled:text-slate-400";
+    "cursor-pointer rounded-lg border-none bg-[var(--gray-2)] px-2.5 py-1.5 text-sm font-medium leading-[1.15] text-[var(--black)] transition-all duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] hover:bg-[var(--gray-3)] hover:text-[var(--black-contrast)] disabled:cursor-default disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)]";
+  const activeButtonClass =
+    "bg-[var(--purple)] text-[var(--white)] hover:bg-[var(--purple-contrast)] hover:text-[var(--white)]";
 
   return (
-    <ToolbarPanel>
+    <div className="flex flex-wrap gap-1 border-b border-slate-200 bg-white p-6">
       <button
         type="button"
         onClick={onBold}
-        className={buttonClass}
-        title="Bold"
+        className={`${buttonClass} ${isBoldActive ? activeButtonClass : ""}`}
       >
-        <Bold size={15} />
+        Bold
       </button>
       <button
         type="button"
         onClick={onItalic}
-        className={buttonClass}
-        title="Italic"
+        className={`${buttonClass} ${isItalicActive ? activeButtonClass : ""}`}
       >
-        <Italic size={15} />
+        Italic
       </button>
       <button
         type="button"
         onClick={onLink}
-        className={buttonClass}
-        title="Link"
+        className={`${buttonClass} ${isLinkActive ? activeButtonClass : ""}`}
       >
-        <Link size={15} />
+        Link
       </button>
       <button
         type="button"
         onClick={onToggleTrackedChanges}
         className={`${buttonClass} ${
-          isTrackedChangesEnabled
-            ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-            : ""
+          isTrackedChangesEnabled ? activeButtonClass : ""
         }`}
       >
-        <Pilcrow size={15} />
         Track changes {isTrackedChangesEnabled ? "on" : "off"}
       </button>
       <button type="button" onClick={onAddInsertion} className={buttonClass}>
@@ -578,9 +577,8 @@ function Toolbar({
         disabled={!hasSelection}
         className={buttonClass}
       >
-        <MessageSquarePlus size={15} />
         Comment
       </button>
-    </ToolbarPanel>
+    </div>
   );
 }
