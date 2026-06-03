@@ -151,7 +151,7 @@ function TrackedChangesEditor({
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
     extensions: [
-      StarterKit.configure({ undoRedo: false }),
+      StarterKit.configure({ undoRedo: false, link: false }),
       LinkExtension.configure({ openOnClick: false }),
       Collaboration.configure({ document: doc }),
       ServerAiToolkit,
