@@ -39,8 +39,8 @@ importers:
         specifier: ^3.6.3
         version: 3.6.3(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(yjs@13.6.30))(@tiptap-pro/provider@3.8.2(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(lib0@0.2.117)(yjs@13.6.30))(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
       '@tiptap-pro/extension-tracked-changes':
-        specifier: 0.10.3
-        version: 0.10.3(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+        specifier: 0.11.0
+        version: 0.11.0(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
       '@tiptap-pro/provider':
         specifier: ^3.6.3
         version: 3.8.2(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(lib0@0.2.117)(yjs@13.6.30)
@@ -704,8 +704,8 @@ packages:
       '@tiptap/core': ^3.15.0
       '@tiptap/pm': ^3.15.0
 
-  '@tiptap-pro/extension-tracked-changes@0.10.3':
-    resolution: {integrity: sha512-E4vdA/5vj+kifjmsN+Q7z5rPY7sba9rmiOE2wNMHOFyoP0kOTenfGTzqJZIQOsm9aZB6kTYSK2d1Zu2fA1cjuQ==}
+  '@tiptap-pro/extension-tracked-changes@0.11.0':
+    resolution: {integrity: sha512-gchA3SKFfpceWRl0ZnY6dWAJUtmXTclAZbjz71+hiarYewRBPAUh2rMB69qhfzL4Jrgm/XyzF1outLcCXDQqJQ==}
     peerDependencies:
       '@tiptap/core': ^3.15.0
       '@tiptap/pm': ^3.15.0
@@ -1859,7 +1859,7 @@ snapshots:
       '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
       '@tiptap/pm': 3.22.5
 
-  '@tiptap-pro/extension-tracked-changes@0.10.3(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
+  '@tiptap-pro/extension-tracked-changes@0.11.0(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
       '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
       '@tiptap/pm': 3.22.5
