@@ -35,7 +35,7 @@
     "@tiptap/extensions": "3.22.5",
     "@tiptap/pm": "3.22.5",
     "@tiptap/react": "3.22.5",
-    "@tiptap/server-ai-toolkit": "0.1.4",
+    "@tiptap/server-ai-toolkit": "0.1.5",
     "@tiptap/starter-kit": "3.22.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@upstash/ratelimit": "^2.0.8",

@@ -75,8 +75,8 @@ importers:
         specifier: 3.22.5
         version: 3.22.5(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@tiptap/server-ai-toolkit':
-        specifier: 0.1.4
-        version: 0.1.4(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+        specifier: 0.1.5
+        version: 0.1.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
       '@tiptap/starter-kit':
         specifier: 3.22.5
         version: 3.22.5
@@ -883,8 +883,8 @@ packages:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tiptap/server-ai-toolkit@0.1.4':
-    resolution: {integrity: sha512-hDaZbZOhe42a5k/b5kD38ZoQCBt7jmH1RPReJC38I6gqHOgpAIANpq0QZB2+bIGD8jCCnShO6vPTJjtK5FzLhw==}
+  '@tiptap/server-ai-toolkit@0.1.5':
+    resolution: {integrity: sha512-WIh02vjuBahVqW/1XINTvvVvz/8fMWoLFgNTiENI3HCNk6XDgjymgc1GyJPhEQlDZhuNXFhvUMpjK6PVdXUGbQ==}
     peerDependencies:
       '@tiptap/core': ^3.0.1
       '@tiptap/pm': ^3.0.1
@@ -2029,7 +2029,7 @@ snapshots:
     transitivePeerDependencies:
       - '@floating-ui/dom'
 
-  '@tiptap/server-ai-toolkit@0.1.4(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
+  '@tiptap/server-ai-toolkit@0.1.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
       '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
       '@tiptap/pm': 3.22.5
