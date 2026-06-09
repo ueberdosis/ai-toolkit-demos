@@ -24,7 +24,7 @@
     "@tiptap-pro/ai-toolkit-tool-definitions": "0.10.2",
     "@tiptap-pro/extension-comments": "^3.8.4",
     "@tiptap-pro/extension-tracked-changes": "0.11.1",
-    "@tiptap-pro/provider": "^3.6.3",
+    "@tiptap-pro/provider": "^3.8.4",
     "@tiptap/core": "3.22.5",
     "@tiptap/extension-bubble-menu": "3.22.5",
     "@tiptap/extension-collaboration": "3.22.5",
