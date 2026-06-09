@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.64",
-    "@ai-sdk/devtools": "^0.0.15",
+    "@ai-sdk/devtools": "^0.0.18",
     "@ai-sdk/openai": "^3.0.53",
     "@ai-sdk/react": "^3.0.140",
     "@floating-ui/react": "^0.27.19",
@@ -43,22 +43,22 @@
     "ai": "^6.0.138",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.6.0",
-    "next": "^16.2.1",
+    "next": "^16.2.7",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "sass": "^1.98.0",
-    "uuid": "^13.0.0",
+    "uuid": "^13.0.1",
     "yjs": "^13.6.30",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.8",
-    "@tailwindcss/postcss": "^4.2.2",
+    "@tailwindcss/postcss": "^4.3.0",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "tailwindcss": "^4.2.2",
-    "turbo": "^2.8.20",
+    "tailwindcss": "^4.3.0",
+    "turbo": "^2.9.14",
     "typescript": "^6.0.2"
   },
   "packageManager": "pnpm@10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316"
