@@ -180,6 +180,12 @@ const CATEGORIES = [
             href: "/server-ai-agent-chatbot",
           },
           {
+            title: "Server Stream Tool",
+            description:
+              "LLM-driven /stream-tool: type a task, AI streams tiptapEdit args, editor types in real time",
+            href: "/server-ai-stream-tool-chatbot",
+          },
+          {
             title: "Server Selection Awareness",
             description:
               "Selection-aware server agent that edits only the active selection",
