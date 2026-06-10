@@ -4,17 +4,13 @@ import {
   gateway,
   ToolLoopAgent,
   tool,
+  type UIMessage,
   wrapLanguageModel,
 } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
-import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
-import { getToolDefinitions } from "@/lib/server-ai-toolkit/get-tool-definitions";
-import {
-  getSessionIdFromConversationHistory,
-  type ServerAiToolkitMessage,
-} from "@/lib/server-ai-toolkit/session-id";
+import { getTools } from "@/lib/server-ai-toolkit/get-tools";
 
 export async function POST(req: Request) {
   if (process.env.UPSTASH_REDIS_REST_URL) {
@@ -33,22 +29,21 @@ export async function POST(req: Request) {
 
   const {
     messages,
-    schemaAwarenessData,
+    editorContext,
     documentId,
   }: {
-    messages: ServerAiToolkitMessage[];
-    schemaAwarenessData: unknown;
+    messages: UIMessage[];
+    editorContext: unknown;
     documentId: string;
   } = await req.json();
-  let sessionId = getSessionIdFromConversationHistory(messages);
-  const toolDefinitions = await getToolDefinitions({
-    schemaAwarenessData,
+  const toolsResponse = await getTools({
+    editorContext,
+    operationMeta:
+      "Brief justification explaining why this change improves the document.",
   });
-  const schemaAwarenessPrompt =
-    await getSchemaAwarenessPrompt(schemaAwarenessData);
 
   const tools = Object.fromEntries(
-    toolDefinitions.map((toolDef) => [
+    toolsResponse.tools.map((toolDef) => [
       toolDef.name,
       tool({
         description: toolDef.description,
@@ -59,17 +54,19 @@ export async function POST(req: Request) {
               toolDef.name,
               input,
               null,
-              schemaAwarenessData,
+              editorContext,
               {
                 documentId,
-                sessionId,
                 userId: "ai-assistant",
                 reviewOptions: {
                   mode: "trackedChanges",
                 },
+                commentsOptions: {
+                  threadData: { userName: "Tiptap AI" },
+                  commentData: { userName: "Tiptap AI" },
+                },
               },
             );
-            sessionId = result.sessionId;
 
             return result.output;
           } catch (error) {
@@ -91,23 +88,23 @@ export async function POST(req: Request) {
 
   const agent = new ToolLoopAgent({
     model,
-    instructions: `You are an assistant that can edit rich text documents with tracked changes.
+    instructions: `You are an assistant that can edit rich text documents with tracked changes and linked Tiptap comments.
 In your messages to the user, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
 Before calling any tools, summarize what you're going to do in one short sentence.
 Rule: Use tiptapRead before tiptapEdit.
 Rule: Keep user-facing responses to a single short sentence before tool calls and a single short sentence after completion.
 Rule: In your messages to the user, do not give any details of the tool calls.
-Rule: In your messages to the user, do not give any details of the document content or the individual edits.
-Rule: In your messages to the user, never mention hashes, tool internals, or raw document JSON.
+Rule: In your messages to the user, do not give any details of the document content, the individual edits, or the justifications for those edits.
+Rule: In your messages to the user, never mention hashes, tool internals, raw document JSON, or where to find the comments in the UI.
+Rule: For every tiptapEdit operation, always provide a brief justification in the meta field explaining why the change improves the document.
+Rule: Put justifications only in the meta field so they become linked Tiptap Comments. Do not repeat those justifications in assistant messages.
 
-${schemaAwarenessPrompt}`,
+${toolsResponse.prompt}`,
     tools,
   });
 
   return createAgentUIStreamResponse({
     agent,
-    messageMetadata: ({ part }) =>
-      part.type === "finish" && sessionId ? { sessionId } : undefined,
     uiMessages: messages,
   });
 }

@@ -192,67 +192,15 @@ const CATEGORIES = [
             href: "/server-ai-stream-tool-chatbot-tracked-changes",
           },
           {
-            title: "Server Selection Awareness",
-            description:
-              "Selection-aware server agent that edits only the active selection",
-            href: "/server-selection-awareness",
-          },
-          {
             title: "Server Comments",
             description: "Server-side comment threads stored on Tiptap Cloud",
             href: "/server-comments",
           },
           {
             title: "Server Tracked Changes",
-            description: "Review server-side AI edits as tracked changes",
-            href: "/server-ai-tracked-changes",
-          },
-          {
-            title: "Server Tracked + Comments",
             description:
               "Tracked changes with server-side comments explaining each edit",
-            href: "/server-ai-tracked-changes-comments",
-          },
-        ],
-      },
-      {
-        heading: "Workflows",
-        items: [
-          {
-            title: "Server Insert Content",
-            description:
-              "Selection-based insert workflow executed on the server",
-            href: "/server-insert-content-workflow",
-          },
-          {
-            title: "Server Insert + Tracked",
-            description:
-              "Insert content workflow that writes AI changes as tracked changes for review",
-            href: "/server-insert-content-workflow-tracked-changes",
-          },
-          {
-            title: "Server Proofreader",
-            description:
-              "Proofreading workflow with server-side tracked changes output",
-            href: "/server-proofreader-workflow",
-          },
-          {
-            title: "Server Edit Workflow",
-            description:
-              "Prompt-driven document editing via server workflow endpoints",
-            href: "/server-edit-workflow",
-          },
-          {
-            title: "Server Edit + Tracked",
-            description:
-              "Edit workflow that writes AI changes as tracked changes for review",
-            href: "/server-edit-workflow-tracked-changes",
-          },
-          {
-            title: "Server Comments Workflow",
-            description:
-              "Thread and comment workflows powered by the server toolkit",
-            href: "/server-comments-workflow",
+            href: "/server-ai-tracked-changes",
           },
         ],
       },

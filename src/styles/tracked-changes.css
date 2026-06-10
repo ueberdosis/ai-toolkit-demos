@@ -46,6 +46,51 @@
   opacity: 0.65;
 }
 
+/* Block-level suggestions (paragraphs, headings, list items, etc.)
+   v2 extension adds data-suggestion-id directly to block nodes when
+   the AI replaces an entire block. */
+.tiptap
+[data-suggestion-id][data-suggestion-type="add"]:not(span):not(img):not(hr),
+.tiptap
+  [data-suggestion-id][data-suggestion-type="replaceInsertion"]:not(span):not(
+    img
+  ):not(hr) {
+  background-color: oklch(87.1% 0.15 154.449);
+}
+
+.tiptap
+  [data-suggestion-id][data-suggestion-type="delete"]:not(span):not(img):not(
+    hr
+  ),
+.tiptap
+  [data-suggestion-id][data-suggestion-type="replaceDeletion"]:not(span):not(
+    img
+  ):not(hr) {
+  background-color: oklch(80.8% 0.114 19.571);
+  color: oklch(0.396 0.141 25.723);
+  text-decoration: line-through;
+}
+
+/* Mark changes (e.g. bold/italic toggled by AI) */
+.tiptap span[data-suggestion][data-suggestion-type="markChange"] {
+  background-color: oklch(85% 0.12 295);
+  border-bottom: 2px solid oklch(55% 0.22 295);
+}
+
+/* Sink (increased list nesting) */
+.tiptap
+[data-suggestion-id][data-suggestion-type="sink"]:not(span):not(img):not(hr) {
+  background-color: oklch(88% 0.1 200);
+  box-shadow: inset 2px 0 0 oklch(55% 0.18 200);
+}
+
+/* Lift (decreased list nesting) */
+.tiptap
+[data-suggestion-id][data-suggestion-type="lift"]:not(span):not(img):not(hr) {
+  background-color: oklch(88% 0.1 290);
+  box-shadow: inset 2px 0 0 oklch(55% 0.2 290);
+}
+
 :where(
     .tracked-changes-comments-demo
       .tiptap

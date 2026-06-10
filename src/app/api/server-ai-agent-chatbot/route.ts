@@ -4,17 +4,13 @@ import {
   gateway,
   ToolLoopAgent,
   tool,
+  type UIMessage,
   wrapLanguageModel,
 } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
-import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
-import { getToolDefinitions } from "@/lib/server-ai-toolkit/get-tool-definitions";
-import {
-  getSessionIdFromConversationHistory,
-  type ServerAiToolkitMessage,
-} from "@/lib/server-ai-toolkit/session-id";
+import { getTools } from "@/lib/server-ai-toolkit/get-tools";
 
 export async function POST(req: Request) {
   // Rate limiting
@@ -34,27 +30,22 @@ export async function POST(req: Request) {
 
   const {
     messages,
-    schemaAwarenessData,
+    editorContext,
     documentId,
   }: {
-    messages: ServerAiToolkitMessage[];
-    schemaAwarenessData: unknown;
+    messages: UIMessage[];
+    editorContext: unknown;
     documentId: string;
   } = await req.json();
-  let sessionId = getSessionIdFromConversationHistory(messages);
 
   // Get tool definitions from the Server AI Toolkit API
-  const toolDefinitions = await getToolDefinitions({
-    schemaAwarenessData,
+  const toolsResponse = await getTools({
+    editorContext,
   });
-
-  // Get schema awareness prompt from the Server AI Toolkit API
-  const schemaAwarenessPrompt =
-    await getSchemaAwarenessPrompt(schemaAwarenessData);
 
   // Convert API tool definitions to AI SDK tool format
   const tools = Object.fromEntries(
-    toolDefinitions.map((toolDef) => [
+    toolsResponse.tools.map((toolDef) => [
       toolDef.name,
       tool({
         description: toolDef.description,
@@ -65,14 +56,12 @@ export async function POST(req: Request) {
               toolDef.name,
               input,
               null,
-              schemaAwarenessData,
+              editorContext,
               {
                 documentId,
-                sessionId,
                 userId: "ai-assistant",
               },
             );
-            sessionId = result.sessionId;
 
             return result.output;
           } catch (error) {
@@ -101,14 +90,12 @@ Rule: In your responses, do not give any details of the tool calls
 Rule: In your responses, do not give any details of the HTML content of the document.
 Rule: In your responses, never mention the hashes of the document.
 
-${schemaAwarenessPrompt}`,
+${toolsResponse.prompt}`,
     tools,
   });
 
   return createAgentUIStreamResponse({
     agent,
-    messageMetadata: ({ part }) =>
-      part.type === "finish" && sessionId ? { sessionId } : undefined,
     uiMessages: messages,
   });
 }

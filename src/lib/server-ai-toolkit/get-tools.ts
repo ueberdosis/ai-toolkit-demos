@@ -1,23 +1,22 @@
 import type z from "zod";
 import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
-export interface GetToolDefinitionsOptions {
-  schemaAwarenessData: unknown;
+export interface GetToolsOptions {
+  editorContext: unknown;
   operationMeta?: string;
 }
 
 /**
  * Gets tool definitions from the Server AI Toolkit API
  */
-export async function getToolDefinitions(
-  options: GetToolDefinitionsOptions,
-): Promise<
-  {
+export async function getTools(options: GetToolsOptions): Promise<{
+  prompt: string;
+  tools: {
     name: string;
     description: string;
     inputSchema: z.core.JSONSchema.JSONSchema;
-  }[]
-> {
+  }[];
+}> {
   const apiBaseUrl =
     process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
   const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
@@ -36,7 +35,7 @@ export async function getToolDefinitions(
       Origin: "http://localhost:3000",
     },
     body: JSON.stringify({
-      schemaAwarenessData: options.schemaAwarenessData,
+      editorContext: options.editorContext,
       operationMeta: options.operationMeta ?? "",
     }),
   });
@@ -44,7 +43,5 @@ export async function getToolDefinitions(
   if (!response.ok) {
     throw new Error(`Failed to fetch tools: ${response.statusText}`);
   }
-  const responseData = await response.json();
-
-  return responseData.tools;
+  return response.json();
 }

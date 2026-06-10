@@ -4,17 +4,13 @@ import {
   gateway,
   ToolLoopAgent,
   tool,
+  type UIMessage,
   wrapLanguageModel,
 } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { executeCommentsTool } from "@/lib/server-ai-toolkit/execute-comments-tool";
 import { getCommentsToolDefinitions } from "@/lib/server-ai-toolkit/get-comments-tool-definitions";
-import { getSchemaAwarenessPrompt } from "@/lib/server-ai-toolkit/get-schema-awareness-prompt";
-import {
-  getSessionIdFromConversationHistory,
-  type ServerAiToolkitMessage,
-} from "@/lib/server-ai-toolkit/session-id";
 
 export async function POST(req: Request) {
   // Rate limiting
@@ -34,14 +30,13 @@ export async function POST(req: Request) {
 
   const {
     messages,
-    schemaAwarenessData,
+    editorContext,
     documentId,
   }: {
-    messages: ServerAiToolkitMessage[];
-    schemaAwarenessData: unknown;
+    messages: UIMessage[];
+    editorContext: unknown;
     documentId: string;
   } = await req.json();
-  let sessionId = getSessionIdFromConversationHistory(messages);
 
   const tiptapCloudDocumentServerId =
     process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
@@ -61,19 +56,14 @@ export async function POST(req: Request) {
     apiSecret: documentManagementApiSecret,
     userId: "ai-assistant",
     appId: tiptapCloudDocumentServerId,
-    sessionId,
   };
 
   // Get tool definitions from the Server AI Toolkit API (with comments tools)
-  const toolDefinitions = await getCommentsToolDefinitions(schemaAwarenessData);
-
-  // Get schema awareness prompt from the Server AI Toolkit API
-  const schemaAwarenessPrompt =
-    await getSchemaAwarenessPrompt(schemaAwarenessData);
+  const toolsResponse = await getCommentsToolDefinitions(editorContext);
 
   // Convert API tool definitions to AI SDK tool format
   const tools = Object.fromEntries(
-    toolDefinitions.map((toolDef) => [
+    toolsResponse.tools.map((toolDef) => [
       toolDef.name,
       tool({
         description: toolDef.description,
@@ -83,13 +73,9 @@ export async function POST(req: Request) {
             const result = await executeCommentsTool(
               toolDef.name,
               input,
-              schemaAwarenessData,
-              {
-                ...commentsOptions,
-                sessionId,
-              },
+              editorContext,
+              commentsOptions,
             );
-            sessionId = result.sessionId;
 
             return result.output;
           } catch (error) {
@@ -119,14 +105,12 @@ Rule: In your responses, do not give any details of the HTML content of the docu
 Rule: In your responses, never mention the hashes of the document.
 Rule: Do not add comments to empty paragraphs. When told to add comments to a paragraph, if the paragraph is empty, add the comment to a nearby non-empty paragraph.
 
-${schemaAwarenessPrompt}`,
+${toolsResponse.prompt}`,
     tools,
   });
 
   return createAgentUIStreamResponse({
     agent,
-    messageMetadata: ({ part }) =>
-      part.type === "finish" && sessionId ? { sessionId } : undefined,
     uiMessages: messages,
   });
 }
