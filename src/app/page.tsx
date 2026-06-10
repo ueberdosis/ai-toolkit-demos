@@ -186,6 +186,12 @@ const CATEGORIES = [
             href: "/server-ai-stream-tool-chatbot",
           },
           {
+            title: "Server Stream Tool + Tracked Changes",
+            description:
+              "Streaming /stream-tool in tracked-changes mode: the AI edit types into a live red/green suggestion you can accept or reject",
+            href: "/server-ai-stream-tool-chatbot-tracked-changes",
+          },
+          {
             title: "Server Selection Awareness",
             description:
               "Selection-aware server agent that edits only the active selection",
