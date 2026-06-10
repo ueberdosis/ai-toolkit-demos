@@ -27,14 +27,14 @@ importers:
         specifier: ^3.4.4
         version: 3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
       '@tiptap-pro/ai-toolkit':
-        specifier: 0.10.2
-        version: 0.10.2(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+        specifier: 0.11.0
+        version: 0.11.0(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
       '@tiptap-pro/ai-toolkit-ai-sdk':
-        specifier: 0.10.2
-        version: 0.10.2(zod@4.3.6)
+        specifier: 0.11.0
+        version: 0.11.0(zod@4.3.6)
       '@tiptap-pro/ai-toolkit-tool-definitions':
-        specifier: 0.10.2
-        version: 0.10.2
+        specifier: 0.11.0
+        version: 0.11.0
       '@tiptap-pro/extension-comments':
         specifier: ^3.8.4
         version: 3.8.4(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(@hocuspocus/transformer@3.4.3(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(yjs@13.6.30))(@tiptap-pro/provider@3.8.4(@hocuspocus/provider@3.4.4(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(lib0@0.2.117)(yjs@13.6.30))(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
@@ -695,15 +695,15 @@ packages:
   '@tailwindcss/postcss@4.3.0':
     resolution: {integrity: sha512-Jm05Tjx+9yCLGv5qw1c+84Psds8MnyrEQYCB+FFk2lgGiUjlRqdxke4mVTuYrj2xnVZqKim2Apr5ySuQRYAw/w==}
 
-  '@tiptap-pro/ai-toolkit-ai-sdk@0.10.2':
-    resolution: {integrity: sha512-JgappigxlWVUsb+lpkGACX5Cd4XAurEeW4hK04l4mN591LpE53vCMM4R1KXt1lYNLlEUalaRnYaBRU7YUaL7zw==}
+  '@tiptap-pro/ai-toolkit-ai-sdk@0.11.0':
+    resolution: {integrity: sha512-mpUXIJfs2S7xiqk//ZiPh/Tm0RD+5jhf93C8d1fMAwoAAX3gT9NNJfgv1cHlYtfhiwp3PplyNp+FdQdI7gzI7Q==}
 
-  '@tiptap-pro/ai-toolkit-tool-definitions@0.10.2':
-    resolution: {integrity: sha512-2QZQu8G024xln+L+nkvyBdo1RexSBsnj/VboC+6/iApsE2+K0lr52qvlElrcTCOktXY3/eyMrwoyehqU4j/lTg==}
+  '@tiptap-pro/ai-toolkit-tool-definitions@0.11.0':
+    resolution: {integrity: sha512-EBVbLkhtxesaVvmoaxm65nKGFQ0344de8CMSztK7xtAuIB1V+Yqk4BAYT1NifGNa8C6gyFw3TxCgHJPoT46dGw==}
     hasBin: true
 
-  '@tiptap-pro/ai-toolkit@0.10.2':
-    resolution: {integrity: sha512-K8WP61WK6+ScqgsTE4nT5njpZI/qZJTJlzrosW8RcBgDidHhHRGB43Z2wMH6Hnaoqwochy5BsGIkzTsBV7kYGg==}
+  '@tiptap-pro/ai-toolkit@0.11.0':
+    resolution: {integrity: sha512-r3GuqqtkP65/r1zZ1PuXFCF3genGPG+i/WE3MpNMNjPkEzRmMtxTA+Aw1wURmCRfrOuuHrM/VJiWMz1g7y4zHQ==}
     peerDependencies:
       '@tiptap/core': ^3.12.0
       '@tiptap/pm': ^3.12.0
@@ -1853,19 +1853,19 @@ snapshots:
       postcss: 8.5.15
       tailwindcss: 4.3.0
 
-  '@tiptap-pro/ai-toolkit-ai-sdk@0.10.2(zod@4.3.6)':
+  '@tiptap-pro/ai-toolkit-ai-sdk@0.11.0(zod@4.3.6)':
     dependencies:
-      '@tiptap-pro/ai-toolkit-tool-definitions': 0.10.2
+      '@tiptap-pro/ai-toolkit-tool-definitions': 0.11.0
       ai: 6.0.138(zod@4.3.6)
     transitivePeerDependencies:
       - zod
 
-  '@tiptap-pro/ai-toolkit-tool-definitions@0.10.2':
+  '@tiptap-pro/ai-toolkit-tool-definitions@0.11.0':
     dependencies:
       commander: 14.0.3
       zod: 4.3.6
 
-  '@tiptap-pro/ai-toolkit@0.10.2(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
+  '@tiptap-pro/ai-toolkit@0.11.0(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
       '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
       '@tiptap/pm': 3.22.5
