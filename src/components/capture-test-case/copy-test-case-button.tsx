@@ -96,8 +96,14 @@ export function CopyTestCaseButton({
     setTimeout(() => setFeedback(null), 1500);
   };
 
-  // Surface the button only once the run has finished and produced something to copy.
-  if (!editor || status !== "ready" || toolCalls.length === 0) {
+  // Dev-only tool — hidden in production builds, and only shown once a run has
+  // finished and produced something to copy.
+  if (
+    process.env.NODE_ENV === "production" ||
+    !editor ||
+    status !== "ready" ||
+    toolCalls.length === 0
+  ) {
     return null;
   }
 
