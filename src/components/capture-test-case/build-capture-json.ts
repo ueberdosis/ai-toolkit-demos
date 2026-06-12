@@ -41,7 +41,8 @@ function copyHashes(into: PmNode | undefined, from: PmNode | undefined): void {
     return;
   }
   const hash = from.attrs?._hash;
-  if (typeof hash === "string" && hash.length > 0 && into.attrs) {
+  if (typeof hash === "string" && hash.length > 0) {
+    into.attrs ??= {};
     into.attrs._hash = hash;
   }
   const intoContent = into.content ?? [];
@@ -62,22 +63,27 @@ function withReplayHashes(
   documentBefore: unknown,
   toolCalls: CaptureToolCall[],
 ): unknown {
-  const read = toolCalls.find(
+  if (!documentBefore || typeof documentBefore !== "object") {
+    return documentBefore;
+  }
+  const reads = toolCalls.filter(
     (call) =>
       call.toolName === "tiptapRead" &&
       Array.isArray((call.output as TiptapReadOutput | null)?.content),
   );
-  if (!read || !documentBefore || typeof documentBefore !== "object") {
+  if (reads.length === 0) {
     return documentBefore;
   }
 
-  const output = read.output as TiptapReadOutput;
   const before = deepClone(documentBefore) as PmNode;
   const beforeNodes = before.content ?? [];
-  const readNodes = output.content ?? [];
-  const offset = output.nodeRange?.[0] ?? 0;
-  for (let i = 0; i < readNodes.length; i += 1) {
-    copyHashes(beforeNodes[offset + i], readNodes[i]);
+  for (const read of reads) {
+    const output = read.output as TiptapReadOutput;
+    const readNodes = output.content ?? [];
+    const offset = output.nodeRange?.[0] ?? 0;
+    for (let i = 0; i < readNodes.length; i += 1) {
+      copyHashes(beforeNodes[offset + i], readNodes[i]);
+    }
   }
   return before;
 }

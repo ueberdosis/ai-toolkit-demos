@@ -60,20 +60,13 @@ export function CopyTestCaseButton({
   className,
 }: CopyTestCaseButtonProps) {
   const beforeRef = useRef<unknown>(null);
-  const [afterDoc, setAfterDoc] = useState<unknown>(null);
-  const [copied, setCopied] = useState(false);
+  const [feedback, setFeedback] = useState<"copied" | "failed" | null>(null);
   const prevStatusRef = useRef(status);
 
-  // Snapshot the document when a run starts (before edits) and when it ends (after edits sync back).
+  // Snapshot the document when a run starts, before the AI touches it.
   useEffect(() => {
-    const previous = prevStatusRef.current;
-    if (editor) {
-      if (previous === "ready" && status !== "ready") {
-        beforeRef.current = editor.getJSON();
-        setAfterDoc(null);
-      } else if (previous !== "ready" && status === "ready") {
-        setAfterDoc(editor.getJSON());
-      }
+    if (editor && prevStatusRef.current === "ready" && status !== "ready") {
+      beforeRef.current = editor.getJSON();
     }
     prevStatusRef.current = status;
   }, [status, editor]);
@@ -84,16 +77,23 @@ export function CopyTestCaseButton({
     if (!editor) {
       return;
     }
+    // documentAfter is read here, on click — by now the collab/Yjs sync has
+    // settled, which avoids racing the AI SDK stream end against the editor.
     const json = buildCaptureJson({
       documentBefore: beforeRef.current,
-      documentAfter: afterDoc ?? editor.getJSON(),
+      documentAfter: editor.getJSON(),
       editorContext: getEditorContext(editor),
       toolCalls,
       requestConfig,
     });
-    await navigator.clipboard.writeText(json);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    try {
+      await navigator.clipboard.writeText(json);
+      setFeedback("copied");
+    } catch (error) {
+      console.error("Failed to copy test case to clipboard:", error);
+      setFeedback("failed");
+    }
+    setTimeout(() => setFeedback(null), 1500);
   };
 
   // Surface the button only once the run has finished and produced something to copy.
@@ -111,7 +111,11 @@ export function CopyTestCaseButton({
         "shrink-0 cursor-pointer rounded-lg border-none bg-[var(--gray-2)] px-3 py-2 text-sm font-medium text-[var(--black)] transition-colors hover:bg-[var(--gray-3)] hover:text-[var(--black-contrast)]"
       }
     >
-      {copied ? "Copied!" : `Copy case (${toolCalls.length})`}
+      {feedback === "copied"
+        ? "Copied!"
+        : feedback === "failed"
+          ? "Copy failed"
+          : `Copy case (${toolCalls.length})`}
     </button>
   );
 }
