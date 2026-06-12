@@ -10,6 +10,7 @@ import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
+import { CopyTestCaseButton } from "@/components/capture-test-case/copy-test-case-button";
 import { ChatSidebar } from "../../components/chat-sidebar";
 import { getCollabConfig } from "./actions";
 
@@ -114,6 +115,13 @@ export default function Page() {
         onInputChange={setInput}
         onSubmit={handleSubmit}
         isLoading={isLoading}
+        inputAction={
+          <CopyTestCaseButton
+            editor={editor}
+            messages={messages}
+            status={status}
+          />
+        }
       />
     </div>
   );
