@@ -1,23 +1,15 @@
 "use client";
 
-import { Collaboration } from "@tiptap/extension-collaboration";
-import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
 import { Table } from "@tiptap/extension-table";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
-import { EditorContent, useEditor } from "@tiptap/react";
-import {
-  getSchemaAwarenessData,
-  ServerAiToolkit,
-} from "@tiptap/server-ai-toolkit";
+import { EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import { Loader2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { v4 as uuid } from "uuid";
-import * as Y from "yjs";
-import { getCollabConfig } from "../server-ai-agent-chatbot/actions";
+import { ChatSidebar, type Message } from "@/components/chat-sidebar";
+import { useStreamToolEditor } from "@/lib/use-stream-tool-editor";
 
 const INITIAL_CONTENT = `<h1>The Quiet Rise of Tiptap</h1>
 <p>Three years ago, the idea of building a production rich-text editor from scratch felt like a fringe experiment. Today, kitchen-table prototypes and weekend hacks turn into shippable Tiptap-based editors in days, with extensions composable enough that small teams can match what used to take a full SaaS suite.</p>
@@ -27,198 +19,81 @@ const INITIAL_CONTENT = `<h1>The Quiet Rise of Tiptap</h1>
 <p>The future is unlikely to be a single dominant editor framework, nor a return to building straight on raw ProseMirror.</p>`;
 
 export default function Page() {
-  const [doc] = useState(() => new Y.Doc());
-  const [documentId] = useState(
-    () => `server-ai-stream-tool-chatbot/${uuid()}`,
-  );
-  const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
-  const [task, setTask] = useState(
+  const { editor, isLoading, editDocument } = useStreamToolEditor({
+    slug: "server-ai-stream-tool-chatbot",
+    apiRoute: "/api/server-ai-stream-tool-chatbot",
+    initialContent: INITIAL_CONTENT,
+    extensions: [
+      StarterKit.configure({ undoRedo: false }),
+      // `resizable: true` enables the `colwidth` attr on tableCell, used to
+      // verify streaming preserves array-valued attrs.
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableHeader,
+      TableCell,
+    ],
+  });
+
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState(
     "Replace the last paragraph with a 2-sentence story about hybrid work culture",
   );
-  const [isLoading, setIsLoading] = useState(false);
 
-  const editor = useEditor(
-    {
-      immediatelyRender: false,
-      extensions: [
-        StarterKit.configure({ undoRedo: false }),
-        // `resizable: true` enables the `colwidth` attr on tableCell — used
-        // to verify streaming preserves array-valued attrs.
-        Table.configure({ resizable: true }),
-        TableRow,
-        TableHeader,
-        TableCell,
-        Collaboration.configure({ document: doc }),
-        ...(provider
-          ? [
-              CollaborationCaret.configure({
-                provider,
-                user: { name: "You", color: "#0EA5E9" },
-                // Inline-styled caret so the demo doesn't depend on the
-                // extension's stylesheet shipping with the demo build.
-                render: (user) => {
-                  const cursor = document.createElement("span");
-                  cursor.style.cssText = `
-                    border-left: 2px solid ${user.color};
-                    border-right: 2px solid ${user.color};
-                    margin-left: -1px;
-                    margin-right: -1px;
-                    pointer-events: none;
-                    position: relative;
-                    word-break: normal;
-                    height: 1em;
-                    display: inline-block;
-                    vertical-align: text-bottom;
-                  `;
-                  const label = document.createElement("div");
-                  label.style.cssText = `
-                    background-color: ${user.color};
-                    border-radius: 3px 3px 3px 0;
-                    color: white;
-                    font-size: 12px;
-                    font-weight: 600;
-                    left: -2px;
-                    line-height: normal;
-                    padding: 1px 4px;
-                    position: absolute;
-                    top: -1.4em;
-                    user-select: none;
-                    white-space: nowrap;
-                  `;
-                  label.textContent = user.name as string;
-                  cursor.appendChild(label);
-                  return cursor;
-                },
-              }),
-            ]
-          : []),
-        ServerAiToolkit,
-      ],
-    },
-    [provider],
-  );
+  const handleSubmit = async (e: SubmitEvent) => {
+    e.preventDefault();
+    const task = input.trim();
+    if (!task || isLoading || !editor) return;
 
-  // Capture editor in a ref so the provider effect doesn't tear down the
-  // websocket every time the editor instance recreates after `provider`
-  // changes.
-  const editorRef = useRef(editor);
-  editorRef.current = editor;
-
-  useEffect(() => {
-    let cancelled = false;
-    let createdProvider: TiptapCollabProvider | null = null;
-
-    const setupProvider = async () => {
-      try {
-        const { token, appId, collabBaseUrl } = await getCollabConfig(
-          "user-1",
-          documentId,
-        );
-        if (cancelled) return;
-        createdProvider = new TiptapCollabProvider({
-          ...(collabBaseUrl ? { baseUrl: collabBaseUrl } : { appId }),
-          name: documentId,
-          token,
-          document: doc,
-          user: "user-1",
-          onConnect() {
-            editorRef.current?.commands.setContent(INITIAL_CONTENT);
-          },
-        });
-        setProvider(createdProvider);
-      } catch (error) {
-        console.error("Failed to setup collaboration:", error);
-      }
-    };
-
-    setupProvider();
-
-    return () => {
-      cancelled = true;
-      createdProvider?.destroy();
-      setProvider(null);
-    };
-  }, [documentId, doc]);
-
-  const editDocument = async () => {
-    if (!editor || !provider) return;
-    setIsLoading(true);
+    setMessages((prev) => [
+      ...prev,
+      { id: uuid(), role: "user", parts: [{ type: "text", text: task }] },
+    ]);
+    setInput("");
 
     try {
-      const response = await fetch("/api/server-ai-stream-tool-chatbot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          task: task.trim(),
-          schemaAwarenessData: getSchemaAwarenessData(editor),
-          documentId,
-          userId: "ai-assistant",
-        }),
-      });
-
-      if (!response.ok || !response.body) {
-        throw new Error(`HTTP error ${response.status}`);
-      }
-
-      // Drain the NDJSON response to keep the connection open until the
-      // AI server signals completion. The editor itself updates via the
-      // Collaboration extension's Y.Doc sync as the AI server applies
-      // each StreamAction — we don't need to do anything with the events
-      // on the client.
-      const reader = response.body.getReader();
-      while (true) {
-        const { done } = await reader.read();
-        if (done) break;
-      }
-    } catch (error) {
-      console.error("Stream edit failed:", error);
-    } finally {
-      setIsLoading(false);
+      await editDocument(task);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: uuid(),
+          role: "assistant",
+          parts: [
+            { type: "text", text: "Done. Applied your edit to the document." },
+          ],
+        },
+      ]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: uuid(),
+          role: "assistant",
+          parts: [
+            {
+              type: "text",
+              text: "Something went wrong applying that edit. Please try again.",
+            },
+          ],
+        },
+      ]);
     }
   };
 
   if (!editor) return null;
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex flex-col sm:flex-row sm:items-start gap-2 border-b border-slate-200 bg-white px-4 py-3">
-        <textarea
-          value={task}
-          onChange={(event) => {
-            setTask(event.target.value);
-            event.target.style.height = "auto";
-            event.target.style.height = `${event.target.scrollHeight}px`;
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              if (!isLoading && task.trim() && provider) {
-                editDocument();
-              }
-            }
-          }}
-          placeholder="Enter editing task... (Shift+Enter for new line)"
-          rows={1}
-          className="flex-1 resize-none border border-[var(--gray-3)] rounded-lg px-3 py-1.5 text-sm focus:border-[var(--purple)] focus:outline-none min-h-16 sm:min-h-0"
-        />
-        <button
-          type="button"
-          onClick={editDocument}
-          disabled={isLoading || !task.trim() || !provider}
-          className="inline-flex items-center justify-center gap-1.5 rounded-lg border-none bg-[var(--gray-2)] text-[var(--black)] px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--gray-3)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] transition-all duration-200 cursor-pointer disabled:cursor-not-allowed w-full sm:w-auto"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="animate-spin" size={14} /> Streaming...
-            </>
-          ) : (
-            "Edit Document"
-          )}
-        </button>
-      </div>
+    <div className="flex h-screen">
       <div className="flex-1 overflow-y-auto">
         <EditorContent editor={editor} />
       </div>
+      <ChatSidebar
+        messages={messages}
+        input={input}
+        onInputChange={setInput}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+        placeholder="Ask the AI to edit the document..."
+      />
     </div>
   );
 }

@@ -10,7 +10,7 @@ import {
 } from "react";
 import { ChatMessage } from "./chat-message";
 
-interface Message {
+export interface Message {
   id: string;
   role: "system" | "user" | "assistant";
   parts: Array<{ type: string; text?: string }>;
