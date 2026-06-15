@@ -4,6 +4,11 @@ import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { getTiptapCloudAiJwtToken } from "@/lib/server-ai-toolkit/get-tiptap-cloud-ai-jwt-token";
 
+// Duplex request-body streaming requires the Node.js runtime (not Edge). Raise the
+// function timeout so a long, paced AI edit isn't cut off by the platform default.
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
 /**
  * LLM-driven bridge to the AI server's `/stream-tool` endpoint.
  *
