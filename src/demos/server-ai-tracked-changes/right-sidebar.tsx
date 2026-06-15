@@ -14,6 +14,7 @@ type RightSidebarProps = {
   isLoading: boolean;
   trackedPanel: ReactNode;
   commentsPanel?: ReactNode;
+  inputAction?: ReactNode;
 };
 
 const allPanels: Array<{ id: PanelId; label: string }> = [
@@ -32,6 +33,7 @@ export function RightSidebar({
   isLoading,
   trackedPanel,
   commentsPanel,
+  inputAction,
 }: RightSidebarProps) {
   // Hide the Comments tab when the demo provides no comments panel (e.g. the
   // streaming tracked-changes demo, where the stream does not create threads).
@@ -76,6 +78,7 @@ export function RightSidebar({
             }
             isLoading={isLoading}
             placeholder="Ask the AI to edit the document..."
+            inputAction={inputAction}
           />
         )}
         {activePanel === "tracked" && trackedPanel}

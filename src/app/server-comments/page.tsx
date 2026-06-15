@@ -18,6 +18,7 @@ import { DefaultChatTransport } from "ai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
+import { CopyTestCaseButton } from "@/components/capture-test-case/copy-test-case-button";
 import { ChatSidebar } from "../../components/chat-sidebar";
 import { fromBase64String } from "../../demos/comments/demo-setup";
 import { initialContent } from "../../demos/comments/initialContent";
@@ -317,6 +318,13 @@ export default function Page() {
             onSubmit={handleSubmit}
             isLoading={isLoading}
             placeholder="Ask the AI to add comments..."
+            inputAction={
+              <CopyTestCaseButton
+                editor={editor}
+                messages={messages}
+                status={status}
+              />
+            }
           />
         </div>
       </div>
