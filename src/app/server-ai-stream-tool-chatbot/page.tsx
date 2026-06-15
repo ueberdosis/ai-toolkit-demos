@@ -7,12 +7,12 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
 import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import {
   getSchemaAwarenessData,
   ServerAiToolkit,
-} from "@tiptap-pro/server-ai-toolkit";
+} from "@tiptap/server-ai-toolkit";
+import StarterKit from "@tiptap/starter-kit";
+import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";

@@ -7,16 +7,16 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
 import { EditorContent, useEditor } from "@tiptap/react";
+import {
+  getSchemaAwarenessData,
+  ServerAiToolkit,
+} from "@tiptap/server-ai-toolkit";
 import StarterKit from "@tiptap/starter-kit";
 import {
   findSuggestions,
   TrackedChanges,
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import {
-  getSchemaAwarenessData,
-  ServerAiToolkit,
-} from "@tiptap-pro/server-ai-toolkit";
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -59,9 +59,12 @@ export default function Page() {
       immediatelyRender: false,
       extensions: [
         StarterKit.configure({ undoRedo: false }),
-        // `resizable: true` enables the `colwidth` attr on tableCell — used
-        // to verify streaming preserves array-valued attrs.
-        Table.configure({ resizable: true }),
+        // `resizable: false` keeps the default table render path. With
+        // `resizable: true`, prosemirror-tables' columnResizing plugin installs a
+        // custom `TableView` NodeView that bypasses the extension's `renderHTML`,
+        // so a node-level tracked-change suggestion's `data-suggestion-*` attrs
+        // never reach the DOM and the table highlight is lost.
+        Table.configure({ resizable: false }),
         TableRow,
         TableHeader,
         TableCell,
