@@ -26,6 +26,7 @@ import {
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { getCollabConfig } from "@/app/server-ai-agent-chatbot/actions";
+import { CopyTestCaseButton } from "@/components/capture-test-case/copy-test-case-button";
 import { SuggestionReviewTooltip } from "@/components/suggestion-review-tooltip";
 import { CommentsPanel } from "./comments-panel";
 import type { PanelId } from "./panel-id";
@@ -481,6 +482,14 @@ function TrackedChangesEditor({
         isLoading={isLoading}
         trackedPanel={trackedPanel}
         commentsPanel={commentsPanel}
+        inputAction={
+          <CopyTestCaseButton
+            editor={editor}
+            messages={messages}
+            status={status}
+            requestConfig={{ reviewOptions: { mode: "trackedChanges" } }}
+          />
+        }
       />
     </div>
   );

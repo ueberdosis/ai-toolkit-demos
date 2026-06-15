@@ -15,6 +15,7 @@ type RightSidebarProps = {
   isLoading: boolean;
   trackedPanel: ReactNode;
   commentsPanel: ReactNode;
+  inputAction?: ReactNode;
 };
 
 const panels: Array<{ id: PanelId; label: string }> = [
@@ -33,6 +34,7 @@ export function RightSidebar({
   isLoading,
   trackedPanel,
   commentsPanel,
+  inputAction,
 }: RightSidebarProps) {
   return (
     <aside className="flex h-screen w-[420px] shrink-0 flex-col border-l border-slate-200 bg-white">
@@ -67,6 +69,7 @@ export function RightSidebar({
             }
             isLoading={isLoading}
             placeholder="Ask the AI to edit the document..."
+            inputAction={inputAction}
           />
         )}
         {activePanel === "tracked" && trackedPanel}

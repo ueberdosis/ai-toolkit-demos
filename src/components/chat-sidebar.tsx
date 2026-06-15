@@ -26,6 +26,7 @@ interface ChatSidebarProps {
   children?: ReactNode;
   disabled?: boolean;
   embedded?: boolean;
+  inputAction?: ReactNode;
 }
 
 function extractContent(parts: Array<{ type: string; text?: string }>): string {
@@ -139,6 +140,7 @@ function InputArea({
   isLoading,
   placeholder,
   disabled,
+  inputAction,
 }: {
   input: string;
   onInputChange: (value: string) => void;
@@ -146,6 +148,7 @@ function InputArea({
   isLoading: boolean;
   placeholder?: string;
   disabled?: boolean;
+  inputAction?: ReactNode;
 }) {
   const isDisabled = disabled || isLoading;
 
@@ -170,26 +173,29 @@ function InputArea({
           placeholder={placeholder ?? "Type a message..."}
           disabled={isDisabled}
         />
-        <button
-          type="submit"
-          disabled={isDisabled}
-          className="w-full mt-2 flex items-center justify-center gap-2 rounded-lg border-none px-4 py-2 text-sm font-medium bg-[var(--gray-2)] text-[var(--black)] hover:bg-[var(--gray-3)] hover:text-[var(--black-contrast)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] cursor-pointer disabled:cursor-default"
-          style={{
-            transition: "all 0.2s cubic-bezier(0.65, 0.05, 0.36, 1)",
-          }}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="animate-spin" size={16} />
-              Processing...
-            </>
-          ) : (
-            <>
-              <Send size={16} />
-              Send
-            </>
-          )}
-        </button>
+        <div className="mt-2 flex items-center gap-2">
+          <button
+            type="submit"
+            disabled={isDisabled}
+            className="flex-1 flex items-center justify-center gap-2 rounded-lg border-none px-4 py-2 text-sm font-medium bg-[var(--gray-2)] text-[var(--black)] hover:bg-[var(--gray-3)] hover:text-[var(--black-contrast)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] cursor-pointer disabled:cursor-default"
+            style={{
+              transition: "all 0.2s cubic-bezier(0.65, 0.05, 0.36, 1)",
+            }}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin" size={16} />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Send size={16} />
+                Send
+              </>
+            )}
+          </button>
+          {inputAction}
+        </div>
       </form>
     </div>
   );
@@ -205,6 +211,7 @@ export function ChatSidebar({
   children,
   disabled,
   embedded,
+  inputAction,
 }: ChatSidebarProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -220,6 +227,7 @@ export function ChatSidebar({
           isLoading={isLoading}
           placeholder={placeholder}
           disabled={disabled}
+          inputAction={inputAction}
         />
       </div>
     );
@@ -238,6 +246,7 @@ export function ChatSidebar({
           isLoading={isLoading}
           placeholder={placeholder}
           disabled={disabled}
+          inputAction={inputAction}
         />
       </aside>
 
@@ -287,6 +296,7 @@ export function ChatSidebar({
             isLoading={isLoading}
             placeholder={placeholder}
             disabled={disabled}
+            inputAction={inputAction}
           />
         </div>
       )}
