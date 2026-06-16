@@ -1,5 +1,12 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { gateway, streamText, tool, wrapLanguageModel } from "ai";
+import {
+  gateway,
+  stepCountIs,
+  streamText,
+  tool,
+  type UIMessage,
+  wrapLanguageModel,
+} from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { getTiptapCloudAiJwtToken } from "@/lib/server-ai-toolkit/get-tiptap-cloud-ai-jwt-token";
@@ -42,21 +49,34 @@ export async function POST(req: Request) {
   }
 
   const {
-    task,
-    schemaAwarenessData,
+    messages,
+    editorContext,
     documentId,
     userId,
   }: {
-    task: string;
-    schemaAwarenessData: unknown;
+    messages: UIMessage[];
+    editorContext: unknown;
     documentId: string;
     userId?: string;
   } = await req.json();
 
+  // Single-shot streaming edit: the task is the latest user message.
+  const lastUserMessage = [...messages]
+    .reverse()
+    .find((m) => m.role === "user");
+  const task =
+    lastUserMessage?.parts
+      ?.filter((p) => p.type === "text")
+      .map((p) => (p as { text: string }).text)
+      .join(" ")
+      .trim() ?? "";
+  // Internal alias: the rest of the route already speaks `schemaAwarenessData`.
+  const schemaAwarenessData = editorContext;
+
   if (!task || !schemaAwarenessData || !documentId) {
     return new Response(
       JSON.stringify({
-        error: "Missing required fields: task, schemaAwarenessData, documentId",
+        error: "Missing required fields: messages, editorContext, documentId",
       }),
       { status: 400, headers: { "Content-Type": "application/json" } },
     );
@@ -231,7 +251,7 @@ export async function POST(req: Request) {
 
   const llmResult = streamText({
     model,
-    system: `You are an expert editor that can edit rich text documents using the tiptapEdit tool. You will be given a document and a task; return one or more edit operations that complete the task.\n\n${toolsResponse.prompt}`,
+    system: `You are an expert editor that edits rich text documents using the tiptapEdit tool. You will be given a document and a task. Call tiptapEdit exactly once to make the edit, then reply with one short sentence confirming what you changed. Do not include document contents, hashes, or operation details in your reply.\n\n${toolsResponse.prompt}`,
     prompt: JSON.stringify({ content: documentContent, task }),
     tools: {
       tiptapEdit: tool({
@@ -276,36 +296,29 @@ export async function POST(req: Request) {
           controllerRef.current?.close();
           controllerRef.current = null;
         },
+        // Drive the /stream-tool bridge to completion and report a result so the
+        // useChat turn finishes. The edit reaches the editor via Y.Doc sync, not
+        // through this value.
+        execute: async () => {
+          const upstream = await upstreamPromise;
+          await upstream.text();
+          return { ok: upstream.ok };
+        },
       }),
     },
-    toolChoice: "required",
+    // Step 0: force the edit so the typing effect always happens. Step 1: forbid
+    // tools so the model writes a short confirmation sentence for the chat.
+    stopWhen: stepCountIs(2),
+    prepareStep: ({ stepNumber }) => ({
+      toolChoice: stepNumber === 0 ? "required" : "none",
+    }),
     providerOptions: {
       openai: { reasoningEffort: "low" },
     },
   });
 
-  // 5) Drain the LLM stream in the background so the callbacks fire.
-  void (async () => {
-    try {
-      for await (const _event of llmResult.fullStream) {
-        // No-op — callbacks above do the work.
-      }
-    } catch (err) {
-      console.error("[stream-tool-chatbot] LLM stream error", err);
-    } finally {
-      if (!forwardedEnd) {
-        controllerRef.current?.close();
-        controllerRef.current = null;
-      }
-    }
-  })();
-
-  const upstream = await upstreamPromise;
-  return new Response(upstream.body, {
-    status: upstream.status,
-    headers: {
-      "Content-Type": "application/x-ndjson",
-      "Cache-Control": "no-transform",
-    },
-  });
+  // Return a UI message stream so the client uses `useChat`, exactly like the
+  // non-streaming server demos. The tiptapEdit tool's `execute` drives the
+  // /stream-tool bridge; the streamed edits reach the editor via Y.Doc sync.
+  return llmResult.toUIMessageStreamResponse();
 }

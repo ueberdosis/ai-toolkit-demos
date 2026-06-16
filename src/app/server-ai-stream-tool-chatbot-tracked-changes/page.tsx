@@ -1,16 +1,17 @@
 "use client";
 
+import { useChat } from "@ai-sdk/react";
 import { Table } from "@tiptap/extension-table";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
 import { EditorContent } from "@tiptap/react";
+import { getEditorContext } from "@tiptap/server-ai-toolkit";
 import StarterKit from "@tiptap/starter-kit";
 import { TrackedChanges } from "@tiptap-pro/extension-tracked-changes";
-import { type FormEvent, useState } from "react";
+import { DefaultChatTransport } from "ai";
+import { type FormEvent, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { v4 as uuid } from "uuid";
-import type { Message } from "@/components/chat-sidebar";
 import { SuggestionReviewTooltip } from "@/components/suggestion-review-tooltip";
 import type { PanelId } from "@/demos/server-ai-tracked-changes/panel-id";
 import { RightSidebar } from "@/demos/server-ai-tracked-changes/right-sidebar";
@@ -27,9 +28,9 @@ const INITIAL_CONTENT = `<h1>The Quiet Rise of Tiptap</h1>
 <p>The future is unlikely to be a single dominant editor framework, nor a return to building straight on raw ProseMirror.</p>`;
 
 export default function Page() {
-  const { editor, isLoading, editDocument } = useStreamToolEditor({
+  // The hook owns the Y.Doc, collab provider, editor, and the AI cursor.
+  const { editor, documentId } = useStreamToolEditor({
     slug: "server-ai-stream-tool-chatbot-tracked-changes",
-    apiRoute: "/api/server-ai-stream-tool-chatbot-tracked-changes",
     initialContent: INITIAL_CONTENT,
     extensions: [
       StarterKit.configure({ undoRedo: false }),
@@ -52,53 +53,34 @@ export default function Page() {
 
   const { suggestions, tooltipMount } = useSuggestionReview(editor);
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  // editorContext for the route, kept in a ref (AI SDK stale-closure, vercel/ai#7819).
+  const editorContext = editor ? getEditorContext(editor) : null;
+  const editorContextRef = useRef(editorContext);
+  editorContextRef.current = editorContext;
+
+  const { messages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/server-ai-stream-tool-chatbot-tracked-changes",
+      body: () => ({
+        editorContext: editorContextRef.current,
+        documentId,
+      }),
+    }),
+  });
+
   const [input, setInput] = useState(
     "Replace the last paragraph with a 2-sentence story about hybrid work culture",
   );
   const [activePanel, setActivePanel] = useState<PanelId>("chat");
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const isLoading = status !== "ready";
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const task = input.trim();
-    if (!task || isLoading || !editor) return;
-
-    setMessages((prev) => [
-      ...prev,
-      { id: uuid(), role: "user", parts: [{ type: "text", text: task }] },
-    ]);
-    setInput("");
-    setActivePanel("chat");
-
-    try {
-      await editDocument(task);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: uuid(),
-          role: "assistant",
-          parts: [
-            {
-              type: "text",
-              text: "Applied your edit as tracked changes. Review them in the Tracked changes tab.",
-            },
-          ],
-        },
-      ]);
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: uuid(),
-          role: "assistant",
-          parts: [
-            {
-              type: "text",
-              text: "Something went wrong applying that edit. Please try again.",
-            },
-          ],
-        },
-      ]);
+    if (input.trim() && !isLoading) {
+      sendMessage({ text: input });
+      setInput("");
+      setActivePanel("chat");
     }
   };
 
