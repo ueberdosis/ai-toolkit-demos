@@ -1,12 +1,5 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import {
-  gateway,
-  stepCountIs,
-  streamText,
-  tool,
-  type UIMessage,
-  wrapLanguageModel,
-} from "ai";
+import { gateway, stepCountIs, streamText, tool, type UIMessage, wrapLanguageModel } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { getTiptapCloudAiJwtToken } from "@/lib/server-ai-toolkit/get-tiptap-cloud-ai-jwt-token";
@@ -61,9 +54,7 @@ export async function POST(req: Request) {
   } = await req.json();
 
   // Single-shot streaming edit: the task is the latest user message.
-  const lastUserMessage = [...messages]
-    .reverse()
-    .find((m) => m.role === "user");
+  const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
   const task =
     lastUserMessage?.parts
       ?.filter((p) => p.type === "text")
@@ -82,8 +73,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const apiBaseUrl =
-    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
+  const apiBaseUrl = process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
   const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
   if (!appId) {
     return new Response(
@@ -130,17 +120,13 @@ export async function POST(req: Request) {
   } catch (err) {
     return new Response(
       JSON.stringify({
-        error: `Failed to fetch tools: ${
-          err instanceof Error ? err.message : String(err)
-        }`,
+        error: `Failed to fetch tools: ${err instanceof Error ? err.message : String(err)}`,
       }),
       { status: 502, headers: { "Content-Type": "application/json" } },
     );
   }
 
-  const tiptapEditTool = toolsResponse.tools.find(
-    (t) => t.name === "tiptapEdit",
-  );
+  const tiptapEditTool = toolsResponse.tools.find((t) => t.name === "tiptapEdit");
   if (!tiptapEditTool) {
     return new Response(
       JSON.stringify({
@@ -178,25 +164,19 @@ export async function POST(req: Request) {
     });
     if (!readResult.ok) {
       const errorText = await readResult.text();
-      throw new Error(
-        `${readResult.status} ${readResult.statusText}${errorText ? ` - ${errorText}` : ""}`,
-      );
+      throw new Error(`${readResult.status} ${readResult.statusText}${errorText ? ` - ${errorText}` : ""}`);
     }
     const readJson = (await readResult.json()) as {
       toolResult?: { success?: boolean; content?: unknown; error?: string };
     };
     if (!readJson.toolResult?.success || !readJson.toolResult.content) {
-      throw new Error(
-        readJson.toolResult?.error ?? "readDocument tool returned no content",
-      );
+      throw new Error(readJson.toolResult?.error ?? "readDocument tool returned no content");
     }
     documentContent = readJson.toolResult.content;
   } catch (err) {
     return new Response(
       JSON.stringify({
-        error: `readDocument tool failed: ${
-          err instanceof Error ? err.message : String(err)
-        }`,
+        error: `readDocument tool failed: ${err instanceof Error ? err.message : String(err)}`,
       }),
       { status: 502, headers: { "Content-Type": "application/json" } },
     );
@@ -219,15 +199,13 @@ export async function POST(req: Request) {
 
   const writeNdjson = (payload: Record<string, unknown>) => {
     if (!controllerRef.current) return;
-    controllerRef.current.enqueue(
-      encoder.encode(`${JSON.stringify(payload)}\n`),
-    );
+    controllerRef.current.enqueue(encoder.encode(`${JSON.stringify(payload)}\n`));
   };
 
   const upstreamPromise = fetch(`${apiBaseUrl}/toolkit/stream-tool`, {
     method: "POST",
-    // @ts-expect-error - undici requires `duplex: "half"` for streaming
-    // request bodies; the Web Fetch types don't include it yet.
+    // `duplex: "half"` is required when streaming a request body. Some fetch
+    // type definitions don't include it yet, so the init is cast below.
     duplex: "half",
     headers: {
       "Content-Type": "application/x-ndjson",
@@ -236,7 +214,7 @@ export async function POST(req: Request) {
       Origin: "http://localhost:3000",
     },
     body: ndjsonRequestBody,
-  });
+  } as RequestInit & { duplex: "half" });
 
   // 4) LLM call. The tool uses `tiptapEdit`'s canonical inputSchema (now
   //    strict — `content` items cannot carry operation keywords as their
@@ -245,8 +223,7 @@ export async function POST(req: Request) {
   //    which is what `/stream-tool` expects.
   const model = wrapLanguageModel({
     model: gateway("openai/gpt-5.4-mini"),
-    middleware:
-      process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
+    middleware: process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
   const llmResult = streamText({
@@ -256,9 +233,7 @@ export async function POST(req: Request) {
     tools: {
       tiptapEdit: tool({
         description: tiptapEditTool.description,
-        inputSchema: z.fromJSONSchema(
-          tiptapEditTool.inputSchema as z.core.JSONSchema.JSONSchema,
-        ),
+        inputSchema: z.fromJSONSchema(tiptapEditTool.inputSchema as z.core.JSONSchema.JSONSchema),
         // Force OpenAI structured-outputs constrained sampling so the
         // `inputSchema` enum on `content[].type` is enforced at token level
         // (not just sent as a hint). Without this flag, the LLM has been
