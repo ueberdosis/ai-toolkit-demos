@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 
 /**
- * Generates a JWT token from TIPTAP_CLOUD_AI_SECRET for authenticating with the AI Toolkit API
+ * Generates a JWT token for comments flows, including document management payload fields.
  */
-export function getTiptapCloudAiJwtToken(): string {
+export function getTiptapCloudAiJwtTokenComments(): string {
   const secret = process.env.TIPTAP_CLOUD_AI_SECRET;
   if (!secret) {
     throw new Error("TIPTAP_CLOUD_AI_SECRET environment variable is not set");

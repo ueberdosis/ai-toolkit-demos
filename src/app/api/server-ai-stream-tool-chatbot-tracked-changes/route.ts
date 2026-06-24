@@ -9,7 +9,7 @@ import {
 } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
-import { getTiptapCloudAiJwtToken } from "@/lib/server-ai-toolkit/get-tiptap-cloud-ai-jwt-token";
+import { getTiptapCloudAiJwtTokenStreaming } from "@/lib/server-ai-toolkit/get-tiptap-cloud-ai-jwt-token-streaming";
 
 // Duplex request-body streaming requires the Node.js runtime (not Edge). Raise the
 // function timeout so a long, paced AI edit isn't cut off by the platform default.
@@ -109,7 +109,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
+        Authorization: `Bearer ${getTiptapCloudAiJwtTokenStreaming()}`,
         "X-App-Id": appId,
         Origin: "http://localhost:3000",
       },
@@ -157,7 +157,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
+        Authorization: `Bearer ${getTiptapCloudAiJwtTokenStreaming()}`,
         "X-App-Id": appId,
         Origin: "http://localhost:3000",
       },
@@ -222,17 +222,17 @@ export async function POST(req: Request) {
 
   const upstreamPromise = fetch(`${apiBaseUrl}/toolkit/stream-tool`, {
     method: "POST",
-    // @ts-expect-error - undici requires `duplex: "half"` for streaming
-    // request bodies; the Web Fetch types don't include it yet.
+    // `duplex: "half"` is required when streaming a request body. Some fetch
+    // type definitions don't include it yet, so the init is cast below.
     duplex: "half",
     headers: {
       "Content-Type": "application/x-ndjson",
-      Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
+      Authorization: `Bearer ${getTiptapCloudAiJwtTokenStreaming()}`,
       "X-App-Id": appId,
       Origin: "http://localhost:3000",
     },
     body: ndjsonRequestBody,
-  });
+  } as RequestInit & { duplex: "half" });
 
   // 4) LLM call. The tool uses `tiptapEdit`'s canonical inputSchema (now
   //    strict — `content` items cannot carry operation keywords as their
