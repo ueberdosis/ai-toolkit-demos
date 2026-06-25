@@ -38,24 +38,9 @@ export async function POST(req: Request) {
     documentId: string;
   } = await req.json();
 
-  const tiptapCloudDocumentServerId =
-    process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
-  const documentManagementApiSecret =
-    process.env.TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET;
-
-  if (!tiptapCloudDocumentServerId) {
-    throw new Error("Missing TIPTAP_CLOUD_DOCUMENT_SERVER_ID");
-  }
-
-  if (!documentManagementApiSecret) {
-    throw new Error("Missing TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET");
-  }
-
   const commentsOptions = {
     documentId,
-    apiSecret: documentManagementApiSecret,
     userId: "ai-assistant",
-    appId: tiptapCloudDocumentServerId,
   };
 
   // Get tool definitions from the Server AI Toolkit API (with comments tools)
@@ -105,7 +90,7 @@ Rule: In your responses, do not give any details of the HTML content of the docu
 Rule: In your responses, never mention the hashes of the document.
 Rule: Do not add comments to empty paragraphs. When told to add comments to a paragraph, if the paragraph is empty, add the comment to a nearby non-empty paragraph.
 
-${toolsResponse.prompt}`,
+${toolsResponse.systemPrompt}`,
     tools,
   });
 

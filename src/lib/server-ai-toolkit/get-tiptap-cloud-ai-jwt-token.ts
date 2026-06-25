@@ -1,20 +1,48 @@
 import jwt from "jsonwebtoken";
 
+type TiptapAccessPermission = {
+  action: "AI:Toolkit" | "Documents:Write";
+  resource: string;
+};
+
+export interface TiptapAccessTokenOptions {
+  documentId?: string;
+}
+
 /**
- * Generates a JWT token from TIPTAP_CLOUD_AI_SECRET for authenticating with the AI Toolkit API
+ * Generates a Tiptap Access Control JWT for authenticating with the Server AI Toolkit API.
  */
-export function getTiptapCloudAiJwtToken(): string {
-  const secret = process.env.TIPTAP_CLOUD_AI_SECRET;
-  if (!secret) {
-    throw new Error("TIPTAP_CLOUD_AI_SECRET environment variable is not set");
+export function getTiptapCloudAiJwtToken(
+  options: TiptapAccessTokenOptions = {},
+): string {
+  const privateKey = process.env.TIPTAP_AUTH_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const environmentId = process.env.TIPTAP_AUTH_ENVIRONMENT_ID;
+
+  if (!privateKey) {
+    throw new Error("TIPTAP_AUTH_PRIVATE_KEY environment variable is not set");
   }
 
-  const payload = {
-    experimental_document_server_id:
-      process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID,
-    experimental_document_server_management_api_secret:
-      process.env.TIPTAP_CLOUD_DOCUMENT_MANAGEMENT_API_SECRET,
-  };
+  if (!environmentId) {
+    throw new Error(
+      "TIPTAP_AUTH_ENVIRONMENT_ID environment variable is not set",
+    );
+  }
 
-  return jwt.sign(payload, secret, { expiresIn: "1h" });
+  const permissions: TiptapAccessPermission[] = [
+    { action: "AI:Toolkit", resource: "*" },
+  ];
+
+  if (options.documentId) {
+    permissions.push({
+      action: "Documents:Write",
+      resource: options.documentId,
+    });
+  }
+
+  return jwt.sign({ permissions }, privateKey, {
+    algorithm: "ES256",
+    audience: options.documentId ? ["AI", "Documents"] : ["AI"],
+    expiresIn: "30m",
+    issuer: environmentId,
+  });
 }

@@ -16,41 +16,46 @@ export async function executeCommentsTool(
   document?: unknown;
 }> {
   const apiBaseUrl =
-    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
-  const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
+    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
 
-  if (!appId) {
-    throw new Error("Missing TIPTAP_CLOUD_AI_APP_ID");
-  }
-
-  const response = await fetch(`${apiBaseUrl}/toolkit/execute-tool`, {
+  const response = await fetch(`${apiBaseUrl}/v4/ai/toolkit/execute-tool`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${getTiptapCloudAiJwtTokenComments()}`,
-      "X-App-Id": appId,
-      // Set allowed origins to avoid CORS errors (due to the setup in Tiptap Cloud)
-      Origin: "http://localhost:3000",
+      Authorization: `Bearer ${getTiptapCloudAiJwtTokenComments(
+        commentsOptions.documentId,
+      )}`,
     },
     body: JSON.stringify({
-      toolName,
-      input,
-      // document,
       editorContext,
-      experimental_documentOptions: {
-        documentId: commentsOptions.documentId,
-        userId: commentsOptions.userId,
+      document: {
+        type: "cloud",
+        id: commentsOptions.documentId,
       },
-      experimental_commentsOptions: {
-        threadData: { userName: "Tiptap AI" },
-        commentData: { userName: "Tiptap AI" },
+      user: commentsOptions.userId,
+      tool: {
+        name: toolName,
+        input,
+        config: {
+          threadData: { userName: "Tiptap AI" },
+          commentData: { userName: "Tiptap AI" },
+        },
       },
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Tool execution failed: ${response.statusText}`);
+    throw new Error(
+      `Tool execution failed: ${response.status} ${response.statusText} - ${await response.text()}`,
+    );
   }
 
-  return response.json();
+  const responseData = await response.json();
+
+  return {
+    output: responseData.tool.output,
+    toolResult: responseData.tool,
+    docChanged: responseData.docChanged,
+    document: responseData.document,
+  };
 }
