@@ -1,5 +1,5 @@
 import type { CommentsOptions } from "./get-comments-tool-definitions";
-import { getTiptapCloudAiJwtTokenComments } from "./get-tiptap-cloud-ai-jwt-token-comments";
+import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
 /**
  * Executes a comments tool via the Server AI Toolkit API
@@ -27,7 +27,7 @@ export async function executeCommentsTool(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${getTiptapCloudAiJwtTokenComments()}`,
+      Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
       "X-App-Id": appId,
       // Set allowed origins to avoid CORS errors (due to the setup in Tiptap Cloud)
       Origin: "http://localhost:3000",

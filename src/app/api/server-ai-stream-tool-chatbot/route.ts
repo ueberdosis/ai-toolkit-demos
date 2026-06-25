@@ -2,7 +2,7 @@ import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { gateway, stepCountIs, streamText, tool, type UIMessage, wrapLanguageModel } from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
-import { getTiptapCloudAiJwtTokenStreaming } from "@/lib/server-ai-toolkit/get-tiptap-cloud-ai-jwt-token-streaming";
+import { getTiptapCloudAiJwtToken } from "@/lib/server-ai-toolkit/get-tiptap-cloud-ai-jwt-token";
 
 // Duplex request-body streaming requires the Node.js runtime (not Edge). Raise the
 // function timeout so a long, paced AI edit isn't cut off by the platform default.
@@ -103,7 +103,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getTiptapCloudAiJwtTokenStreaming()}`,
+        Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
         "X-App-Id": appId,
         Origin: "http://localhost:3000",
       },
@@ -147,7 +147,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getTiptapCloudAiJwtTokenStreaming()}`,
+        Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
         "X-App-Id": appId,
         Origin: "http://localhost:3000",
       },
@@ -209,7 +209,7 @@ export async function POST(req: Request) {
     duplex: "half",
     headers: {
       "Content-Type": "application/x-ndjson",
-      Authorization: `Bearer ${getTiptapCloudAiJwtTokenStreaming()}`,
+      Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
       "X-App-Id": appId,
       Origin: "http://localhost:3000",
     },
