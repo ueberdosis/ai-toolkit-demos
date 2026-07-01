@@ -90,7 +90,7 @@ Rule: In your responses, do not give any details of the tool calls
 Rule: In your responses, do not give any details of the HTML content of the document.
 Rule: In your responses, never mention the hashes of the document.
 
-${toolsResponse.prompt}`,
+${toolsResponse.systemPrompt}`,
     tools,
   });
 

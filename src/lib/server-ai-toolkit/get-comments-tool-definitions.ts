@@ -3,9 +3,7 @@ import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
 export interface CommentsOptions {
   documentId: string;
-  apiSecret: string;
   userId: string;
-  appId: string;
 }
 
 /**
@@ -14,7 +12,7 @@ export interface CommentsOptions {
 export async function getCommentsToolDefinitions(
   editorContext: unknown,
 ): Promise<{
-  prompt: string;
+  systemPrompt: string;
   tools: {
     name: string;
     description: string;
@@ -22,29 +20,18 @@ export async function getCommentsToolDefinitions(
   }[];
 }> {
   const apiBaseUrl =
-    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
-  const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
+    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
 
-  if (!appId) {
-    throw new Error("Missing TIPTAP_CLOUD_AI_APP_ID");
-  }
-
-  const response = await fetch(`${apiBaseUrl}/toolkit/tools`, {
+  const response = await fetch(`${apiBaseUrl}/v4/ai/toolkit/fetch-tools`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
-      "X-App-Id": appId,
-      // Set allowed origins to avoid CORS errors (due to the setup in Tiptap Cloud)
-      Origin: "http://localhost:3000",
     },
     body: JSON.stringify({
       editorContext,
       tools: {
-        // Disable tiptap edit tool so that the AI can not edit the document,
-        // only add comments
-        tiptapEdit: false,
-        // Enable comments tools
+        tiptapRead: true,
         getThreads: true,
         editThreads: true,
       },
@@ -52,7 +39,9 @@ export async function getCommentsToolDefinitions(
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch tools: ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch tools: ${response.status} ${response.statusText} - ${await response.text()}`,
+    );
   }
   return response.json();
 }

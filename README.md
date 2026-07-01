@@ -65,7 +65,7 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
    UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_rest_token_here
    ```
 
-   For the **Server AI Toolkit** demos (`/server-ai-*`), also set the Tiptap Cloud credentials: the access-control keys (`TIPTAP_AUTH_PRIVATE_KEY`, `TIPTAP_AUTH_ENVIRONMENT_ID`, `TIPTAP_CLOUD_AI_APP_ID`) and the Collaboration document server (`TIPTAP_CLOUD_DOCUMENT_SERVER_ID`, `TIPTAP_CLOUD_SECRET`). See `.env.example` for the full list.
+   For the **Server AI Toolkit** demos (`/server-ai-*`), also set the Tiptap Cloud credentials: the access-control keys (`TIPTAP_AUTH_PRIVATE_KEY`, `TIPTAP_AUTH_ENVIRONMENT_ID`) and the Collaboration document server (`TIPTAP_CLOUD_DOCUMENT_SERVER_ID`, `TIPTAP_CLOUD_SECRET`). See `.env.example` for the full list.
 
 3. **Run the development server:**
    ```bash

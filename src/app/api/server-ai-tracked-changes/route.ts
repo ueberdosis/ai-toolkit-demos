@@ -99,7 +99,7 @@ Rule: In your messages to the user, never mention hashes, tool internals, raw do
 Rule: For every tiptapEdit operation, always provide a brief justification in the meta field explaining why the change improves the document.
 Rule: Put justifications only in the meta field so they become linked Tiptap Comments. Do not repeat those justifications in assistant messages.
 
-${toolsResponse.prompt}`,
+${toolsResponse.systemPrompt}`,
     tools,
   });
 

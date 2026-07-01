@@ -1,5 +1,12 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { gateway, stepCountIs, streamText, tool, type UIMessage, wrapLanguageModel } from "ai";
+import {
+  gateway,
+  stepCountIs,
+  streamText,
+  tool,
+  type UIMessage,
+  wrapLanguageModel,
+} from "ai";
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { getTiptapCloudAiJwtToken } from "@/lib/server-ai-toolkit/get-tiptap-cloud-ai-jwt-token";
@@ -54,7 +61,9 @@ export async function POST(req: Request) {
   } = await req.json();
 
   // Single-shot streaming edit: the task is the latest user message.
-  const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
+  const lastUserMessage = [...messages]
+    .reverse()
+    .find((m) => m.role === "user");
   const task =
     lastUserMessage?.parts
       ?.filter((p) => p.type === "text")
@@ -73,16 +82,9 @@ export async function POST(req: Request) {
     );
   }
 
-  const apiBaseUrl = process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
-  const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
-  if (!appId) {
-    return new Response(
-      JSON.stringify({
-        error: "Server misconfigured: TIPTAP_CLOUD_AI_APP_ID",
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    );
-  }
+  const apiBaseUrl =
+    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
+  const tiptapCloudAiJwtToken = getTiptapCloudAiJwtToken({ documentId });
 
   // 1) Single canonical call: `/tools` returns both the schema-awareness
   //    prompt and the tool definitions in one round-trip. `format: "json"`
@@ -99,12 +101,11 @@ export async function POST(req: Request) {
   };
   let toolsResponse: ToolsResponse;
   try {
-    const fetchResult = await fetch(`${apiBaseUrl}/toolkit/tools`, {
+    const fetchResult = await fetch(`${apiBaseUrl}/v3/ai/toolkit/tools`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
-        "X-App-Id": appId,
+        Authorization: `Bearer ${tiptapCloudAiJwtToken}`,
         Origin: "http://localhost:3000",
       },
       body: JSON.stringify({
@@ -126,7 +127,9 @@ export async function POST(req: Request) {
     );
   }
 
-  const tiptapEditTool = toolsResponse.tools.find((t) => t.name === "tiptapEdit");
+  const tiptapEditTool = toolsResponse.tools.find(
+    (t) => t.name === "tiptapEdit",
+  );
   if (!tiptapEditTool) {
     return new Response(
       JSON.stringify({
@@ -143,12 +146,11 @@ export async function POST(req: Request) {
   //    customer's multi-aud token typically carries.
   let documentContent: unknown;
   try {
-    const readResult = await fetch(`${apiBaseUrl}/toolkit/execute-tool`, {
+    const readResult = await fetch(`${apiBaseUrl}/v3/ai/toolkit/execute-tool`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
-        "X-App-Id": appId,
+        Authorization: `Bearer ${tiptapCloudAiJwtToken}`,
         Origin: "http://localhost:3000",
       },
       body: JSON.stringify({
@@ -164,13 +166,17 @@ export async function POST(req: Request) {
     });
     if (!readResult.ok) {
       const errorText = await readResult.text();
-      throw new Error(`${readResult.status} ${readResult.statusText}${errorText ? ` - ${errorText}` : ""}`);
+      throw new Error(
+        `${readResult.status} ${readResult.statusText}${errorText ? ` - ${errorText}` : ""}`,
+      );
     }
     const readJson = (await readResult.json()) as {
       toolResult?: { success?: boolean; content?: unknown; error?: string };
     };
     if (!readJson.toolResult?.success || !readJson.toolResult.content) {
-      throw new Error(readJson.toolResult?.error ?? "readDocument tool returned no content");
+      throw new Error(
+        readJson.toolResult?.error ?? "readDocument tool returned no content",
+      );
     }
     documentContent = readJson.toolResult.content;
   } catch (err) {
@@ -199,18 +205,19 @@ export async function POST(req: Request) {
 
   const writeNdjson = (payload: Record<string, unknown>) => {
     if (!controllerRef.current) return;
-    controllerRef.current.enqueue(encoder.encode(`${JSON.stringify(payload)}\n`));
+    controllerRef.current.enqueue(
+      encoder.encode(`${JSON.stringify(payload)}\n`),
+    );
   };
 
-  const upstreamPromise = fetch(`${apiBaseUrl}/toolkit/stream-tool`, {
+  const upstreamPromise = fetch(`${apiBaseUrl}/v3/ai/toolkit/stream-tool`, {
     method: "POST",
     // `duplex: "half"` is required when streaming a request body. Some fetch
     // type definitions don't include it yet, so the init is cast below.
     duplex: "half",
     headers: {
       "Content-Type": "application/x-ndjson",
-      Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
-      "X-App-Id": appId,
+      Authorization: `Bearer ${tiptapCloudAiJwtToken}`,
       Origin: "http://localhost:3000",
     },
     body: ndjsonRequestBody,
@@ -223,7 +230,8 @@ export async function POST(req: Request) {
   //    which is what `/stream-tool` expects.
   const model = wrapLanguageModel({
     model: gateway("openai/gpt-5.4-mini"),
-    middleware: process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
+    middleware:
+      process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
   const llmResult = streamText({
@@ -233,7 +241,9 @@ export async function POST(req: Request) {
     tools: {
       tiptapEdit: tool({
         description: tiptapEditTool.description,
-        inputSchema: z.fromJSONSchema(tiptapEditTool.inputSchema as z.core.JSONSchema.JSONSchema),
+        inputSchema: z.fromJSONSchema(
+          tiptapEditTool.inputSchema as z.core.JSONSchema.JSONSchema,
+        ),
         // Force OpenAI structured-outputs constrained sampling so the
         // `inputSchema` enum on `content[].type` is enforced at token level
         // (not just sent as a hint). Without this flag, the LLM has been

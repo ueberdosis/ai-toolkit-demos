@@ -180,16 +180,10 @@ const CATEGORIES = [
             href: "/server-ai-agent-chatbot",
           },
           {
-            title: "Server Stream Tool",
+            title: "Server Tracked Changes",
             description:
-              "LLM-driven /stream-tool: type a task, AI streams tiptapEdit args, editor types in real time",
-            href: "/server-ai-stream-tool-chatbot",
-          },
-          {
-            title: "Server Stream Tool + Tracked Changes",
-            description:
-              "Streaming /stream-tool in tracked-changes mode: the AI edit types into a live red/green suggestion you can accept or reject",
-            href: "/server-ai-stream-tool-chatbot-tracked-changes",
+              "Tracked changes with server-side comments explaining each edit",
+            href: "/server-ai-tracked-changes",
           },
           {
             title: "Server Comments",
@@ -197,10 +191,16 @@ const CATEGORIES = [
             href: "/server-comments",
           },
           {
-            title: "Server Tracked Changes",
+            title: "Server Streaming",
             description:
-              "Tracked changes with server-side comments explaining each edit",
-            href: "/server-ai-tracked-changes",
+              "LLM-driven /stream-tool: type a task, AI streams tiptapEdit args, editor types in real time",
+            href: "/server-ai-stream-tool-chatbot",
+          },
+          {
+            title: "Server Streaming + Tracked Changes",
+            description:
+              "Streaming /stream-tool in tracked-changes mode: the AI edit types into a live red/green suggestion you can accept or reject",
+            href: "/server-ai-stream-tool-chatbot-tracked-changes",
           },
         ],
       },

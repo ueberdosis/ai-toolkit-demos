@@ -3,6 +3,7 @@ import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 export interface ExecuteToolOptions {
   documentId?: string;
   userId?: string;
+  toolConfig?: Record<string, unknown>;
   reviewOptions?: {
     mode?: "disabled" | "trackedChanges";
   };
@@ -33,46 +34,54 @@ export async function executeTool(
   document?: unknown;
 }> {
   const apiBaseUrl =
-    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
-  const appId = process.env.TIPTAP_CLOUD_AI_APP_ID;
+    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
 
-  if (!appId) {
-    throw new Error("Missing TIPTAP_CLOUD_AI_APP_ID");
-  }
-
-  const response = await fetch(`${apiBaseUrl}/toolkit/execute-tool`, {
+  const response = await fetch(`${apiBaseUrl}/v4/ai/toolkit/execute-tool`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
-      "X-App-Id": appId,
-      // Set allowed origins to avoid CORS errors (due to the setup in Tiptap Cloud)
-      Origin: "http://localhost:3000",
+      Authorization: `Bearer ${getTiptapCloudAiJwtToken({
+        documentId: options.documentId,
+      })}`,
     },
     body: JSON.stringify({
-      toolName,
-      input,
       editorContext,
-      ...(options.documentId
+      document: options.documentId
         ? {
-            experimental_documentOptions: {
-              documentId: options.documentId,
-              userId: options.userId ?? null,
-            },
+            type: "cloud",
+            id: options.documentId,
           }
-        : { document }),
+        : {
+            type: "inline",
+            content: document,
+          },
+      user: options.userId ?? null,
+      tool: {
+        name: toolName,
+        input,
+        config: {
+          ...options.toolConfig,
+          ...options.commentsOptions,
+        },
+      },
       ...(options.reviewOptions
         ? { reviewOptions: options.reviewOptions }
-        : {}),
-      ...(options.commentsOptions
-        ? { experimental_commentsOptions: options.commentsOptions }
         : {}),
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Tool execution failed: ${response.statusText}`);
+    throw new Error(
+      `Tool execution failed: ${response.status} ${response.statusText} - ${await response.text()}`,
+    );
   }
 
-  return response.json();
+  const responseData = await response.json();
+
+  return {
+    output: responseData.tool.output,
+    toolResult: responseData.tool,
+    docChanged: responseData.docChanged,
+    document: responseData.document,
+  };
 }

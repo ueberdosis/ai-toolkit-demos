@@ -1,44 +1,54 @@
 import jwt from "jsonwebtoken";
 
+type TiptapAccessPermission = {
+  action: "AI:Toolkit" | "Documents:Write";
+  resource: string;
+};
+
+export interface TiptapAccessTokenOptions {
+  documentId?: string;
+}
+
 /**
  * Generates an ES256-signed JWT for authenticating with the Tiptap AI Toolkit
- * API via the access-control flow.
+ * API with Tiptap Access Control.
  *
  * Requires:
  *   - TIPTAP_AUTH_PRIVATE_KEY — PEM-encoded ECDSA P-256 private key
  *     (issued once when the environment secret is created in Tiptap Cloud)
  *   - TIPTAP_AUTH_ENVIRONMENT_ID — `env_xxxxxxxx`, used as the `iss` claim
- *
- * The token grants `AI:Toolkit` + `AI:Generation` (so the AI server can run
- * tools) and `Documents:Read` + `Documents:Write` (so it can open a
- * Hocuspocus session on the user's behalf with the same JWT).
  */
-export function getTiptapCloudAiJwtToken(): string {
-  const privateKey = process.env.TIPTAP_AUTH_PRIVATE_KEY;
+export function getTiptapCloudAiJwtToken(
+  options: TiptapAccessTokenOptions = {},
+): string {
+  const privateKey = process.env.TIPTAP_AUTH_PRIVATE_KEY?.replace(/\\n/g, "\n");
   const environmentId = process.env.TIPTAP_AUTH_ENVIRONMENT_ID;
 
   if (!privateKey) {
     throw new Error("TIPTAP_AUTH_PRIVATE_KEY environment variable is not set");
   }
+
   if (!environmentId) {
     throw new Error(
       "TIPTAP_AUTH_ENVIRONMENT_ID environment variable is not set",
     );
   }
 
-  const payload = {
-    permissions: [
-      { action: "AI:Toolkit", resource: "*" },
-      { action: "AI:Generation", resource: "*" },
-      { action: "Documents:Read", resource: "*" },
-      { action: "Documents:Write", resource: "*" },
-    ],
-  };
+  const permissions: TiptapAccessPermission[] = [
+    { action: "AI:Toolkit", resource: "*" },
+  ];
 
-  return jwt.sign(payload, privateKey, {
+  if (options.documentId) {
+    permissions.push({
+      action: "Documents:Write",
+      resource: options.documentId,
+    });
+  }
+
+  return jwt.sign({ permissions }, privateKey, {
     algorithm: "ES256",
-    expiresIn: "1h",
+    audience: options.documentId ? ["AI", "Documents"] : ["AI"],
+    expiresIn: "30m",
     issuer: environmentId,
-    audience: ["AI", "Documents"],
   });
 }
