@@ -2,35 +2,41 @@
 
 import jwt from "jsonwebtoken";
 
-const TIPTAP_CLOUD_SECRET = process.env.TIPTAP_CLOUD_SECRET;
-const TIPTAP_CLOUD_DOCUMENT_SERVER_ID =
-  process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
-const TIPTAP_CLOUD_COLLAB_BASE_URL = process.env.TIPTAP_CLOUD_COLLAB_BASE_URL;
-
 export async function getCollabConfig(
   userId: string,
   documentName: string,
 ): Promise<{ token: string; appId: string; collabBaseUrl?: string }> {
-  if (!TIPTAP_CLOUD_SECRET) {
-    throw new Error("TIPTAP_CLOUD_SECRET environment variable is not set");
+  const privateKey = process.env.TIPTAP_AUTH_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const environmentId = process.env.TIPTAP_AUTH_ENVIRONMENT_ID;
+  const collabBaseUrl = process.env.TIPTAP_CLOUD_COLLAB_BASE_URL;
+
+  if (!privateKey) {
+    throw new Error("TIPTAP_AUTH_PRIVATE_KEY environment variable is not set");
   }
 
-  if (!TIPTAP_CLOUD_DOCUMENT_SERVER_ID) {
+  if (!environmentId) {
     throw new Error(
-      "TIPTAP_CLOUD_DOCUMENT_SERVER_ID environment variable is not set",
+      "TIPTAP_AUTH_ENVIRONMENT_ID environment variable is not set",
     );
   }
 
-  const payload = {
-    sub: userId,
-    allowedDocumentNames: [documentName],
-  };
-
-  const token = jwt.sign(payload, TIPTAP_CLOUD_SECRET, { expiresIn: "1h" });
+  const token = jwt.sign(
+    {
+      permissions: [{ action: "Documents:Write", resource: documentName }],
+    },
+    privateKey,
+    {
+      algorithm: "ES256",
+      audience: ["Documents"],
+      expiresIn: "30m",
+      issuer: environmentId,
+      subject: userId,
+    },
+  );
 
   return {
     token,
-    appId: TIPTAP_CLOUD_DOCUMENT_SERVER_ID,
-    collabBaseUrl: TIPTAP_CLOUD_COLLAB_BASE_URL,
+    appId: environmentId,
+    collabBaseUrl,
   };
 }
