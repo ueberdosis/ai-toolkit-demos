@@ -180,18 +180,6 @@ const CATEGORIES = [
             href: "/server-ai-agent-chatbot",
           },
           {
-            title: "Server Stream Tool",
-            description:
-              "LLM-driven /stream-tool: type a task, AI streams tiptapEdit args, editor types in real time",
-            href: "/server-ai-stream-tool-chatbot",
-          },
-          {
-            title: "Server Stream Tool + Tracked Changes",
-            description:
-              "Streaming /stream-tool in tracked-changes mode: the AI edit types into a live red/green suggestion you can accept or reject",
-            href: "/server-ai-stream-tool-chatbot-tracked-changes",
-          },
-          {
             title: "Server Comments",
             description: "Server-side comment threads stored on Tiptap Cloud",
             href: "/server-comments",
@@ -201,6 +189,18 @@ const CATEGORIES = [
             description:
               "Tracked changes with server-side comments explaining each edit",
             href: "/server-ai-tracked-changes",
+          },
+          {
+            title: "Server Streaming",
+            description:
+              "LLM-driven /stream-tool: type a task, AI streams tiptapEdit args, editor types in real time",
+            href: "/server-ai-stream-tool-chatbot",
+          },
+          {
+            title: "Server Streaming + Tracked Changes",
+            description:
+              "Streaming /stream-tool in tracked-changes mode: the AI edit types into a live red/green suggestion you can accept or reject",
+            href: "/server-ai-stream-tool-chatbot-tracked-changes",
           },
         ],
       },

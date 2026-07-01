@@ -79,7 +79,7 @@ export async function POST(req: Request) {
   }
 
   const apiBaseUrl =
-    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev/v3/ai";
+    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
 
   // 1) Single canonical call: `/tools` returns both the schema-awareness
   //    prompt and the tool definitions in one round-trip. `format: "json"`
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
   };
   let toolsResponse: ToolsResponse;
   try {
-    const fetchResult = await fetch(`${apiBaseUrl}/toolkit/tools`, {
+    const fetchResult = await fetch(`${apiBaseUrl}/v3/ai/toolkit/tools`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -143,7 +143,7 @@ export async function POST(req: Request) {
   //    customer's multi-aud token typically carries.
   let documentContent: unknown;
   try {
-    const readResult = await fetch(`${apiBaseUrl}/toolkit/execute-tool`, {
+    const readResult = await fetch(`${apiBaseUrl}/v3/ai/toolkit/execute-tool`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -209,7 +209,7 @@ export async function POST(req: Request) {
     );
   };
 
-  const upstreamPromise = fetch(`${apiBaseUrl}/toolkit/stream-tool`, {
+  const upstreamPromise = fetch(`${apiBaseUrl}/v3/ai/toolkit/stream-tool`, {
     method: "POST",
     // `duplex: "half"` is required when streaming a request body. Some fetch
     // type definitions don't include it yet, so the init is cast below.
