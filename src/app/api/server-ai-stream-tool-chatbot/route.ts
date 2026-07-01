@@ -84,6 +84,7 @@ export async function POST(req: Request) {
 
   const apiBaseUrl =
     process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
+  const tiptapCloudAiJwtToken = getTiptapCloudAiJwtToken({ documentId });
 
   // 1) Single canonical call: `/tools` returns both the schema-awareness
   //    prompt and the tool definitions in one round-trip. `format: "json"`
@@ -104,7 +105,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
+        Authorization: `Bearer ${tiptapCloudAiJwtToken}`,
         Origin: "http://localhost:3000",
       },
       body: JSON.stringify({
@@ -149,7 +150,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
+        Authorization: `Bearer ${tiptapCloudAiJwtToken}`,
         Origin: "http://localhost:3000",
       },
       body: JSON.stringify({
@@ -216,7 +217,7 @@ export async function POST(req: Request) {
     duplex: "half",
     headers: {
       "Content-Type": "application/x-ndjson",
-      Authorization: `Bearer ${getTiptapCloudAiJwtToken()}`,
+      Authorization: `Bearer ${tiptapCloudAiJwtToken}`,
       Origin: "http://localhost:3000",
     },
     body: ndjsonRequestBody,
