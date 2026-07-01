@@ -71,6 +71,30 @@
   text-decoration: line-through;
 }
 
+/* Table-level suggestions. The node-level suggestion sits on the table node; a
+   background on it is hidden behind the cells, so we color the cells (the visible
+   surface) and outline the container. With `resizable: false` the table uses the
+   default render path, so the extension's `renderHTML` puts `data-suggestion-type`
+   on `<table>`. */
+.tiptap table[data-suggestion-type="add"],
+.tiptap table[data-suggestion-type="replaceInsertion"] {
+  outline: 2px solid oklch(0.72 0.16 154.449);
+}
+.tiptap table[data-suggestion-type="add"] :is(td, th),
+.tiptap table[data-suggestion-type="replaceInsertion"] :is(td, th) {
+  background-color: oklch(87.1% 0.15 154.449);
+}
+.tiptap table[data-suggestion-type="delete"],
+.tiptap table[data-suggestion-type="replaceDeletion"] {
+  outline: 2px solid oklch(0.62 0.21 25.723);
+}
+.tiptap table[data-suggestion-type="delete"] :is(td, th),
+.tiptap table[data-suggestion-type="replaceDeletion"] :is(td, th) {
+  background-color: oklch(80.8% 0.114 19.571);
+  color: oklch(0.396 0.141 25.723);
+  text-decoration: line-through;
+}
+
 /* Mark changes (e.g. bold/italic toggled by AI) */
 .tiptap span[data-suggestion][data-suggestion-type="markChange"] {
   background-color: oklch(85% 0.12 295);

@@ -13,7 +13,12 @@ export interface ExecuteToolOptions {
 }
 
 /**
- * Executes a tool via the Server AI Toolkit API
+ * Executes a tool via the Server AI Toolkit API.
+ *
+ * Single JWT model (access-control flow): the JWT minted by
+ * `getTiptapCloudAiJwtToken` carries `aud: ["AI", "Documents"]` so the same
+ * token authenticates both the AI server call and the Hocuspocus session the
+ * AI server opens on the user's behalf.
  */
 export async function executeTool(
   toolName: string,
