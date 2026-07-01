@@ -20,6 +20,9 @@ declare global {
       TIPTAP_CLOUD_AI_API_URL?: string;
       TIPTAP_AUTH_PRIVATE_KEY?: string;
       TIPTAP_AUTH_ENVIRONMENT_ID?: string;
+      // Document Server app id: routes the Collaboration WebSocket (distinct
+      // from the environment id, which only signs the token).
+      TIPTAP_CLOUD_DOCUMENT_SERVER_ID?: string;
       TIPTAP_CLOUD_COLLAB_BASE_URL?: string;
     }
   }
