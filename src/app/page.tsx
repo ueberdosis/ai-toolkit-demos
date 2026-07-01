@@ -180,15 +180,15 @@ const CATEGORIES = [
             href: "/server-ai-agent-chatbot",
           },
           {
-            title: "Server Comments",
-            description: "Server-side comment threads stored on Tiptap Cloud",
-            href: "/server-comments",
-          },
-          {
             title: "Server Tracked Changes",
             description:
               "Tracked changes with server-side comments explaining each edit",
             href: "/server-ai-tracked-changes",
+          },
+          {
+            title: "Server Comments",
+            description: "Server-side comment threads stored on Tiptap Cloud",
+            href: "/server-comments",
           },
           {
             title: "Server Streaming",
