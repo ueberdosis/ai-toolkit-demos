@@ -10,7 +10,13 @@ export interface TiptapAccessTokenOptions {
 }
 
 /**
- * Generates a Tiptap Access Control JWT for authenticating with the Server AI Toolkit API.
+ * Generates an ES256-signed JWT for authenticating with the Tiptap AI Toolkit
+ * API with Tiptap Access Control.
+ *
+ * Requires:
+ *   - TIPTAP_AUTH_PRIVATE_KEY — PEM-encoded ECDSA P-256 private key
+ *     (issued once when the environment secret is created in Tiptap Cloud)
+ *   - TIPTAP_AUTH_ENVIRONMENT_ID — `env_xxxxxxxx`, used as the `iss` claim
  */
 export function getTiptapCloudAiJwtToken(
   options: TiptapAccessTokenOptions = {},

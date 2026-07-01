@@ -1,24 +1,23 @@
 "use client";
 
-import type { UIMessage } from "ai";
 import type { FormEvent, ReactNode } from "react";
-import { ChatSidebar } from "@/components/chat-sidebar";
+import { ChatSidebar, type Message } from "@/components/chat-sidebar";
 import type { PanelId } from "./panel-id";
 
 type RightSidebarProps = {
   activePanel: PanelId;
   onActivePanelChange: (panel: PanelId) => void;
-  messages: UIMessage[];
+  messages: Message[];
   input: string;
   onInputChange: (value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
   trackedPanel: ReactNode;
-  commentsPanel: ReactNode;
+  commentsPanel?: ReactNode;
   inputAction?: ReactNode;
 };
 
-const panels: Array<{ id: PanelId; label: string }> = [
+const allPanels: Array<{ id: PanelId; label: string }> = [
   { id: "chat", label: "Chat" },
   { id: "tracked", label: "Tracked changes" },
   { id: "comments", label: "Comments" },
@@ -36,10 +35,20 @@ export function RightSidebar({
   commentsPanel,
   inputAction,
 }: RightSidebarProps) {
+  // Hide the Comments tab when the demo provides no comments panel (e.g. the
+  // streaming tracked-changes demo, where the stream does not create threads).
+  const panels = commentsPanel
+    ? allPanels
+    : allPanels.filter((panel) => panel.id !== "comments");
+
   return (
     <aside className="flex h-screen w-[420px] shrink-0 flex-col border-l border-slate-200 bg-white">
       <div className="border-b border-slate-200 bg-white p-4">
-        <div className="grid w-full grid-cols-3 gap-0 rounded-lg bg-[var(--gray-2)] p-0.5">
+        <div
+          className={`grid w-full gap-0 rounded-lg bg-[var(--gray-2)] p-0.5 ${
+            panels.length === 3 ? "grid-cols-3" : "grid-cols-2"
+          }`}
+        >
           {panels.map((panel) => (
             <button
               key={panel.id}
@@ -73,7 +82,7 @@ export function RightSidebar({
           />
         )}
         {activePanel === "tracked" && trackedPanel}
-        {activePanel === "comments" && commentsPanel}
+        {commentsPanel && activePanel === "comments" && commentsPanel}
       </div>
     </aside>
   );

@@ -34,6 +34,8 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 
 - **Server AI Agent Chatbot** (`/server-ai-agent-chatbot`) - A server-side AI agent that can edit collaborative documents
 - **Server Comments** (`/server-comments`) - A server-side AI agent that can add and manage comments via Tiptap Collaboration
+- **Server Stream Tool** (`/server-ai-stream-tool-chatbot`) - Streams a `tiptapEdit` tool call to the server so edits appear live, character by character
+- **Server Stream Tool (Tracked Changes)** (`/server-ai-stream-tool-chatbot-tracked-changes`) - Same streaming flow with tracked-changes mode, so edits arrive as accept/reject suggestions
 
 ## Tech Stack
 
@@ -62,6 +64,8 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
    UPSTASH_REDIS_REST_URL=your_upstash_redis_rest_url_here
    UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_rest_token_here
    ```
+
+   For the **Server AI Toolkit** demos (`/server-ai-*`), also set the Tiptap Cloud credentials: the access-control keys (`TIPTAP_AUTH_PRIVATE_KEY`, `TIPTAP_AUTH_ENVIRONMENT_ID`) and the Collaboration document server (`TIPTAP_CLOUD_DOCUMENT_SERVER_ID`, `TIPTAP_CLOUD_SECRET`). See `.env.example` for the full list.
 
 3. **Run the development server:**
    ```bash

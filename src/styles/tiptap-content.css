@@ -129,3 +129,55 @@
 .tiptap a:hover {
   color: var(--purple-contrast);
 }
+
+/* Tables — Tiptap's table extension wraps the table in `.tableWrapper`
+   and tracks column widths via the `colwidth` attr on cells. */
+.tiptap .tableWrapper {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+.tiptap table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+.tiptap table td,
+.tiptap table th {
+  border: 1px solid var(--gray-3);
+  box-sizing: border-box;
+  min-width: 1em;
+  padding: 8px 12px;
+  position: relative;
+  vertical-align: top;
+}
+.tiptap table td > *,
+.tiptap table th > * {
+  margin: 0;
+}
+.tiptap table th {
+  background-color: var(--gray-1);
+  font-weight: 600;
+  text-align: left;
+}
+.tiptap table .selectedCell:after {
+  background: var(--gray-2);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+.tiptap table .column-resize-handle {
+  background-color: var(--purple);
+  bottom: -2px;
+  pointer-events: none;
+  position: absolute;
+  right: -2px;
+  top: 0;
+  width: 4px;
+}
+.tiptap.resize-cursor {
+  cursor: col-resize;
+}

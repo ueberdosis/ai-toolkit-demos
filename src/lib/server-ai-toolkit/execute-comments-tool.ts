@@ -1,5 +1,5 @@
 import type { CommentsOptions } from "./get-comments-tool-definitions";
-import { getTiptapCloudAiJwtTokenComments } from "./get-tiptap-cloud-ai-jwt-token-comments";
+import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
 /**
  * Executes a comments tool via the Server AI Toolkit API
@@ -22,9 +22,9 @@ export async function executeCommentsTool(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${getTiptapCloudAiJwtTokenComments(
-        commentsOptions.documentId,
-      )}`,
+      Authorization: `Bearer ${getTiptapCloudAiJwtToken({
+        documentId: commentsOptions.documentId,
+      })}`,
     },
     body: JSON.stringify({
       editorContext,
