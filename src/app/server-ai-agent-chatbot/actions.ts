@@ -8,6 +8,10 @@ export async function getCollabConfig(
 ): Promise<{ token: string; appId: string; collabBaseUrl?: string }> {
   const privateKey = process.env.TIPTAP_AUTH_PRIVATE_KEY?.replace(/\\n/g, "\n");
   const environmentId = process.env.TIPTAP_AUTH_ENVIRONMENT_ID;
+  // The collab provider routes by the Document Server app id, not the TAC
+  // environment id: the environment id only signs the token (issuer), while the
+  // WebSocket connects to `<documentServerId>.collab.tiptap.cloud`.
+  const documentServerId = process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
   const collabBaseUrl = process.env.TIPTAP_CLOUD_COLLAB_BASE_URL;
 
   if (!privateKey) {
@@ -17,6 +21,12 @@ export async function getCollabConfig(
   if (!environmentId) {
     throw new Error(
       "TIPTAP_AUTH_ENVIRONMENT_ID environment variable is not set",
+    );
+  }
+
+  if (!documentServerId) {
+    throw new Error(
+      "TIPTAP_CLOUD_DOCUMENT_SERVER_ID environment variable is not set",
     );
   }
 
@@ -36,7 +46,7 @@ export async function getCollabConfig(
 
   return {
     token,
-    appId: environmentId,
+    appId: documentServerId,
     collabBaseUrl,
   };
 }
