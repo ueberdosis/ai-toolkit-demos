@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 type TiptapAccessPermission = {
-  action: "AI:Toolkit" | "Documents:Write";
+  action: "AI:Toolkit" | "Documents:Write" | "Documents:Api:All";
   resource: string;
 };
 
@@ -39,10 +39,16 @@ export function getTiptapCloudAiJwtToken(
   ];
 
   if (options.documentId) {
-    permissions.push({
-      action: "Documents:Write",
-      resource: options.documentId,
-    });
+    permissions.push(
+      {
+        action: "Documents:Write",
+        resource: options.documentId,
+      },
+      {
+        action: "Documents:Api:All",
+        resource: "*",
+      },
+    );
   }
 
   return jwt.sign({ permissions }, privateKey, {
