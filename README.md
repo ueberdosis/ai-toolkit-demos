@@ -34,8 +34,6 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 
 - **Server AI Agent Chatbot** (`/server-ai-agent-chatbot`) - A server-side AI agent that can edit collaborative documents
 - **Server Comments** (`/server-comments`) - A server-side AI agent that can add and manage comments via Tiptap Collaboration
-- **Server Stream Tool** (`/server-ai-stream-tool-chatbot`) - Streams a `tiptapEdit` tool call to the server so edits appear live, character by character
-- **Server Stream Tool (Tracked Changes)** (`/server-ai-stream-tool-chatbot-tracked-changes`) - Same streaming flow with tracked-changes mode, so edits arrive as accept/reject suggestions
 
 ## Tech Stack
 
