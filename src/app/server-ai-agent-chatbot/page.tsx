@@ -56,6 +56,17 @@ export default function Page() {
           },
         });
 
+        collabProvider.on("synced", () => {
+          console.log("Collaboration document synced.");
+        });
+
+        collabProvider.on(
+          "authenticationFailed",
+          ({ reason }: { reason: unknown }) => {
+            console.error("Collaboration authentication failed:", reason);
+          },
+        );
+
         providerRef.current = collabProvider;
       } catch (error) {
         console.error("Failed to setup collaboration:", error);

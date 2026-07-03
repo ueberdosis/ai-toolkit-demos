@@ -1,3 +1,7 @@
+import {
+  getServerAiToolkitApiBaseUrl,
+  getServerAiToolkitOrigin,
+} from "./config";
 import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
 export interface ExecuteToolOptions {
@@ -33,13 +37,14 @@ export async function executeTool(
   docChanged: boolean;
   document?: unknown;
 }> {
-  const apiBaseUrl =
-    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
+  const apiBaseUrl = getServerAiToolkitApiBaseUrl();
 
   const response = await fetch(`${apiBaseUrl}/v4/ai/toolkit/execute-tool`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      // Set the Origin header because the Document Server has an allowlist of Origin headers
+      Origin: getServerAiToolkitOrigin(),
       Authorization: `Bearer ${getTiptapCloudAiJwtToken({
         documentId: options.documentId,
       })}`,
