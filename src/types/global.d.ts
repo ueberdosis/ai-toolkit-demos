@@ -18,6 +18,7 @@ declare global {
 
       // Tiptap Cloud AI (access-control auth)
       TIPTAP_CLOUD_AI_API_URL?: string;
+      TIPTAP_CLOUD_AI_ORIGIN?: string;
       TIPTAP_AUTH_PRIVATE_KEY?: string;
       TIPTAP_AUTH_ENVIRONMENT_ID?: string;
       // Document Server app id: routes the Collaboration WebSocket (distinct

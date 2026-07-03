@@ -1,4 +1,5 @@
 import type z from "zod";
+import { getServerAiToolkitApiBaseUrl } from "./config";
 import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
 export interface CommentsOptions {
@@ -19,8 +20,7 @@ export async function getCommentsToolDefinitions(
     inputSchema: z.core.JSONSchema.JSONSchema;
   }[];
 }> {
-  const apiBaseUrl =
-    process.env.TIPTAP_CLOUD_AI_API_URL || "https://api.tiptap.dev";
+  const apiBaseUrl = getServerAiToolkitApiBaseUrl();
 
   const response = await fetch(`${apiBaseUrl}/v4/ai/toolkit/fetch-tools`, {
     method: "POST",
