@@ -190,6 +190,18 @@ const CATEGORIES = [
             description: "Server-side comment threads stored on Tiptap Cloud",
             href: "/server-comments",
           },
+          {
+            title: "Server Streaming",
+            description:
+              "LLM-driven /stream-tool: type a task, AI streams tiptapEdit args, editor types in real time",
+            href: "/server-ai-stream-tool-chatbot",
+          },
+          {
+            title: "Server Streaming + Tracked Changes",
+            description:
+              "Streaming /stream-tool in tracked-changes mode: the AI edit types into a live red/green suggestion you can accept or reject",
+            href: "/server-ai-stream-tool-chatbot-tracked-changes",
+          },
         ],
       },
     ],
