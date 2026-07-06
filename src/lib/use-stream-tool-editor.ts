@@ -105,7 +105,7 @@ export function useStreamToolEditor({
 
     const setupProvider = async () => {
       try {
-        const { token, appId, collabBaseUrl } = await getCollabConfig(
+        const { appId, collabBaseUrl } = await getCollabConfig(
           "user-1",
           documentId,
         );
@@ -113,7 +113,11 @@ export function useStreamToolEditor({
         createdProvider = new TiptapCollabProvider({
           ...(collabBaseUrl ? { baseUrl: collabBaseUrl } : { appId }),
           name: documentId,
-          token,
+          // Pass the token as a function so the provider mints a fresh JWT on
+          // every reconnect; a static string freezes at its 30-min expiry and
+          // loops on permission-denied after a reconnect.
+          token: async () =>
+            (await getCollabConfig("user-1", documentId)).token,
           document: doc,
           user: "user-1",
           onConnect() {
