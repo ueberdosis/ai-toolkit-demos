@@ -27,8 +27,8 @@ export const maxDuration = 60;
  * instead of mutating the document in place. The editor renders the
  * suggestion live via Y.Doc sync and can accept/reject it.
  *
- *   browser → this route → POST /v3/toolkit/tools                       (prompt + tool defs)
- *                       → POST /v3/toolkit/execute-tool                 (readDocument tool — fetches via WS session)
+ *   browser → this route → POST /v4/toolkit/fetch-tools                 (system prompt + tool defs)
+ *                       → POST /v4/toolkit/execute-tool                 (readDocument tool — fetches via WS session)
  *                       → LLM via streamText({tools:{tiptapEdit:tool(...)}})
  *                          - tool.onInputDelta → /stream-tool `delta` msg
  *                       → AI server's NDJSON response → browser
@@ -94,11 +94,11 @@ export async function POST(req: Request) {
       description: string;
       inputSchema: Record<string, unknown>;
     }>;
-    prompt: string;
+    systemPrompt: string;
   };
   let toolsResponse: ToolsResponse;
   try {
-    const fetchResult = await fetch(`${apiBaseUrl}/v3/ai/toolkit/tools`, {
+    const fetchResult = await fetch(`${apiBaseUrl}/v4/ai/toolkit/fetch-tools`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -145,7 +145,7 @@ export async function POST(req: Request) {
   //    customer's multi-aud token typically carries.
   let documentContent: unknown;
   try {
-    const readResult = await fetch(`${apiBaseUrl}/v3/ai/toolkit/execute-tool`, {
+    const readResult = await fetch(`${apiBaseUrl}/v4/ai/toolkit/execute-tool`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -153,13 +153,10 @@ export async function POST(req: Request) {
         Origin: "http://localhost:3000",
       },
       body: JSON.stringify({
-        toolName: "readDocument",
-        input: {},
+        tool: { name: "readDocument", input: {} },
+        document: { type: "cloud", id: documentId },
         editorContext: schemaAwarenessData,
-        experimental_documentOptions: {
-          documentId,
-          userId: userId ?? "ai-assistant",
-        },
+        user: userId ?? "ai-assistant",
         format: "json",
       }),
     });
@@ -170,14 +167,12 @@ export async function POST(req: Request) {
       );
     }
     const readJson = (await readResult.json()) as {
-      toolResult?: { success?: boolean; content?: unknown; error?: string };
+      tool?: { output?: unknown };
     };
-    if (!readJson.toolResult?.success || !readJson.toolResult.content) {
-      throw new Error(
-        readJson.toolResult?.error ?? "readDocument tool returned no content",
-      );
+    if (!readJson.tool?.output) {
+      throw new Error("readDocument tool returned no content");
     }
-    documentContent = readJson.toolResult.content;
+    documentContent = readJson.tool.output;
   } catch (err) {
     return new Response(
       JSON.stringify({
@@ -214,7 +209,7 @@ export async function POST(req: Request) {
   // Streams the request body while reading the response (full-duplex), forced
   // over HTTP/2 so a reverse proxy does not truncate the upload. See streamToolFetch.
   const upstreamPromise = streamToolFetch(
-    `${apiBaseUrl}/v3/ai/toolkit/stream-tool`,
+    `${apiBaseUrl}/v4/ai/toolkit/stream-tool`,
     {
       method: "POST",
       duplex: "half",
@@ -240,7 +235,7 @@ export async function POST(req: Request) {
 
   const llmResult = streamText({
     model,
-    system: `You are an expert editor that edits rich text documents using the tiptapEdit tool. You will be given a document and a task. Call tiptapEdit exactly once to make the edit, then reply with one short sentence confirming what you changed and letting the user know they can review it in the Tracked changes tab. Do not include document contents, hashes, or operation details in your reply.\n\n${toolsResponse.prompt}`,
+    system: `You are an expert editor that edits rich text documents using the tiptapEdit tool. You will be given a document and a task. Call tiptapEdit exactly once to make the edit, then reply with one short sentence confirming what you changed and letting the user know they can review it in the Tracked changes tab. Do not include document contents, hashes, or operation details in your reply.\n\n${toolsResponse.systemPrompt}`,
     prompt: JSON.stringify({ content: documentContent, task }),
     tools: {
       tiptapEdit: tool({
@@ -261,12 +256,10 @@ export async function POST(req: Request) {
           writeNdjson({
             version: 1,
             type: "start",
-            toolName: "tiptapEdit",
             editorContext: schemaAwarenessData,
-            experimental_documentOptions: {
-              documentId,
-              userId: userId ?? "ai-assistant",
-            },
+            document: documentId,
+            tool: { name: "tiptapEdit" },
+            user: userId ?? "ai-assistant",
             // Tracked-changes mode: the AI server keeps the old content as a
             // red `replaceDeletion` and types the new content into a green
             // `replaceInsertion`, sharing one suggestion id. The suggestion
