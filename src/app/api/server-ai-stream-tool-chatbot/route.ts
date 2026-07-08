@@ -257,7 +257,7 @@ export async function POST(req: Request) {
             version: 1,
             type: "start",
             editorContext: schemaAwarenessData,
-            document: documentId,
+            document: { type: "cloud", id: documentId },
             tool: { name: "tiptapEdit" },
             user: userId ?? "ai-assistant",
           });
