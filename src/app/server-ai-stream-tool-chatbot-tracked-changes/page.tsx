@@ -1,12 +1,12 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import { getEditorContext } from "@tiptap/ai-toolkit";
 import { Table } from "@tiptap/extension-table";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
 import { EditorContent } from "@tiptap/react";
-import { getEditorContext } from "@tiptap/server-ai-toolkit";
 import StarterKit from "@tiptap/starter-kit";
 import { TrackedChanges } from "@tiptap-pro/extension-tracked-changes";
 import { DefaultChatTransport } from "ai";

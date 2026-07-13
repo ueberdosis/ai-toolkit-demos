@@ -1,5 +1,5 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { toolDefinitions } from "@tiptap-pro/ai-toolkit-ai-sdk";
+import { toolDefinitions } from "@tiptap-pro/client-ai-toolkit-ai-sdk";
 import {
   createAgentUIStreamResponse,
   gateway,

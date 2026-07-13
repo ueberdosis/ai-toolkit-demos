@@ -46,7 +46,7 @@ Each demo has a corresponding page component (client-side) and API route (server
 | React 19 | UI library |
 | TypeScript | Type safety |
 | Tiptap | Rich text editor framework |
-| @tiptap-pro/ai-toolkit | AI-powered document editing tools |
+| @tiptap-pro/client-ai-toolkit | AI-powered document editing tools |
 | AI SDK (Vercel) | LLM integration and streaming |
 | OpenAI / Anthropic | LLM providers |
 | Tailwind CSS 4 | Styling |

@@ -1,5 +1,5 @@
 import { useChat } from "@ai-sdk/react";
-import { getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import { getAiToolkit } from "@tiptap-pro/client-ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,

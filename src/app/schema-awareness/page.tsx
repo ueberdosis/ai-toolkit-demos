@@ -4,7 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import { AiToolkit, getAiToolkit } from "@tiptap-pro/client-ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,

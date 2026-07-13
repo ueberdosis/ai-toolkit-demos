@@ -9,7 +9,7 @@ import {
   getAiToolkit,
   proofreaderWorkflowOutputSchema,
   renderSlice,
-} from "@tiptap-pro/ai-toolkit";
+} from "@tiptap-pro/client-ai-toolkit";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
