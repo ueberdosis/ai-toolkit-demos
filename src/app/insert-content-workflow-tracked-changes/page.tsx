@@ -3,7 +3,11 @@
 import { Selection } from "@tiptap/extensions";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiCaret, AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import {
+  AiCaret,
+  AiToolkit,
+  getAiToolkit,
+} from "@tiptap-pro/client-ai-toolkit";
 import {
   findSuggestions,
   TrackedChanges,

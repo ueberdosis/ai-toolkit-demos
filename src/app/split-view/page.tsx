@@ -3,8 +3,8 @@
 import { useChat } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import type { SplitView } from "@tiptap-pro/ai-toolkit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import type { SplitView } from "@tiptap-pro/client-ai-toolkit";
+import { AiToolkit, getAiToolkit } from "@tiptap-pro/client-ai-toolkit";
 import {
   findSuggestions,
   TrackedChanges,

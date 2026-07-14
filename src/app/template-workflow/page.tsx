@@ -3,7 +3,7 @@
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import { AiToolkit, getAiToolkit } from "@tiptap-pro/client-ai-toolkit";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";

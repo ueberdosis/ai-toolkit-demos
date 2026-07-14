@@ -5,7 +5,7 @@ import { Collaboration } from "@tiptap/extension-collaboration";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import { AiToolkit, getAiToolkit } from "@tiptap-pro/client-ai-toolkit";
 import {
   CommentsKit,
   hoverOffThread,

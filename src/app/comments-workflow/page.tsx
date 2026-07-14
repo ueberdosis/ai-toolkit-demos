@@ -11,7 +11,7 @@ import {
   AiToolkit,
   editThreadsWorkflowOutputSchema,
   getAiToolkit,
-} from "@tiptap-pro/ai-toolkit";
+} from "@tiptap-pro/client-ai-toolkit";
 import {
   CommentsKit,
   hoverOffThread,

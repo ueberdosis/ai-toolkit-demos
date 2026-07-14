@@ -4,7 +4,11 @@ import { Selection } from "@tiptap/extensions";
 import { Decoration } from "@tiptap/pm/view";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiCaret, AiToolkit, getAiToolkit } from "@tiptap-pro/ai-toolkit";
+import {
+  AiCaret,
+  AiToolkit,
+  getAiToolkit,
+} from "@tiptap-pro/client-ai-toolkit";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { createPortal } from "react-dom";

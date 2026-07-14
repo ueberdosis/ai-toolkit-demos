@@ -1,10 +1,10 @@
 "use client";
 
+import { ServerAiToolkit } from "@tiptap/ai-toolkit";
 import type { AnyExtension } from "@tiptap/core";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
 import { useEditor } from "@tiptap/react";
-import { ServerAiToolkit } from "@tiptap/server-ai-toolkit";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";

@@ -1,7 +1,7 @@
 "use client";
 
+import { getEditorContext } from "@tiptap/ai-toolkit";
 import type { Editor } from "@tiptap/react";
-import { getEditorContext } from "@tiptap/server-ai-toolkit";
 import type { UIMessage } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { buildCaptureJson, type CaptureToolCall } from "./build-capture-json";

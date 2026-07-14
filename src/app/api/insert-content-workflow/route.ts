@@ -1,5 +1,5 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { createInsertContentWorkflow } from "@tiptap-pro/ai-toolkit-tool-definitions";
+import { createInsertContentWorkflow } from "@tiptap-pro/client-ai-toolkit-tool-definitions";
 import { gateway, streamText, wrapLanguageModel } from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 

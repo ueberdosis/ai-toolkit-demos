@@ -8,7 +8,7 @@ import {
   AiToolkit,
   getAiToolkit,
   type SuggestionFeedbackEvent,
-} from "@tiptap-pro/ai-toolkit";
+} from "@tiptap-pro/client-ai-toolkit";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
