@@ -12,8 +12,8 @@ importers:
         specifier: ^3.0.64
         version: 3.0.64(zod@4.3.6)
       '@ai-sdk/devtools':
-        specifier: ^1.0.7
-        version: 1.0.7
+        specifier: ^0.0.24
+        version: 0.0.24
       '@ai-sdk/openai':
         specifier: ^3.0.53
         version: 3.0.53(zod@4.3.6)
@@ -165,9 +165,9 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/devtools@1.0.7':
-    resolution: {integrity: sha512-6wbKHE23oUPOIcJxrkeq3QR+zD7/PxTA+IQFpxbx4CljDi83MBTu4KOotLJRQTXkU1oPZlqWPtGsg8c5j5sFFQ==}
-    engines: {node: '>=22'}
+  '@ai-sdk/devtools@0.0.24':
+    resolution: {integrity: sha512-H6Yk3qe4HSLhAH5cotqLi8UkLRfWVK2npwDCZyRxBmG/2jzP8MTI2jCDT4EvLoy1ROwL7y9XIZ8oOacdZi7evg==}
+    engines: {node: '>=18'}
     hasBin: true
 
   '@ai-sdk/gateway@3.0.80':
@@ -194,13 +194,13 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  '@ai-sdk/provider@3.0.14':
+    resolution: {integrity: sha512-5X1k57JBJ4H7H1QjX7CnJYAB1I19r/trVZTMcSms7/kLNZ8RaU4Nt2agcwZzv82Hfx6Q7/TOLU7agAKeFfc8cA==}
+    engines: {node: '>=18'}
+
   '@ai-sdk/provider@3.0.8':
     resolution: {integrity: sha512-oGMAgGoQdBXbZqNG0Ze56CHjDZ1IDYOwGYxYjO5KLSlz5HiNQ9udIXsPZ61VWaHGZ5XW/jyjmr6t2xz2jGVwbQ==}
     engines: {node: '>=18'}
-
-  '@ai-sdk/provider@4.0.3':
-    resolution: {integrity: sha512-e0CpNWJUY7OxAFAnCZkw+ri9QOHWwTs1tXP42782KFGCU07qt8NiXCrCVowyCB5dP2r5/Uls+g2oPd8kOJn9dw==}
-    engines: {node: '>=22'}
 
   '@ai-sdk/react@3.0.140':
     resolution: {integrity: sha512-wCL9iTrzoW8ppYVrz7BFCurCEqW6hjCoFFyxkrS3us2pSbUlQpXHmrprFQevzfa2PJXiF5hss7ZN8ZNdiZW//A==}
@@ -1458,9 +1458,9 @@ snapshots:
       '@ai-sdk/provider-utils': 4.0.21(zod@4.3.6)
       zod: 4.3.6
 
-  '@ai-sdk/devtools@1.0.7':
+  '@ai-sdk/devtools@0.0.24':
     dependencies:
-      '@ai-sdk/provider': 4.0.3
+      '@ai-sdk/provider': 3.0.14
       '@hono/node-server': 1.19.14(hono@4.12.31)
       hono: 4.12.31
 
@@ -1491,11 +1491,11 @@ snapshots:
       eventsource-parser: 3.0.6
       zod: 4.3.6
 
-  '@ai-sdk/provider@3.0.8':
+  '@ai-sdk/provider@3.0.14':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/provider@4.0.3':
+  '@ai-sdk/provider@3.0.8':
     dependencies:
       json-schema: 0.4.0
 
