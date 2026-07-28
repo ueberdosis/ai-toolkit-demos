@@ -1,9 +1,11 @@
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import {
   createAgentUIStreamResponse,
   gateway,
   ToolLoopAgent,
   tool,
   type UIMessage,
+  wrapLanguageModel,
 } from "ai";
 import z from "zod";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
@@ -63,8 +65,14 @@ export async function POST(req: Request) {
     ]),
   );
 
-  const agent = new ToolLoopAgent({
+  const model = wrapLanguageModel({
     model: gateway("openai/gpt-5.4-mini"),
+    middleware:
+      process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
+  });
+
+  const agent = new ToolLoopAgent({
+    model,
     instructions: `You are an assistant that edits the user's selected text in a rich text document.
 
 When the user refers to "my selection" or "the selected text", first call the readSelection tool to see exactly what they selected. The selected span is marked with selectionStart and selectionEnd. Then call tiptapRead for context and tiptapEdit to apply the change to ONLY the selected content, leaving the unselected text unchanged. If the selection is empty, tell the user to select some text first.
