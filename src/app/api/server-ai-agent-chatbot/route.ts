@@ -87,7 +87,7 @@ export async function POST(req: Request) {
 In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
 Before calling any tools, summarize you're going to do (in a sentence or less), as a high-level view of the task, like a human writer would describe it.
 Rule: In your responses, do not give any details of the tool calls
-Rule: In your responses, do not give any details of the HTML content of the document.
+Rule: In your responses, do not give any details of the content of the document.
 Rule: In your responses, never mention the hashes of the document.
 
 ${toolsResponse.systemPrompt}`,

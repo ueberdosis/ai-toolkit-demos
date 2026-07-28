@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     messages: UIMessage[];
     editorContext: unknown;
     documentId: string;
-    selectionUserId?: string;
+    selectionUserId: string;
   } = await req.json();
 
   const toolsResponse = await getTools({
@@ -47,9 +47,10 @@ export async function POST(req: Request) {
                 userId: "ai-assistant",
                 // readSelection reads a specific collaborator's live selection;
                 // the human's awareness id is developer config, not model input.
-                ...(toolDef.name === "readSelection" && selectionUserId
-                  ? { toolConfig: { user: selectionUserId } }
-                  : {}),
+                toolConfig:
+                  toolDef.name === "readSelection"
+                    ? { toolConfig: { user: selectionUserId } }
+                    : {},
               },
             );
 
