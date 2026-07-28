@@ -49,7 +49,7 @@ export async function POST(req: Request) {
                 // the human's awareness id is developer config, not model input.
                 toolConfig:
                   toolDef.name === "readSelection"
-                    ? { toolConfig: { user: selectionUserId } }
+                    ? { user: selectionUserId }
                     : {},
               },
             );
