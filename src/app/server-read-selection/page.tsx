@@ -4,6 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { getEditorContext, ServerAiToolkit } from "@tiptap/ai-toolkit";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
+import { Selection } from "@tiptap/extensions";
 import type { Editor } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -14,6 +15,7 @@ import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { ChatSidebar } from "../../components/chat-sidebar";
 import { getCollabConfig } from "./actions";
+import "./selection.css";
 
 /**
  * The awareness user.id this client publishes. The agent forwards it as the
@@ -41,6 +43,7 @@ export default function Page() {
         StarterKit.configure({ undoRedo: false }),
         Collaboration.configure({ document: doc }),
         ServerAiToolkit,
+        Selection,
         ...(provider
           ? [
               CollaborationCaret.configure({
