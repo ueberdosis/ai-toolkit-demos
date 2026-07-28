@@ -4,6 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { getEditorContext, ServerAiToolkit } from "@tiptap/ai-toolkit";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
+import type { Editor } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
@@ -24,9 +25,6 @@ const initialContent = `<h1>Project update</h1>
 <p>Hey team, quick heads up on where things stand. The build is mostly working now, but we hit a bunch of annoying bugs last week that really slowed us down. I think we can still make the deadline if everyone pitches in.</p>
 <p>Honestly, the biggest headache is that nobody knows who owns the deployment stuff, so it keeps falling through the cracks and someone ends up scrambling at the last minute. We should just pick a person and move on.</p>
 <p>Anyway, ping me if you want to hop on a call to sort this out. I'm around most afternoons this week and happy to walk through the details whenever works for you.</p>`;
-
-/** Pre-selected on load. Must appear verbatim in `initialContent`. */
-const SEEDED_SENTENCE = "Hey team, quick heads up on where things stand.";
 
 export default function Page() {
   const [doc] = useState(() => new Y.Doc());
@@ -81,26 +79,9 @@ export default function Page() {
           const currentEditor = editorRef.current;
           if (!currentEditor) return;
           currentEditor.commands.setContent(initialContent);
-          // Seed a clean selection on the first sentence, found by text rather
-          // than fragile hardcoded positions, then focus so CollaborationCaret
-          // publishes it to awareness.
-          let range: { from: number; to: number } | null = null;
-          currentEditor.state.doc.descendants((node, pos) => {
-            if (range) return false;
-            if (node.isText && node.text) {
-              const index = node.text.indexOf(SEEDED_SENTENCE);
-              if (index !== -1) {
-                range = {
-                  from: pos + index,
-                  to: pos + index + SEEDED_SENTENCE.length,
-                };
-                return false;
-              }
-            }
-            return true;
-          });
-          if (range) currentEditor.commands.setTextSelection(range);
-          currentEditor.commands.focus();
+          // Find the seeded text rather than relying on fragile hardcoded
+          // positions, then focus so CollaborationCaret publishes it.
+          selectText(currentEditor, SEEDED_SENTENCE);
         },
       });
       setProvider(created);
@@ -133,7 +114,9 @@ export default function Page() {
     }),
   });
 
-  const [input, setInput] = useState("Rewrite my selection to be more formal");
+  const [input, setInput] = useState(
+    "Translate the selected content to Spanish",
+  );
 
   const isLoading = status !== "ready";
 
@@ -166,4 +149,28 @@ export default function Page() {
       />
     </div>
   );
+}
+
+/** Pre-selected on load. Must appear verbatim in `initialContent`. */
+const SEEDED_SENTENCE =
+  "The build is mostly working now, but we hit a bunch of annoying bugs last week that really slowed us down.";
+
+function selectText(editor: Editor, text: string) {
+  let range: { from: number; to: number } | null = null;
+
+  editor.state.doc.descendants((node, pos) => {
+    if (range) return false;
+    if (!node.isText || !node.text) return true;
+
+    const index = node.text.indexOf(text);
+    if (index === -1) return true;
+
+    range = {
+      from: pos + index,
+      to: pos + index + text.length,
+    };
+    return false;
+  });
+
+  if (range) editor.chain().setTextSelection(range).focus().run();
 }
