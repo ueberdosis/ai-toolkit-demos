@@ -191,6 +191,12 @@ const CATEGORIES = [
             href: "/server-comments",
           },
           {
+            title: "Server Read Selection",
+            description:
+              "AI reads your live selection server-side and edits only the selected text",
+            href: "/server-read-selection",
+          },
+          {
             title: "Server Streaming",
             description:
               "LLM-driven /stream-tool: type a task, AI streams tiptapEdit args, editor types in real time",

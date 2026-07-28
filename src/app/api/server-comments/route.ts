@@ -86,7 +86,7 @@ export async function POST(req: Request) {
 In your responses, be concise and to the point. However, the content of the comments you generate does not need to be concise, it should follow the user's request as closely as possible.
 Before calling any tools, summarize what you're going to do (in a sentence or less), as a high-level view of the task.
 Rule: In your responses, do not give any details of the tool calls.
-Rule: In your responses, do not give any details of the HTML content of the document.
+Rule: In your responses, do not give any details of the Tiptap JSON content of the document.
 Rule: In your responses, never mention the hashes of the document.
 Rule: Do not add comments to empty paragraphs. When told to add comments to a paragraph, if the paragraph is empty, add the comment to a nearby non-empty paragraph.
 
