@@ -1,6 +1,12 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { createInsertContentWorkflow } from "@tiptap-pro/client-ai-toolkit-tool-definitions";
-import { gateway, streamText, wrapLanguageModel } from "ai";
+import {
+  createTextStreamResponse,
+  gateway,
+  streamText,
+  toTextStream,
+  wrapLanguageModel,
+} from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -34,7 +40,7 @@ export async function POST(req: Request) {
   const result = streamText({
     model,
     // System prompt
-    system: workflow.systemPrompt,
+    instructions: workflow.systemPrompt,
     // User message with the task and content in a JSON object
     prompt: JSON.stringify({
       task,
@@ -48,5 +54,7 @@ export async function POST(req: Request) {
   });
 
   // Return the text stream directly
-  return result.toTextStreamResponse();
+  return createTextStreamResponse({
+    stream: toTextStream({ stream: result.stream }),
+  });
 }
