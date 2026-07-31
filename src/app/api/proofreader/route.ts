@@ -1,6 +1,13 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { createProofreaderWorkflow } from "@tiptap-pro/client-ai-toolkit-tool-definitions";
-import { gateway, Output, streamText, wrapLanguageModel } from "ai";
+import {
+  createTextStreamResponse,
+  gateway,
+  Output,
+  streamText,
+  toTextStream,
+  wrapLanguageModel,
+} from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -35,7 +42,7 @@ export async function POST(req: Request) {
   const result = streamText({
     model,
     // System prompt
-    system: workflow.systemPrompt,
+    instructions: workflow.systemPrompt,
     // User message
     prompt: JSON.stringify({
       content,
@@ -51,5 +58,7 @@ export async function POST(req: Request) {
     },
   });
 
-  return result.toTextStreamResponse();
+  return createTextStreamResponse({
+    stream: toTextStream({ stream: result.stream }),
+  });
 }

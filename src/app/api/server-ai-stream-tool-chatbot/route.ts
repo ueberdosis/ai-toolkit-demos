@@ -1,9 +1,11 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import {
+  createUIMessageStreamResponse,
   gateway,
-  stepCountIs,
+  isStepCount,
   streamText,
   tool,
+  toUIMessageStream,
   type UIMessage,
   wrapLanguageModel,
 } from "ai";
@@ -235,7 +237,7 @@ export async function POST(req: Request) {
 
   const llmResult = streamText({
     model,
-    system: `You are an expert editor that edits rich text documents using the tiptapEdit tool. You will be given a document and a task. Call tiptapEdit exactly once to make the edit, then reply with one short sentence confirming what you changed. Do not include document contents, hashes, or operation details in your reply.\n\n${toolsResponse.systemPrompt}`,
+    instructions: `You are an expert editor that edits rich text documents using the tiptapEdit tool. You will be given a document and a task. Call tiptapEdit exactly once to make the edit, then reply with one short sentence confirming what you changed. Do not include document contents, hashes, or operation details in your reply.\n\n${toolsResponse.systemPrompt}`,
     prompt: JSON.stringify({ content: documentContent, task }),
     tools: {
       tiptapEdit: tool({
@@ -290,7 +292,7 @@ export async function POST(req: Request) {
     },
     // Step 0: force the edit so the typing effect always happens. Step 1: forbid
     // tools so the model writes a short confirmation sentence for the chat.
-    stopWhen: stepCountIs(2),
+    stopWhen: isStepCount(2),
     prepareStep: ({ stepNumber }) => ({
       toolChoice: stepNumber === 0 ? "required" : "none",
     }),
@@ -302,5 +304,7 @@ export async function POST(req: Request) {
   // Return a UI message stream so the client uses `useChat`, exactly like the
   // non-streaming server demos. The tiptapEdit tool's `execute` drives the
   // /stream-tool bridge; the streamed edits reach the editor via Y.Doc sync.
-  return llmResult.toUIMessageStreamResponse();
+  return createUIMessageStreamResponse({
+    stream: toUIMessageStream({ stream: llmResult.stream }),
+  });
 }

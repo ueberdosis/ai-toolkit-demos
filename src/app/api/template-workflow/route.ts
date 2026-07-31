@@ -1,6 +1,13 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { createTemplateWorkflow } from "@tiptap-pro/client-ai-toolkit-tool-definitions";
-import { gateway, Output, streamText, wrapLanguageModel } from "ai";
+import {
+  createTextStreamResponse,
+  gateway,
+  Output,
+  streamText,
+  toTextStream,
+  wrapLanguageModel,
+} from "ai";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -33,7 +40,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model,
-    system: workflow.systemPrompt,
+    instructions: workflow.systemPrompt,
     prompt: JSON.stringify({ task }),
     output: Output.object({ schema: workflow.zodOutputSchema }),
     providerOptions: {
@@ -43,5 +50,7 @@ export async function POST(req: Request) {
     },
   });
 
-  return result.toTextStreamResponse();
+  return createTextStreamResponse({
+    stream: toTextStream({ stream: result.stream }),
+  });
 }
