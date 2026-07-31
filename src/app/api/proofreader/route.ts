@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   });
 
   const model = wrapLanguageModel({
-    model: gateway("openai/gpt-5.4-nano"),
+    model: gateway("openai/gpt-5.6-luna"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
       task: "Correct all grammar and spelling mistakes",
     }),
     output: Output.object({ schema: workflow.zodOutputSchema }),
-    // If you use gpt-5.4-nano, set the reasoning effort to low to improve the
+    // If you use gpt-5.6-luna, set the reasoning effort to low to improve the
     // response time.
     providerOptions: {
       openai: {
