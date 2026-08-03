@@ -45,21 +45,18 @@ export function getSuggestionNodeLabels(suggestion: Suggestion) {
   return [...new Set(types)];
 }
 
+const SUGGESTION_PREFIXES: Record<Suggestion["type"], string> = {
+  add: "+",
+  delete: "-",
+  replace: "↔",
+  markChange: "◊",
+  sink: "⇥",
+  lift: "⇤",
+  split: "¶",
+};
+
 export function getSuggestionPreview(suggestion: Suggestion) {
-  const prefix =
-    suggestion.type === "add"
-      ? "+"
-      : suggestion.type === "delete"
-        ? "-"
-        : suggestion.type === "replace"
-          ? "↔"
-          : suggestion.type === "markChange"
-            ? "◊"
-            : suggestion.type === "sink"
-              ? "⇥"
-              : suggestion.type === "lift"
-                ? "⇤"
-                : "~";
+  const prefix = SUGGESTION_PREFIXES[suggestion.type] ?? "~";
 
   if (
     suggestion.type === "markChange" &&
@@ -82,6 +79,13 @@ export function getSuggestionPreview(suggestion: Suggestion) {
 
   if (suggestion.type === "lift") {
     return `${prefix} outdent "${suggestion.text}"`;
+  }
+
+  // A split's text is the block that starts after the break, empty when Enter ends a block.
+  if (suggestion.type === "split") {
+    return suggestion.text
+      ? `${prefix} split before "${suggestion.text}"`
+      : `${prefix} split into a new block`;
   }
 
   const insertedPreview = buildNodesPreview(
