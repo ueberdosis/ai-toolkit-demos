@@ -1,21 +1,21 @@
 "use client";
 
-export type SegmentedOption = {
-  id: string;
+export type SegmentedOption<T extends string = string> = {
+  id: T;
   label: string;
 };
 
-interface SegmentedControlProps {
-  options: SegmentedOption[];
-  value: string;
-  onChange: (value: string) => void;
+interface SegmentedControlProps<T extends string> {
+  options: SegmentedOption<T>[];
+  value: T;
+  onChange: (value: T) => void;
 }
 
-export function SegmentedControl({
+export function SegmentedControl<T extends string>({
   options,
   value,
   onChange,
-}: SegmentedControlProps) {
+}: SegmentedControlProps<T>) {
   return (
     <div
       className="grid w-full gap-0 rounded-lg bg-[var(--gray-2)] p-0.5"

@@ -227,6 +227,8 @@ export default () => {
             {
               id: "comments",
               label: "Comments",
+              // Reply drafts and comment edits live inside the thread list.
+              keepMounted: true,
               content: (
                 <CommentsPanel
                   provider={provider}

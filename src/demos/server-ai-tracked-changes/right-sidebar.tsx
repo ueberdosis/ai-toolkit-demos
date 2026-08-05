@@ -30,7 +30,7 @@ export function RightSidebar({
   commentsPanel,
   inputAction,
 }: RightSidebarProps) {
-  const panels: SidebarPanel[] = [
+  const panels: SidebarPanel<PanelId>[] = [
     {
       id: "chat",
       label: "Chat",
@@ -62,7 +62,7 @@ export function RightSidebar({
     <PanelSidebar
       panels={panels}
       activePanel={activePanel}
-      onActivePanelChange={(panel) => onActivePanelChange(panel as PanelId)}
+      onActivePanelChange={onActivePanelChange}
     />
   );
 }
