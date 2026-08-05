@@ -2,6 +2,7 @@
 
 import type { FormEvent, ReactNode } from "react";
 import { ChatSidebar, type Message } from "@/components/chat-sidebar";
+import { PanelSidebar, type SidebarPanel } from "@/components/panel-sidebar";
 import type { PanelId } from "./panel-id";
 
 type RightSidebarProps = {
@@ -17,12 +18,6 @@ type RightSidebarProps = {
   inputAction?: ReactNode;
 };
 
-const allPanels: Array<{ id: PanelId; label: string }> = [
-  { id: "chat", label: "Chat" },
-  { id: "tracked", label: "Tracked changes" },
-  { id: "comments", label: "Comments" },
-];
-
 export function RightSidebar({
   activePanel,
   onActivePanelChange,
@@ -35,55 +30,39 @@ export function RightSidebar({
   commentsPanel,
   inputAction,
 }: RightSidebarProps) {
+  const panels: SidebarPanel[] = [
+    {
+      id: "chat",
+      label: "Chat",
+      content: (
+        <ChatSidebar
+          embedded
+          messages={messages}
+          input={input}
+          onInputChange={onInputChange}
+          onSubmit={(event) =>
+            onSubmit(event as unknown as FormEvent<HTMLFormElement>)
+          }
+          isLoading={isLoading}
+          placeholder="Ask the AI to edit the document..."
+          inputAction={inputAction}
+        />
+      ),
+    },
+    { id: "tracked", label: "Tracked changes", content: trackedPanel },
+  ];
+
   // Hide the Comments tab when the demo provides no comments panel (e.g. the
   // streaming tracked-changes demo, where the stream does not create threads).
-  const panels = commentsPanel
-    ? allPanels
-    : allPanels.filter((panel) => panel.id !== "comments");
+  if (commentsPanel) {
+    panels.push({ id: "comments", label: "Comments", content: commentsPanel });
+  }
 
   return (
-    <aside className="flex h-screen w-[420px] shrink-0 flex-col border-l border-slate-200 bg-white">
-      <div className="border-b border-slate-200 bg-white p-4">
-        <div
-          className={`grid w-full gap-0 rounded-lg bg-[var(--gray-2)] p-0.5 ${
-            panels.length === 3 ? "grid-cols-3" : "grid-cols-2"
-          }`}
-        >
-          {panels.map((panel) => (
-            <button
-              key={panel.id}
-              type="button"
-              onClick={() => onActivePanelChange(panel.id)}
-              className={`flex min-h-6 cursor-pointer items-center justify-center rounded-md px-1.5 text-xs font-medium leading-[1.15] transition-all duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] ${
-                activePanel === panel.id
-                  ? "bg-white text-[var(--black-contrast)]"
-                  : "text-[var(--gray-5)] hover:text-[var(--black)]"
-              }`}
-            >
-              {panel.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-hidden">
-        {activePanel === "chat" && (
-          <ChatSidebar
-            embedded
-            messages={messages}
-            input={input}
-            onInputChange={onInputChange}
-            onSubmit={(event) =>
-              onSubmit(event as unknown as FormEvent<HTMLFormElement>)
-            }
-            isLoading={isLoading}
-            placeholder="Ask the AI to edit the document..."
-            inputAction={inputAction}
-          />
-        )}
-        {activePanel === "tracked" && trackedPanel}
-        {commentsPanel && activePanel === "comments" && commentsPanel}
-      </div>
-    </aside>
+    <PanelSidebar
+      panels={panels}
+      activePanel={activePanel}
+      onActivePanelChange={(panel) => onActivePanelChange(panel as PanelId)}
+    />
   );
 }

@@ -3,7 +3,13 @@
 import type { Editor } from "@tiptap/react";
 import { hoverOffThread, hoverThread } from "@tiptap-pro/extension-comments";
 import type { TiptapCollabProvider } from "@tiptap-pro/provider";
+import { SegmentedControl } from "@/components/segmented-control";
 import type { DemoThread } from "./use-demo-threads";
+
+const VIEW_OPTIONS = [
+  { id: "open", label: "Open" },
+  { id: "resolved", label: "Resolved" },
+];
 
 type CommentsPanelProps = {
   editor: Editor;
@@ -49,8 +55,6 @@ export function CommentsPanel({
   );
   const buttonClass =
     "cursor-pointer rounded-lg border-none bg-[var(--gray-2)] px-2.5 py-1.5 text-sm font-medium leading-[1.15] text-[var(--black)] transition-all duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] hover:bg-[var(--gray-3)] hover:text-[var(--black-contrast)] disabled:cursor-default disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)]";
-  const switchButtonClass =
-    "flex min-h-6 cursor-pointer items-center justify-center rounded-md px-1.5 text-xs font-medium leading-[1.15] transition-all duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)]";
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -72,30 +76,11 @@ export function CommentsPanel({
           </button>
         </div>
 
-        <div className="grid grid-cols-2 rounded-lg bg-[var(--gray-2)] p-0.5">
-          <button
-            type="button"
-            onClick={() => onShowResolvedChange(false)}
-            className={`${switchButtonClass} ${
-              !showResolved
-                ? "bg-white text-[var(--black-contrast)]"
-                : "text-[var(--gray-5)] hover:text-[var(--black)]"
-            }`}
-          >
-            Open
-          </button>
-          <button
-            type="button"
-            onClick={() => onShowResolvedChange(true)}
-            className={`${switchButtonClass} ${
-              showResolved
-                ? "bg-white text-[var(--black-contrast)]"
-                : "text-[var(--gray-5)] hover:text-[var(--black)]"
-            }`}
-          >
-            Resolved
-          </button>
-        </div>
+        <SegmentedControl
+          options={VIEW_OPTIONS}
+          value={showResolved ? "resolved" : "open"}
+          onChange={(value) => onShowResolvedChange(value === "resolved")}
+        />
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto p-4">

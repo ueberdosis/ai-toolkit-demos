@@ -5,9 +5,8 @@ import {
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
 import { useState } from "react";
-import { ChatSidebar } from "../../../components/chat-sidebar";
 
-export function CommentsAiChatbot({ editor }) {
+export const useCommentsChat = (editor) => {
   const [input, setInput] = useState(
     "Add a comment to the first sentence of the last paragraph, that says 'well done'",
   );
@@ -18,13 +17,13 @@ export function CommentsAiChatbot({ editor }) {
     async onToolCall({ toolCall }) {
       if (!editor) return;
 
-      const { toolName, input, toolCallId } = toolCall;
+      const { toolName, input: toolInput, toolCallId } = toolCall;
 
       // Use the AI Toolkit to execute the tool
       const toolkit = getAiToolkit(editor);
       const result = toolkit.executeTool({
         toolName,
-        input,
+        input: toolInput,
         commentsOptions: {
           threadData: { userName: "Tiptap AI" },
           commentData: { userName: "Tiptap AI" },
@@ -35,8 +34,6 @@ export function CommentsAiChatbot({ editor }) {
     },
   });
 
-  const isLoading = status !== "ready";
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (input.trim()) {
@@ -45,15 +42,11 @@ export function CommentsAiChatbot({ editor }) {
     }
   };
 
-  return (
-    <ChatSidebar
-      embedded={true}
-      messages={messages}
-      input={input}
-      onInputChange={setInput}
-      onSubmit={handleSubmit}
-      isLoading={isLoading}
-      placeholder="Ask the AI to add comments..."
-    />
-  );
-}
+  return {
+    messages,
+    input,
+    setInput,
+    handleSubmit,
+    isLoading: status !== "ready",
+  };
+};
