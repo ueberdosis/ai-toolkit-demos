@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.25",
-    "@ai-sdk/devtools": "^1.0.9",
+    "@ai-sdk/devtools": "^1.0.12",
     "@ai-sdk/openai": "^4.0.25",
     "@ai-sdk/react": "^4.0.47",
     "@floating-ui/react": "^0.27.19",
@@ -47,7 +47,7 @@
     "ai": "^7.0.44",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.6.0",
-    "next": "^16.2.11",
+    "next": "^16.3.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "sass": "^1.101.7",
@@ -61,6 +61,7 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "postcss": "^8.5.26",
     "tailwindcss": "^4.3.3",
     "turbo": "^2.9.14",
     "typescript": "^6.0.2"
