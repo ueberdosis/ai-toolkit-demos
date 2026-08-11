@@ -15,8 +15,7 @@ import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { useCallback, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
-import { ChatSidebar } from "../../../components/chat-sidebar";
-import { PanelSidebar } from "../../../components/panel-sidebar";
+import { RightSidebar } from "../../../components/right-sidebar";
 import { ToolbarPanel } from "../../../components/toolbar-panel";
 import { fromBase64String } from "../demo-setup.ts";
 import { initialContent } from "../initialContent.ts";
@@ -205,40 +204,23 @@ export default () => {
           </div>
         </main>
 
-        <PanelSidebar
+        <RightSidebar
           activePanel={activePanel}
           onActivePanelChange={setActivePanel}
-          panels={[
-            {
-              id: "chat",
-              label: "Chat",
-              content: (
-                <ChatSidebar
-                  embedded
-                  messages={chat.messages}
-                  input={chat.input}
-                  onInputChange={chat.setInput}
-                  onSubmit={chat.handleSubmit}
-                  isLoading={chat.isLoading}
-                  placeholder="Ask the AI to add comments..."
-                />
-              ),
-            },
-            {
-              id: "comments",
-              label: "Comments",
-              // Reply drafts and comment edits live inside the thread list.
-              keepMounted: true,
-              content: (
-                <CommentsPanel
-                  provider={provider}
-                  threads={filteredThreads}
-                  showUnresolved={showUnresolved}
-                  onShowUnresolvedChange={setShowUnresolved}
-                />
-              ),
-            },
-          ]}
+          messages={chat.messages}
+          input={chat.input}
+          onInputChange={chat.setInput}
+          onSubmit={chat.handleSubmit}
+          isLoading={chat.isLoading}
+          placeholder="Ask the AI to add comments..."
+          commentsPanel={
+            <CommentsPanel
+              provider={provider}
+              threads={filteredThreads}
+              showUnresolved={showUnresolved}
+              onShowUnresolvedChange={setShowUnresolved}
+            />
+          }
         />
       </div>
     </ThreadsProvider>
