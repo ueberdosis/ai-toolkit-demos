@@ -245,13 +245,9 @@ export async function POST(req: Request) {
         inputSchema: z.fromJSONSchema(
           tiptapEditTool.inputSchema as z.core.JSONSchema.JSONSchema,
         ),
-        // Force OpenAI structured-outputs constrained sampling so the
-        // `inputSchema` enum on `content[].type` is enforced at token level
-        // (not just sent as a hint). Without this flag, the LLM has been
-        // observed bypassing the enum and nesting operations into content.
-        // See `@ai-sdk/openai`'s `prepareChatTools` — `strict` is only
-        // forwarded when explicitly set; OpenAI defaults to false otherwise.
-        strict: true,
+        // `content` accepts arbitrary ProseMirror JSON, so the generated schema
+        // is recursive and OpenAI structured outputs rejects it with a 400.
+        strict: false,
         onInputStart: () => {
           if (forwardedStart) return;
           forwardedStart = true;
