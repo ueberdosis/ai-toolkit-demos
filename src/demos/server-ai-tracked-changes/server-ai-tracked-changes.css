@@ -96,8 +96,7 @@
   pointer-events: none;
 }
 
-/* Thread styling (server-AI demo only — comments demo defines its own
-   thread styles scoped to `.tracked-changes-comments-demo`). */
+/* Thread styling (shared by the server-AI tracked-changes demo and the comments demo). */
 :is(.server-ai-tracked-changes-demo, .comments-demo)
   .tiptap
   .tiptap-thread[data-type="inline"] {
