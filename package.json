@@ -23,7 +23,7 @@
     "@tiptap-pro/client-ai-toolkit-ai-sdk": "0.13.0",
     "@tiptap-pro/client-ai-toolkit-tool-definitions": "0.13.0",
     "@tiptap-pro/extension-comments": "^3.8.4",
-    "@tiptap-pro/extension-tracked-changes": "0.11.1",
+    "@tiptap-pro/extension-tracked-changes": "0.12.1",
     "@tiptap-pro/provider": "^3.8.4",
     "@tiptap/ai-toolkit": "0.3.0",
     "@tiptap/core": "3.22.5",

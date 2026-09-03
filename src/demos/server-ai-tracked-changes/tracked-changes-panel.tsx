@@ -32,6 +32,9 @@ function suggestionAccent(type: string) {
   if (type === "lift") {
     return "border-l-violet-500";
   }
+  if (type === "split") {
+    return "border-l-sky-500";
+  }
   return "border-l-blue-500";
 }
 

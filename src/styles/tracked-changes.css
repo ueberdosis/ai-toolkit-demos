@@ -115,6 +115,14 @@
   box-shadow: inset 2px 0 0 oklch(55% 0.2 290);
 }
 
+/* Block split. The content did not change, so only the ¶ widget is styled, never the block. */
+.tiptap .tiptap-tracked-change-split-marker {
+  color: oklch(62.3% 0.214 259.8);
+  margin-left: 0.15em;
+  opacity: 0.7;
+  user-select: none;
+}
+
 :where(
     .tracked-changes-comments-demo
       .tiptap
