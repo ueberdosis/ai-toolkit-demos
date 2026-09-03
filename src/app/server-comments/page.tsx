@@ -27,6 +27,7 @@ import { CommentsPanel } from "../../demos/server-ai-tracked-changes/comments-pa
 import type { PanelId } from "../../demos/server-ai-tracked-changes/panel-id";
 import { RightSidebar } from "../../demos/server-ai-tracked-changes/right-sidebar";
 import "../../demos/server-ai-tracked-changes/server-ai-tracked-changes.css";
+import "../../styles/collaboration-caret.css";
 import { getCollabConfig } from "./actions";
 
 export default function Page() {

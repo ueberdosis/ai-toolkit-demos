@@ -1,4 +1,5 @@
 import "../../server-ai-tracked-changes/server-ai-tracked-changes.css";
+import "../../../styles/collaboration-caret.css";
 
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";

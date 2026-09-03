@@ -30,6 +30,7 @@ import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
 import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
 import "../../demos/comments/React/styles.scss";
 import "../../demos/comments/style.scss";
+import "../../styles/collaboration-caret.css";
 
 const doc = new Y.Doc();
 
