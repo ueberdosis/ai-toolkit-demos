@@ -1,0 +1,44 @@
+"use client";
+
+export type SegmentedOption<T extends string = string> = {
+  id: T;
+  label: string;
+};
+
+interface SegmentedControlProps<T extends string> {
+  options: SegmentedOption<T>[];
+  value: T;
+  onChange: (value: T) => void;
+}
+
+export function SegmentedControl<T extends string>({
+  options,
+  value,
+  onChange,
+}: SegmentedControlProps<T>) {
+  return (
+    <div
+      className="grid w-full gap-0 rounded-lg bg-[var(--gray-2)] p-0.5"
+      style={{
+        gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))`,
+      }}
+    >
+      {options.map((option) => (
+        <button
+          key={option.id}
+          type="button"
+          onClick={() => onChange(option.id)}
+          // Both states set their own background: demos style bare buttons, so leaving it
+          // unset would let their default show through.
+          className={`flex min-h-6 cursor-pointer items-center justify-center rounded-md px-1.5 py-0 text-xs font-medium leading-[1.15] transition-all duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] ${
+            value === option.id
+              ? "bg-white text-[var(--black-contrast)] hover:bg-white"
+              : "bg-transparent text-[var(--gray-5)] hover:bg-transparent hover:text-[var(--black)]"
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}

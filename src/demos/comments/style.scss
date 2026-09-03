@@ -1,4 +1,8 @@
 /* Base HTML and global element styles*/
+
+/* Layered so a Tailwind utility on an element wins over these defaults. */
+@layer base {
+
 :root {
   --white: #fff;
   --black: #2e2b29;
@@ -375,4 +379,6 @@ kbd {
     font-weight: 700;
     line-height: 1.15;
   }
+}
+
 }

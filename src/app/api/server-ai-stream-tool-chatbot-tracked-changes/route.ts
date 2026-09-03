@@ -1,9 +1,11 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import {
+  createUIMessageStreamResponse,
   gateway,
-  stepCountIs,
+  isStepCount,
   streamText,
   tool,
+  toUIMessageStream,
   type UIMessage,
   wrapLanguageModel,
 } from "ai";
@@ -235,7 +237,7 @@ export async function POST(req: Request) {
 
   const llmResult = streamText({
     model,
-    system: `You are an expert editor that edits rich text documents using the tiptapEdit tool. You will be given a document and a task. Call tiptapEdit exactly once to make the edit, then reply with one short sentence confirming what you changed and letting the user know they can review it in the Tracked changes tab. Do not include document contents, hashes, or operation details in your reply.\n\n${toolsResponse.systemPrompt}`,
+    instructions: `You are an expert editor that edits rich text documents using the tiptapEdit tool. You will be given a document and a task. Call tiptapEdit exactly once to make the edit, then reply with one short sentence confirming what you changed and letting the user know they can review it in the Tracked changes tab. Do not include document contents, hashes, or operation details in your reply.\n\n${toolsResponse.systemPrompt}`,
     prompt: JSON.stringify({ content: documentContent, task }),
     tools: {
       tiptapEdit: tool({
@@ -243,13 +245,9 @@ export async function POST(req: Request) {
         inputSchema: z.fromJSONSchema(
           tiptapEditTool.inputSchema as z.core.JSONSchema.JSONSchema,
         ),
-        // Force OpenAI structured-outputs constrained sampling so the
-        // `inputSchema` enum on `content[].type` is enforced at token level
-        // (not just sent as a hint). Without this flag, the LLM has been
-        // observed bypassing the enum and nesting operations into content.
-        // See `@ai-sdk/openai`'s `prepareChatTools` — `strict` is only
-        // forwarded when explicitly set; OpenAI defaults to false otherwise.
-        strict: true,
+        // `content` accepts arbitrary ProseMirror JSON, so the generated schema
+        // is recursive and OpenAI structured outputs rejects it with a 400.
+        strict: false,
         onInputStart: () => {
           if (forwardedStart) return;
           forwardedStart = true;
@@ -301,7 +299,7 @@ export async function POST(req: Request) {
     },
     // Step 0: force the edit so the typing effect always happens. Step 1: forbid
     // tools so the model writes a short confirmation sentence for the chat.
-    stopWhen: stepCountIs(2),
+    stopWhen: isStepCount(2),
     prepareStep: ({ stepNumber }) => ({
       toolChoice: stepNumber === 0 ? "required" : "none",
     }),
@@ -313,5 +311,7 @@ export async function POST(req: Request) {
   // Return a UI message stream so the client uses `useChat`, exactly like the
   // non-streaming server demos. The tiptapEdit tool's `execute` drives the
   // /stream-tool bridge; the streamed edits reach the editor via Y.Doc sync.
-  return llmResult.toUIMessageStreamResponse();
+  return createUIMessageStreamResponse({
+    stream: toUIMessageStream({ stream: llmResult.stream }),
+  });
 }

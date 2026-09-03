@@ -18,14 +18,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { CopyTestCaseButton } from "@/components/capture-test-case/copy-test-case-button";
+import { type PanelId, RightSidebar } from "@/components/right-sidebar";
 import { fromBase64String } from "../../demos/comments/demo-setup";
 import { initialContent } from "../../demos/comments/initialContent";
 import { ThreadsProvider } from "../../demos/comments/React/context.jsx";
 import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
 import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
 import { CommentsPanel } from "../../demos/server-ai-tracked-changes/comments-panel";
-import type { PanelId } from "../../demos/server-ai-tracked-changes/panel-id";
-import { RightSidebar } from "../../demos/server-ai-tracked-changes/right-sidebar";
 import "../../demos/server-ai-tracked-changes/server-ai-tracked-changes.css";
 import { getCollabConfig } from "./actions";
 
