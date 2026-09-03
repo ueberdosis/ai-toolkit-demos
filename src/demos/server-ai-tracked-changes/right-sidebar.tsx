@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { ChatSidebar, type Message } from "@/components/chat-sidebar";
+import { ResponsiveRightSidebar } from "@/components/responsive-right-sidebar";
 import type { PanelId } from "./panel-id";
 
 type RightSidebarProps = {
@@ -42,7 +43,10 @@ export function RightSidebar({
   });
 
   return (
-    <aside className="flex h-screen w-[420px] shrink-0 flex-col border-l border-slate-200 bg-white">
+    <ResponsiveRightSidebar
+      mobileTitle="Document tools"
+      triggerLabel="Open tools"
+    >
       <div className="border-b border-slate-200 bg-white p-4">
         <div
           className={`grid w-full gap-0 rounded-lg bg-[var(--gray-2)] p-0.5 ${
@@ -86,6 +90,6 @@ export function RightSidebar({
         {activePanel === "tracked" && trackedPanel}
         {commentsPanel && activePanel === "comments" && commentsPanel}
       </div>
-    </aside>
+    </ResponsiveRightSidebar>
   );
 }

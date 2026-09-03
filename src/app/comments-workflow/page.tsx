@@ -17,6 +17,7 @@ import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
+import { ResponsiveRightSidebar } from "@/components/responsive-right-sidebar";
 import { fromBase64String } from "../../demos/comments/demo-setup";
 import { initialContent } from "../../demos/comments/initialContent";
 import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
@@ -166,7 +167,10 @@ export default function Page() {
           <EditorContent editor={editor} />
         </div>
       </main>
-      <aside className="flex h-screen w-[420px] shrink-0 flex-col border-l border-slate-200 bg-white">
+      <ResponsiveRightSidebar
+        mobileTitle="Comments workflow"
+        triggerLabel="Open workflow"
+      >
         <div className="border-b border-slate-200 bg-white p-4">
           <div className="grid grid-cols-2 rounded-lg bg-[var(--gray-2)] p-0.5">
             {(["workflow", "comments"] as const).map((panel) => (
@@ -252,7 +256,7 @@ export default function Page() {
             />
           )}
         </div>
-      </aside>
+      </ResponsiveRightSidebar>
     </div>
   );
 }

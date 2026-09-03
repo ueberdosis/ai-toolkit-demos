@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { ChatSidebar, type Message } from "./chat-sidebar";
+import { ResponsiveRightSidebar } from "./responsive-right-sidebar";
 import { SegmentedControl } from "./segmented-control";
 
 export type PanelId = "chat" | "tracked" | "comments";
@@ -68,7 +69,10 @@ export function RightSidebar({
   const active = panels.find((panel) => panel.id === activePanel) ?? panels[0];
 
   return (
-    <aside className="flex h-screen w-[420px] shrink-0 flex-col border-l border-slate-200 bg-white">
+    <ResponsiveRightSidebar
+      mobileTitle="Document tools"
+      triggerLabel="Open tools"
+    >
       <div className="border-b border-slate-200 bg-white p-4">
         <SegmentedControl
           options={panels}
@@ -94,6 +98,6 @@ export function RightSidebar({
           );
         })}
       </div>
-    </aside>
+    </ResponsiveRightSidebar>
   );
 }
