@@ -7,12 +7,16 @@ type ResponsiveRightSidebarProps = {
   children: ReactNode;
   mobileTitle: string;
   triggerLabel: string;
+  triggerIcon?: ReactNode;
+  onOpen?: () => void;
 };
 
 export function ResponsiveRightSidebar({
   children,
   mobileTitle,
   triggerLabel,
+  triggerIcon,
+  onOpen,
 }: ResponsiveRightSidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -24,10 +28,13 @@ export function ResponsiveRightSidebar({
 
       <button
         type="button"
-        onClick={() => setIsMobileOpen(true)}
+        onClick={() => {
+          onOpen?.();
+          setIsMobileOpen(true);
+        }}
         className="fixed right-4 bottom-4 z-40 flex items-center gap-2 rounded-full bg-[var(--black)] px-4 py-2.5 text-sm font-medium text-white shadow-lg sm:hidden"
       >
-        <PanelRightOpen size={16} />
+        {triggerIcon ?? <PanelRightOpen size={16} />}
         {triggerLabel}
       </button>
 

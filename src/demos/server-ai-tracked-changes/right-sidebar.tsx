@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader2, MessageSquare } from "lucide-react";
 import type { ReactNode } from "react";
 import { ChatSidebar, type Message } from "@/components/chat-sidebar";
 import { ResponsiveRightSidebar } from "@/components/responsive-right-sidebar";
@@ -44,8 +45,16 @@ export function RightSidebar({
 
   return (
     <ResponsiveRightSidebar
-      mobileTitle="Document tools"
-      triggerLabel="Open tools"
+      mobileTitle="AI Chat"
+      triggerLabel={isLoading ? "AI thinking..." : "Chat"}
+      triggerIcon={
+        isLoading ? (
+          <Loader2 className="animate-spin" size={16} />
+        ) : (
+          <MessageSquare size={16} />
+        )
+      }
+      onOpen={() => onActivePanelChange("chat")}
     >
       <div className="border-b border-slate-200 bg-white p-4">
         <div
