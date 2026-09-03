@@ -5,25 +5,25 @@
  * (shared with the other tracked-changes demos) — do not duplicate them here.
  */
 
-.server-ai-tracked-changes-demo .tiptap {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap {
   min-height: 58vh;
   color: rgb(15 23 42);
   outline: none;
 }
 
-.server-ai-tracked-changes-demo .tiptap :first-child {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap :first-child {
   margin-top: 0;
 }
 
-.server-ai-tracked-changes-demo .tiptap p {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap p {
   margin: 1rem 0;
   line-height: 1.75;
   word-break: break-word;
 }
 
-.server-ai-tracked-changes-demo .tiptap h1,
-.server-ai-tracked-changes-demo .tiptap h2,
-.server-ai-tracked-changes-demo .tiptap h3 {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap h1,
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap h2,
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap h3 {
   margin-top: 2rem;
   margin-bottom: 1rem;
   font-weight: 700;
@@ -31,40 +31,40 @@
   text-wrap: pretty;
 }
 
-.server-ai-tracked-changes-demo .tiptap h1 {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap h1 {
   font-size: 1.75rem;
 }
 
-.server-ai-tracked-changes-demo .tiptap h2 {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap h2 {
   font-size: 1.35rem;
 }
 
-.server-ai-tracked-changes-demo .tiptap h3 {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap h3 {
   font-size: 1.1rem;
 }
 
-.server-ai-tracked-changes-demo .tiptap ul,
-.server-ai-tracked-changes-demo .tiptap ol {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap ul,
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap ol {
   margin: 1.25rem 0;
   padding-left: 1.5rem;
 }
 
-.server-ai-tracked-changes-demo .tiptap ul {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap ul {
   list-style: disc;
 }
 
-.server-ai-tracked-changes-demo .tiptap ol {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap ol {
   list-style: decimal;
 }
 
-.server-ai-tracked-changes-demo .tiptap blockquote {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap blockquote {
   margin: 1.5rem 0;
   border-left: 3px solid rgb(203 213 225);
   padding-left: 1rem;
   color: rgb(71 85 105);
 }
 
-.server-ai-tracked-changes-demo .tiptap pre {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap pre {
   margin: 1.5rem 0;
   overflow-x: auto;
   border-radius: 0.5rem;
@@ -73,20 +73,22 @@
   color: white;
 }
 
-.server-ai-tracked-changes-demo .tiptap code {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap code {
   border-radius: 0.35rem;
   background: rgb(241 245 249);
   padding: 0.15rem 0.3rem;
   font-size: 0.875em;
 }
 
-.server-ai-tracked-changes-demo .tiptap pre code {
+:is(.server-ai-tracked-changes-demo, .comments-demo) .tiptap pre code {
   background: transparent;
   padding: 0;
   color: inherit;
 }
 
-.server-ai-tracked-changes-demo .tiptap .is-empty.is-editor-empty::before {
+:is(.server-ai-tracked-changes-demo, .comments-demo)
+  .tiptap
+  .is-empty.is-editor-empty::before {
   float: left;
   height: 0;
   color: rgb(148 163 184);
@@ -96,11 +98,17 @@
 
 /* Thread styling (server-AI demo only — comments demo defines its own
    thread styles scoped to `.tracked-changes-comments-demo`). */
-.server-ai-tracked-changes-demo .tiptap .tiptap-thread[data-type="inline"] {
+:is(.server-ai-tracked-changes-demo, .comments-demo)
+  .tiptap
+  .tiptap-thread[data-type="inline"] {
   border-bottom: 2px solid rgba(168, 85, 247, 0.45);
 }
 
-.server-ai-tracked-changes-demo .tiptap .tiptap-thread[data-state="selected"],
-.server-ai-tracked-changes-demo .tiptap .tiptap-thread[data-state="hovered"] {
+:is(.server-ai-tracked-changes-demo, .comments-demo)
+  .tiptap
+  .tiptap-thread[data-state="selected"],
+:is(.server-ai-tracked-changes-demo, .comments-demo)
+  .tiptap
+  .tiptap-thread[data-state="hovered"] {
   background-color: rgba(168, 85, 247, 0.14);
 }

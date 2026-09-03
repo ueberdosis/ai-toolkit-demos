@@ -7,7 +7,7 @@ import {
 import { useState } from "react";
 import { ChatSidebar } from "../../../components/chat-sidebar";
 
-export function CommentsAiChatbot({ editor }) {
+export function useCommentsAiChatbot(editor) {
   const [input, setInput] = useState(
     "Add a comment to the first sentence of the last paragraph, that says 'well done'",
   );
@@ -45,9 +45,16 @@ export function CommentsAiChatbot({ editor }) {
     }
   };
 
+  return { messages, input, setInput, handleSubmit, isLoading };
+}
+
+export function CommentsAiChatbot({ editor }) {
+  const { messages, input, setInput, handleSubmit, isLoading } =
+    useCommentsAiChatbot(editor);
+
   return (
     <ChatSidebar
-      embedded={true}
+      embedded
       messages={messages}
       input={input}
       onInputChange={setInput}

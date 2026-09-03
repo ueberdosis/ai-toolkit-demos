@@ -15,14 +15,7 @@ import {
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { DefaultChatTransport } from "ai";
-import {
-  type FormEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { getCollabConfig } from "@/app/server-ai-agent-chatbot/actions";
@@ -332,7 +325,7 @@ function TrackedChangesEditor({
     [threads],
   );
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SubmitEvent) => {
     event.preventDefault();
 
     if (input.trim()) {

@@ -1,4 +1,4 @@
-import "./styles.scss";
+import "../../server-ai-tracked-changes/server-ai-tracked-changes.css";
 
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
@@ -15,10 +15,11 @@ import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { useCallback, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
+import { CommentsPanel } from "../../server-ai-tracked-changes/comments-panel";
+import { RightSidebar } from "../../server-ai-tracked-changes/right-sidebar";
 import { fromBase64String } from "../demo-setup.ts";
 import { initialContent } from "../initialContent.ts";
-import { CommentsAiChatbot } from "./CommentsAiChatbot.jsx";
-import { ThreadsList } from "./components/ThreadsList.jsx";
+import { useCommentsAiChatbot } from "./CommentsAiChatbot.jsx";
 import { ThreadsProvider } from "./context.jsx";
 import { NodeViewExtension } from "./extensions.jsx";
 import { useThreads } from "./hooks/useThreads.jsx";
@@ -41,14 +42,12 @@ export default () => {
   const [showUnresolved, setShowUnresolved] = useState(true);
   const [selectedThread, setSelectedThread] = useState(null);
   const threadsRef = useRef([]);
-  const [selection, setSelection] = useState(null);
+  const [activePanel, setActivePanel] = useState("chat");
 
   const user = useUser();
 
   const editor = useEditor({
     immediatelyRender: false,
-    onSelectionUpdate: ({ editor: currentEditor }) =>
-      setSelection(currentEditor.state.selection),
     extensions: [
       AiToolkit,
       StarterKit.configure({
@@ -97,6 +96,7 @@ export default () => {
   });
 
   const { threads = [], createThread } = useThreads(provider, editor, user);
+  const chat = useCommentsAiChatbot(editor);
 
   threadsRef.current = threads;
 
@@ -156,10 +156,6 @@ export default () => {
     return null;
   }
 
-  const filteredThreads = threads.filter((t) =>
-    showUnresolved ? !t.resolvedAt : !!t.resolvedAt,
-  );
-
   return (
     <ThreadsProvider
       onClickThread={selectThreadInEditor}
@@ -175,60 +171,37 @@ export default () => {
       threads={threads}
     >
       <div
-        className="col-group divide-x divide-gray-200"
+        className="comments-demo flex h-screen overflow-hidden bg-white"
         data-viewmode={showUnresolved ? "open" : "resolved"}
       >
-        <div className="sidebar">
-          <div className="sidebar-options">
-            <div className="option-group">
-              <div className="label-large">Comments</div>
-              <div className="switch-group">
-                <label>
-                  <input
-                    type="radio"
-                    name="thread-state"
-                    onChange={() => setShowUnresolved(true)}
-                    checked={showUnresolved}
-                  />
-                  Open
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="thread-state"
-                    onChange={() => setShowUnresolved(false)}
-                    checked={!showUnresolved}
-                  />
-                  Resolved
-                </label>
-              </div>
-            </div>
-            <ThreadsList provider={provider} threads={filteredThreads} />
+        <main className="flex min-w-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <EditorContent editor={editor} />
           </div>
-        </div>
-        <div className="main">
-          <div className="control-group">
-            <div className="button-group">
-              <button
-                type="button"
-                onClick={createThread}
-                disabled={!selection || selection.empty}
-              >
-                Add comment
-              </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().insertNodeView().run()}
-              >
-                Add node view
-              </button>
-            </div>
-          </div>
-          <EditorContent editor={editor} />
-        </div>
-        <div className="sidebar !p-0">
-          <CommentsAiChatbot editor={editor} />
-        </div>
+        </main>
+        <RightSidebar
+          activePanel={activePanel}
+          onActivePanelChange={setActivePanel}
+          messages={chat.messages}
+          input={chat.input}
+          onInputChange={chat.setInput}
+          onSubmit={chat.handleSubmit}
+          isLoading={chat.isLoading}
+          commentsPanel={
+            <CommentsPanel
+              editor={editor}
+              provider={provider}
+              threads={threads}
+              selectedThread={selectedThread}
+              showResolved={!showUnresolved}
+              onShowResolvedChange={(showResolved) =>
+                setShowUnresolved(!showResolved)
+              }
+              onSelectThread={selectThreadInEditor}
+              onCreateThread={createThread}
+            />
+          }
+        />
       </div>
     </ThreadsProvider>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { ChatSidebar, type Message } from "@/components/chat-sidebar";
 import type { PanelId } from "./panel-id";
 
@@ -10,9 +10,9 @@ type RightSidebarProps = {
   messages: Message[];
   input: string;
   onInputChange: (value: string) => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onSubmit: (event: SubmitEvent) => void;
   isLoading: boolean;
-  trackedPanel: ReactNode;
+  trackedPanel?: ReactNode;
   commentsPanel?: ReactNode;
   inputAction?: ReactNode;
 };
@@ -35,18 +35,22 @@ export function RightSidebar({
   commentsPanel,
   inputAction,
 }: RightSidebarProps) {
-  // Hide the Comments tab when the demo provides no comments panel (e.g. the
-  // streaming tracked-changes demo, where the stream does not create threads).
-  const panels = commentsPanel
-    ? allPanels
-    : allPanels.filter((panel) => panel.id !== "comments");
+  const panels = allPanels.filter((panel) => {
+    if (panel.id === "tracked") return Boolean(trackedPanel);
+    if (panel.id === "comments") return Boolean(commentsPanel);
+    return true;
+  });
 
   return (
     <aside className="flex h-screen w-[420px] shrink-0 flex-col border-l border-slate-200 bg-white">
       <div className="border-b border-slate-200 bg-white p-4">
         <div
           className={`grid w-full gap-0 rounded-lg bg-[var(--gray-2)] p-0.5 ${
-            panels.length === 3 ? "grid-cols-3" : "grid-cols-2"
+            panels.length === 3
+              ? "grid-cols-3"
+              : panels.length === 2
+                ? "grid-cols-2"
+                : "grid-cols-1"
           }`}
         >
           {panels.map((panel) => (
@@ -73,9 +77,7 @@ export function RightSidebar({
             messages={messages}
             input={input}
             onInputChange={onInputChange}
-            onSubmit={(event) =>
-              onSubmit(event as unknown as FormEvent<HTMLFormElement>)
-            }
+            onSubmit={onSubmit}
             isLoading={isLoading}
             placeholder="Ask the AI to edit the document..."
             inputAction={inputAction}
