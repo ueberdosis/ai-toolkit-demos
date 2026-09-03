@@ -5,29 +5,24 @@ import { getEditorContext, ServerAiToolkit } from "@tiptap/ai-toolkit";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
 import Placeholder from "@tiptap/extension-placeholder";
-import type { Selection } from "@tiptap/pm/state";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import {
-  CommentsKit,
-  hoverOffThread,
-  hoverThread,
-} from "@tiptap-pro/extension-comments";
+import { CommentsKit } from "@tiptap-pro/extension-comments";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { DefaultChatTransport } from "ai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { CopyTestCaseButton } from "@/components/capture-test-case/copy-test-case-button";
-import { ChatSidebar } from "../../components/chat-sidebar";
 import { fromBase64String } from "../../demos/comments/demo-setup";
 import { initialContent } from "../../demos/comments/initialContent";
-import { ThreadsList } from "../../demos/comments/React/components/ThreadsList.jsx";
-import { ThreadsProvider } from "../../demos/comments/React/context.jsx";
 import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
 import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
-import "../../demos/comments/React/styles.scss";
-import "../../demos/comments/style.scss";
+import { CommentsPanel } from "../../demos/server-ai-tracked-changes/comments-panel";
+import type { PanelId } from "../../demos/server-ai-tracked-changes/panel-id";
+import { RightSidebar } from "../../demos/server-ai-tracked-changes/right-sidebar";
+import "../../demos/server-ai-tracked-changes/server-ai-tracked-changes.css";
+import "../../styles/collaboration-caret.css";
 import { getCollabConfig } from "./actions";
 
 export default function Page() {
@@ -36,10 +31,10 @@ export default function Page() {
   const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
 
   const [showUnresolved, setShowUnresolved] = useState(true);
+  const [activePanel, setActivePanel] = useState<PanelId>("chat");
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
   // biome-ignore lint/suspicious/noExplicitAny: Interop with js file
   const threadsRef = useRef<any[]>([]);
-  const [selection, setSelection] = useState<Selection | null>(null);
 
   const user = useUser();
 
@@ -93,8 +88,6 @@ export default function Page() {
   const editor = useEditor(
     {
       immediatelyRender: false,
-      onSelectionUpdate: ({ editor: currentEditor }) =>
-        setSelection(currentEditor.state.selection),
       extensions: [
         StarterKit.configure({ undoRedo: false }),
         Collaboration.configure({ document: doc }),
@@ -180,158 +173,50 @@ export default function Page() {
     [editor],
   );
 
-  const deleteThread = useCallback(
-    (threadId: string) => {
-      provider?.deleteThread(threadId);
-      editor?.commands.removeThread({ id: threadId });
-    },
-    [editor, provider],
-  );
-
-  const resolveThread = useCallback(
-    (threadId: string) => {
-      editor?.commands.resolveThread({ id: threadId });
-    },
-    [editor],
-  );
-
-  const unresolveThread = useCallback(
-    (threadId: string) => {
-      editor?.commands.unresolveThread({ id: threadId });
-    },
-    [editor],
-  );
-
-  const updateComment = useCallback(
-    (
-      threadId: string,
-      commentId: string,
-      content: string,
-      metaData: Record<string, string>,
-    ) => {
-      editor?.commands.updateComment({
-        threadId,
-        id: commentId,
-        content,
-        data: metaData,
-      });
-    },
-    [editor],
-  );
-
-  const onHoverThread = useCallback(
-    (threadId: number) => {
-      if (editor) {
-        hoverThread(editor, [threadId]);
-      }
-    },
-    [editor],
-  );
-
-  const onLeaveThread = useCallback(() => {
-    if (editor) {
-      hoverOffThread(editor);
-    }
-  }, [editor]);
-
   if (!editor || !provider) {
     return null;
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: Interop with js file
-  const filteredThreads = threads.filter((t: any) =>
-    showUnresolved ? !t.resolvedAt : !!t.resolvedAt,
-  );
-
   return (
-    <ThreadsProvider
-      // @ts-expect-error - Interop with js file
-      onClickThread={selectThreadInEditor}
-      // @ts-expect-error - Interop with js file
-      onDeleteThread={deleteThread}
-      // @ts-expect-error - Interop with js file
-      onHoverThread={onHoverThread}
-      // @ts-expect-error - Interop with js file
-      onLeaveThread={onLeaveThread}
-      // @ts-expect-error - Interop with js file
-      onResolveThread={resolveThread}
-      // @ts-expect-error - Interop with js file
-      onUpdateComment={updateComment}
-      // @ts-expect-error - Interop with js file
-      onUnresolveThread={unresolveThread}
-      // @ts-expect-error - Interop with js file
-      selectedThreads={editor.storage.comments?.focusedThreads ?? []}
-      // @ts-expect-error - Interop with js file
-      selectedThread={selectedThread}
-      // @ts-expect-error - Interop with js file
-      setSelectedThread={setSelectedThread}
-      threads={threads}
+    <div
+      className="comments-demo flex h-screen overflow-hidden bg-white"
+      data-viewmode={showUnresolved ? "open" : "resolved"}
     >
-      <div
-        className="col-group divide-x divide-gray-200"
-        data-viewmode={showUnresolved ? "open" : "resolved"}
-      >
-        <div className="sidebar">
-          <div className="sidebar-options">
-            <div className="option-group">
-              <div className="label-large">Comments</div>
-              <div className="switch-group">
-                <label>
-                  <input
-                    type="radio"
-                    name="thread-state"
-                    onChange={() => setShowUnresolved(true)}
-                    checked={showUnresolved}
-                  />
-                  Open
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="thread-state"
-                    onChange={() => setShowUnresolved(false)}
-                    checked={!showUnresolved}
-                  />
-                  Resolved
-                </label>
-              </div>
-            </div>
-            <ThreadsList provider={provider} threads={filteredThreads} />
-          </div>
-        </div>
-        <div className="main">
-          <div className="control-group">
-            <div className="button-group">
-              <button
-                type="button"
-                onClick={createThread}
-                disabled={!selection || selection.empty}
-              >
-                Add comment
-              </button>
-            </div>
-          </div>
+      <main className="flex min-w-0 flex-1 flex-col">
+        <div className="min-h-0 flex-1 overflow-y-auto">
           <EditorContent editor={editor} />
         </div>
-        <div className="sidebar !p-0">
-          <ChatSidebar
-            embedded={true}
-            messages={messages}
-            input={input}
-            onInputChange={setInput}
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-            placeholder="Ask the AI to add comments..."
-            inputAction={
-              <CopyTestCaseButton
-                editor={editor}
-                messages={messages}
-                status={status}
-              />
+      </main>
+      <RightSidebar
+        activePanel={activePanel}
+        onActivePanelChange={setActivePanel}
+        messages={messages}
+        input={input}
+        onInputChange={setInput}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+        commentsPanel={
+          <CommentsPanel
+            editor={editor}
+            provider={provider}
+            threads={threads}
+            selectedThread={selectedThread}
+            showResolved={!showUnresolved}
+            onShowResolvedChange={(showResolved) =>
+              setShowUnresolved(!showResolved)
             }
+            onSelectThread={selectThreadInEditor}
+            onCreateThread={createThread}
           />
-        </div>
-      </div>
-    </ThreadsProvider>
+        }
+        inputAction={
+          <CopyTestCaseButton
+            editor={editor}
+            messages={messages}
+            status={status}
+          />
+        }
+      />
+    </div>
   );
 }

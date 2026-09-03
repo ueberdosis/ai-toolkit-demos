@@ -445,32 +445,50 @@ export default function Page() {
 
       {/* Chat sidebar */}
       {isChatOpen && (
-        <div className="flex flex-col border-l border-slate-200 h-screen flex-shrink-0 w-80 lg:w-96">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200">
-            <span className="text-sm font-medium text-slate-700">Chat</span>
-            <button
-              type="button"
-              onClick={() => setIsChatOpen(false)}
-              className="rounded-md p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+        <>
+          <div className="hidden h-screen w-80 flex-shrink-0 flex-col border-l border-slate-200 sm:flex lg:w-96">
+            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-2">
+              <span className="text-sm font-medium text-slate-700">Chat</span>
+              <button
+                type="button"
+                onClick={() => setIsChatOpen(false)}
+                className="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+              >
+                <PanelRightClose size={16} />
+              </button>
+            </div>
+            <ChatSidebar
+              messages={messages}
+              input={input}
+              onInputChange={setInput}
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+              embedded
             >
-              <PanelRightClose size={16} />
-            </button>
+              {reviewToolbar && (
+                <div className="border-t border-slate-200 p-3">
+                  {reviewToolbar}
+                </div>
+              )}
+            </ChatSidebar>
           </div>
-          <ChatSidebar
-            messages={messages}
-            input={input}
-            onInputChange={setInput}
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-            embedded
-          >
-            {reviewToolbar && (
-              <div className="border-t border-slate-200 p-3">
-                {reviewToolbar}
-              </div>
-            )}
-          </ChatSidebar>
-        </div>
+
+          <div className="sm:hidden">
+            <ChatSidebar
+              messages={messages}
+              input={input}
+              onInputChange={setInput}
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+            >
+              {reviewToolbar && (
+                <div className="border-t border-slate-200 p-3">
+                  {reviewToolbar}
+                </div>
+              )}
+            </ChatSidebar>
+          </div>
+        </>
       )}
 
       {/* Popover for accept/reject individual entries */}

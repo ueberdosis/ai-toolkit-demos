@@ -10,7 +10,7 @@ import { EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { TrackedChanges } from "@tiptap-pro/extension-tracked-changes";
 import { DefaultChatTransport } from "ai";
-import { type FormEvent, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { type PanelId, RightSidebar } from "@/components/right-sidebar";
 import { SuggestionReviewTooltip } from "@/components/suggestion-review-tooltip";
@@ -74,7 +74,7 @@ export default function Page() {
 
   const isLoading = status !== "ready";
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (input.trim() && !isLoading) {
       sendMessage({ text: input });

@@ -4,7 +4,6 @@ import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
 import Placeholder from "@tiptap/extension-placeholder";
-import type { Selection } from "@tiptap/pm/state";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
@@ -12,24 +11,20 @@ import {
   editThreadsWorkflowOutputSchema,
   getAiToolkit,
 } from "@tiptap-pro/client-ai-toolkit";
-import {
-  CommentsKit,
-  hoverOffThread,
-  hoverThread,
-} from "@tiptap-pro/extension-comments";
+import { CommentsKit } from "@tiptap-pro/extension-comments";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
+import { ResponsiveRightSidebar } from "@/components/responsive-right-sidebar";
 import { fromBase64String } from "../../demos/comments/demo-setup";
 import { initialContent } from "../../demos/comments/initialContent";
-import { ThreadsList } from "../../demos/comments/React/components/ThreadsList.jsx";
-import { ThreadsProvider } from "../../demos/comments/React/context.jsx";
 import { useThreads } from "../../demos/comments/React/hooks/useThreads.jsx";
 import { useUser } from "../../demos/comments/React/hooks/useUser.jsx";
-import "../../demos/comments/React/styles.scss";
-import "../../demos/comments/style.scss";
+import { CommentsPanel } from "../../demos/server-ai-tracked-changes/comments-panel";
+import "../../demos/server-ai-tracked-changes/server-ai-tracked-changes.css";
+import "../../styles/collaboration-caret.css";
 
 const doc = new Y.Doc();
 
@@ -44,11 +39,14 @@ const initialBinary = fromBase64String(initialContent);
 Y.applyUpdate(provider.document, initialBinary);
 
 export default function Page() {
-  const [showUnresolved, setShowUnresolved] = useState(true);
+  const [activePanel, setActivePanel] = useState<"workflow" | "comments">(
+    "workflow",
+  );
+  const [showResolved, setShowResolved] = useState(false);
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
   // biome-ignore lint/suspicious/noExplicitAny: Interop with js file
   const threadsRef = useRef<any[]>([]);
-  const [selection, setSelection] = useState<Selection | null>(null);
+  const [, setSelectionVersion] = useState(0);
   const [workflowId, setWorkflowId] = useState("");
   const [task, setTask] = useState(
     "Add short, example comments suggesting improvements to sentences in this document",
@@ -59,8 +57,7 @@ export default function Page() {
 
   const editor = useEditor({
     immediatelyRender: false,
-    onSelectionUpdate: ({ editor: currentEditor }) =>
-      setSelection(currentEditor.state.selection),
+    onSelectionUpdate: () => setSelectionVersion((version) => version + 1),
     extensions: [
       AiToolkit,
       StarterKit.configure({
@@ -108,8 +105,6 @@ export default function Page() {
   const { threads = [], createThread } = useThreads(provider, editor, user);
 
   threadsRef.current = threads;
-  const editorRef = useRef(editor);
-  editorRef.current = editor;
 
   const { submit, isLoading, object } = useObject({
     api: "/api/comments-workflow",
@@ -128,7 +123,7 @@ export default function Page() {
 
     if (!isLoading) {
       setResultMessage(
-        `Applied ${result.operations.length} comment operation(s)`,
+        `Applied ${result.operations.length} comment operation(s).`,
       );
     }
   }, [editor, object, workflowId, isLoading]);
@@ -140,58 +135,12 @@ export default function Page() {
     [editor],
   );
 
-  const deleteThread = useCallback(
-    (threadId: string) => {
-      provider.deleteThread(threadId);
-      editor.commands.removeThread({ id: threadId });
-    },
-    [editor],
-  );
-
-  const resolveThread = useCallback(
-    (threadId: string) => {
-      editor.commands.resolveThread({ id: threadId });
-    },
-    [editor],
-  );
-
-  const unresolveThread = useCallback(
-    (threadId: string) => {
-      editor.commands.unresolveThread({ id: threadId });
-    },
-    [editor],
-  );
-
-  const updateComment = useCallback(
-    (
-      threadId: string,
-      commentId: string,
-      content: string,
-      metaData: Record<string, string>,
-    ) => {
-      editor.commands.updateComment({
-        threadId,
-        id: commentId,
-        content,
-        data: metaData,
-      });
-    },
-    [editor],
-  );
-
-  const onHoverThread = useCallback(
-    (threadId: number) => {
-      hoverThread(editor, [threadId]);
-    },
-    [editor],
-  );
-
-  const onLeaveThread = useCallback(() => {
-    hoverOffThread(editor);
-  }, [editor]);
-
   const manageComments = () => {
-    setWorkflowId(uuid());
+    const prompt = task.trim();
+    if (!prompt || isLoading) return;
+
+    const nextWorkflowId = uuid();
+    setWorkflowId(nextWorkflowId);
     setResultMessage("");
 
     const toolkit = getAiToolkit(editor);
@@ -201,119 +150,113 @@ export default function Page() {
     const { threads } = toolkit.getThreads();
 
     // Call the API endpoint to start the workflow
-    submit({ content, threads, task });
+    submit({ content, threads, task: prompt });
   };
 
   if (!editor) {
     return null;
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: Interop with js file
-  const filteredThreads = threads.filter((t: any) =>
-    showUnresolved ? !t.resolvedAt : !!t.resolvedAt,
-  );
-
   return (
-    <ThreadsProvider
-      // @ts-expect-error - Interop with js file
-      onClickThread={selectThreadInEditor}
-      // @ts-expect-error - Interop with js file
-      onDeleteThread={deleteThread}
-      // @ts-expect-error - Interop with js file
-      onHoverThread={onHoverThread}
-      // @ts-expect-error - Interop with js file
-      onLeaveThread={onLeaveThread}
-      // @ts-expect-error - Interop with js file
-      onResolveThread={resolveThread}
-      // @ts-expect-error - Interop with js file
-      onUpdateComment={updateComment}
-      // @ts-expect-error - Interop with js file
-      onUnresolveThread={unresolveThread}
-      // @ts-expect-error - Interop with js file
-      selectedThreads={editor.storage.comments.focusedThreads}
-      // @ts-expect-error - Interop with js file
-      selectedThread={selectedThread}
-      // @ts-expect-error - Interop with js file
-      setSelectedThread={setSelectedThread}
-      threads={threads}
+    <div
+      className="comments-demo flex h-screen overflow-hidden bg-white"
+      data-viewmode={showResolved ? "resolved" : "open"}
     >
-      <div
-        className="col-group divide-x divide-gray-200"
-        data-viewmode={showUnresolved ? "open" : "resolved"}
-      >
-        <div className="sidebar">
-          <div className="sidebar-options">
-            <div className="option-group">
-              <div className="label-large">Comments</div>
-              <div className="switch-group">
-                <label>
-                  <input
-                    type="radio"
-                    name="thread-state"
-                    onChange={() => setShowUnresolved(true)}
-                    checked={showUnresolved}
-                  />
-                  Open
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="thread-state"
-                    onChange={() => setShowUnresolved(false)}
-                    checked={!showUnresolved}
-                  />
-                  Resolved
-                </label>
-              </div>
-            </div>
-            <ThreadsList provider={provider} threads={filteredThreads} />
-          </div>
-        </div>
-        <div className="main">
-          <div className="flex flex-col md:flex-row md:items-start gap-2 border-b border-slate-200 bg-white px-4 py-3">
-            <button
-              type="button"
-              onClick={createThread}
-              disabled={!selection || selection.empty}
-              className="rounded-lg border-none bg-[var(--gray-2)] text-[var(--black)] px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--gray-3)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] transition-all duration-200 md:w-auto whitespace-nowrap"
-            >
-              Add comment
-            </button>
-            <textarea
-              value={task}
-              onChange={(e) => {
-                setTask(e.target.value);
-                e.target.style.height = "auto";
-                e.target.style.height = `${e.target.scrollHeight}px`;
-              }}
-              placeholder="Enter task for managing comments..."
-              rows={1}
-              className="flex-1 resize-none border border-[var(--gray-3)] rounded-lg px-3 py-1.5 text-sm focus:border-[var(--purple)] focus:outline-none min-h-16 md:min-h-0"
-            />
-            <button
-              type="button"
-              onClick={manageComments}
-              disabled={isLoading || !task.trim()}
-              className="rounded-lg border-none bg-[var(--gray-2)] text-[var(--black)] px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--gray-3)] disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)] transition-all duration-200 w-full md:w-auto whitespace-nowrap"
-            >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-1.5">
-                  <Loader2 className="animate-spin" size={14} />
-                  Processing...
-                </span>
-              ) : (
-                "Run Comments Workflow"
-              )}
-            </button>
-          </div>
-          {!isLoading && Boolean(resultMessage) && (
-            <div className="hint" style={{ margin: "0.75rem 1.5rem 0" }}>
-              {resultMessage}
-            </div>
-          )}
+      <main className="flex min-w-0 flex-1 flex-col">
+        <div className="min-h-0 flex-1 overflow-y-auto">
           <EditorContent editor={editor} />
         </div>
-      </div>
-    </ThreadsProvider>
+      </main>
+      <ResponsiveRightSidebar
+        mobileTitle="Comments workflow"
+        triggerLabel="Open workflow"
+      >
+        <div className="border-b border-slate-200 bg-white p-4">
+          <div className="grid grid-cols-2 rounded-lg bg-[var(--gray-2)] p-0.5">
+            {(["workflow", "comments"] as const).map((panel) => (
+              <button
+                key={panel}
+                type="button"
+                onClick={() => setActivePanel(panel)}
+                className={`flex min-h-6 cursor-pointer items-center justify-center rounded-md px-1.5 text-xs font-medium leading-[1.15] capitalize transition-all duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] ${
+                  activePanel === panel
+                    ? "bg-white text-[var(--black-contrast)]"
+                    : "text-[var(--gray-5)] hover:text-[var(--black)]"
+                }`}
+              >
+                {panel}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-hidden">
+          {activePanel === "workflow" && (
+            <div className="flex h-full flex-col">
+              <div className="border-b border-slate-200 p-4">
+                <h2 className="text-sm font-semibold text-slate-950">
+                  Comments workflow
+                </h2>
+                <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                  Run the edit-threads workflow against the document and its
+                  existing comments.
+                </p>
+              </div>
+
+              <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
+                <label
+                  htmlFor="comments-workflow-task"
+                  className="text-sm font-medium text-slate-900"
+                >
+                  Workflow task
+                </label>
+                <textarea
+                  id="comments-workflow-task"
+                  value={task}
+                  onChange={(event) => setTask(event.target.value)}
+                  placeholder="Describe how the workflow should manage comments..."
+                  rows={7}
+                  className="w-full resize-none rounded-lg border border-[var(--gray-3)] px-3 py-2 text-sm focus:border-[var(--purple)] focus:outline-none placeholder:text-[var(--gray-4)]"
+                />
+                <button
+                  type="button"
+                  onClick={manageComments}
+                  disabled={isLoading || !task.trim()}
+                  className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-none bg-[var(--gray-2)] px-4 py-2 text-sm font-medium text-[var(--black)] transition-all duration-200 hover:bg-[var(--gray-3)] hover:text-[var(--black-contrast)] disabled:cursor-default disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)]"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={16} />
+                      Running workflow...
+                    </>
+                  ) : (
+                    "Run comments workflow"
+                  )}
+                </button>
+
+                {resultMessage && (
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                    {resultMessage}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activePanel === "comments" && (
+            <CommentsPanel
+              editor={editor}
+              provider={provider}
+              threads={threads}
+              selectedThread={selectedThread}
+              showResolved={showResolved}
+              onShowResolvedChange={setShowResolved}
+              onSelectThread={selectThreadInEditor}
+              onCreateThread={createThread}
+            />
+          )}
+        </div>
+      </ResponsiveRightSidebar>
+    </div>
   );
 }
