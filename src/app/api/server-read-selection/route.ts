@@ -28,7 +28,6 @@ export async function POST(req: Request) {
     editorContext,
     tools: { tiptapRead: true, tiptapEdit: true, readSelection: true },
   });
-  console.log(JSON.stringify((toolsResponse)))
 
   const tools = Object.fromEntries(
     toolsResponse.tools.map((toolDef) => [
