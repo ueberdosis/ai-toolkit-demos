@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     editorContext,
     tools: { tiptapRead: true, tiptapEdit: true, readSelection: true },
   });
+  console.log(JSON.stringify((toolsResponse)))
 
   const tools = Object.fromEntries(
     toolsResponse.tools.map((toolDef) => [
@@ -35,6 +36,7 @@ export async function POST(req: Request) {
       tool({
         description: toolDef.description,
         inputSchema: z.fromJSONSchema(toolDef.inputSchema),
+        strict: false,
         execute: async (input) => {
           try {
             const result = await executeTool(

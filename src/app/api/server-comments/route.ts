@@ -53,6 +53,7 @@ export async function POST(req: Request) {
       tool({
         description: toolDef.description,
         inputSchema: z.fromJSONSchema(toolDef.inputSchema),
+        strict: false,
         execute: async (input) => {
           try {
             const result = await executeCommentsTool(
