@@ -43,10 +43,9 @@ export default function Page() {
         StarterKit.configure({ undoRedo: false }),
         Collaboration.configure({
           document: doc,
-          // cmd+z undoes the AI edit: it lands as a remote Yjs update whose origin
-          // is the provider, so tracking that origin adds it to undo history. Safe
-          // here because the AI is the only remote writer (single-user demo).
-          ...(provider ? { yUndoOptions: { trackedOrigins: [provider] } } : {}),
+          // The AI edit arrives as a remote Yjs update, so track the provider origin
+          // to let cmd+z undo it. Safe only because the AI is the sole remote writer here.
+          yUndoOptions: { trackedOrigins: provider ? [provider] : [] },
         }),
         ServerAiToolkit,
         Selection,
