@@ -41,12 +41,7 @@ export default function Page() {
       immediatelyRender: false,
       extensions: [
         StarterKit.configure({ undoRedo: false }),
-        Collaboration.configure({
-          document: doc,
-          // The AI edit arrives as a remote Yjs update, so track the provider origin
-          // to let cmd+z undo it. Safe only because the AI is the sole remote writer here.
-          yUndoOptions: { trackedOrigins: provider ? [provider] : [] },
-        }),
+        Collaboration.configure({ document: doc }),
         ServerAiToolkit,
         Selection,
         ...(provider
@@ -86,7 +81,12 @@ export default function Page() {
           seededRef.current = true;
           const currentEditor = editorRef.current;
           if (!currentEditor) return;
-          currentEditor.commands.setContent(initialContent);
+          // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
+          currentEditor
+            .chain()
+            .setContent(initialContent)
+            .setMeta("addToHistory", false)
+            .run();
           // Find the seeded text rather than relying on fragile hardcoded
           // positions, then focus so CollaborationCaret publishes it.
           selectText(currentEditor, SEEDED_SENTENCE);

@@ -146,12 +146,7 @@ function TrackedChangesEditor({
     extensions: [
       StarterKit.configure({ undoRedo: false, link: false }),
       LinkExtension.configure({ openOnClick: false }),
-      Collaboration.configure({
-        document: doc,
-        // The AI edit arrives as a remote Yjs update, so track the provider origin
-        // to let cmd+z undo it. Safe only because the AI is the sole remote writer here.
-        yUndoOptions: { trackedOrigins: [provider] },
-      }),
+      Collaboration.configure({ document: doc }),
       ServerAiToolkit,
       TrackedChanges.configure({
         enabled: false,
@@ -206,7 +201,12 @@ function TrackedChangesEditor({
       return;
     }
 
-    editor.commands.setContent(initialTrackedChangesContent);
+    // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
+    editor
+      .chain()
+      .setContent(initialTrackedChangesContent)
+      .setMeta("addToHistory", false)
+      .run();
     didSetInitialContentRef.current = true;
   }, [editor]);
 
