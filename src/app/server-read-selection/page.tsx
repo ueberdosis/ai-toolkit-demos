@@ -81,7 +81,12 @@ export default function Page() {
           seededRef.current = true;
           const currentEditor = editorRef.current;
           if (!currentEditor) return;
-          currentEditor.commands.setContent(initialContent);
+          // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
+          currentEditor
+            .chain()
+            .setContent(initialContent)
+            .setMeta("addToHistory", false)
+            .run();
           // Find the seeded text rather than relying on fragile hardcoded
           // positions, then focus so CollaborationCaret publishes it.
           selectText(currentEditor, SEEDED_SENTENCE);

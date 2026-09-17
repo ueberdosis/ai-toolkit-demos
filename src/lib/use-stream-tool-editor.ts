@@ -121,7 +121,12 @@ export function useStreamToolEditor({
           document: doc,
           user: "user-1",
           onConnect() {
-            editorRef.current?.commands.setContent(initialContent);
+            // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
+            editorRef.current
+              ?.chain()
+              .setContent(initialContent)
+              .setMeta("addToHistory", false)
+              .run();
           },
         });
         setProvider(createdProvider);

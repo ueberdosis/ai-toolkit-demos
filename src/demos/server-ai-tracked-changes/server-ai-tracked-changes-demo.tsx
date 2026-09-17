@@ -201,7 +201,12 @@ function TrackedChangesEditor({
       return;
     }
 
-    editor.commands.setContent(initialTrackedChangesContent);
+    // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
+    editor
+      .chain()
+      .setContent(initialTrackedChangesContent)
+      .setMeta("addToHistory", false)
+      .run();
     didSetInitialContentRef.current = true;
   }, [editor]);
 

@@ -22,27 +22,37 @@ const initialContent = `<h1>AI agent demo</h1>
 export default function Page() {
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-ai-agent-chatbot/${uuid()}`);
-  const providerRef = useRef<TiptapCollabProvider | null>(null);
+  const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
 
-  const editor = useEditor({
-    immediatelyRender: false,
-    extensions: [
-      StarterKit.configure({ undoRedo: false }),
-      Collaboration.configure({ document: doc }),
-      ServerAiToolkit,
-    ],
-  });
+  const editor = useEditor(
+    {
+      immediatelyRender: false,
+      extensions: [
+        StarterKit.configure({ undoRedo: false }),
+        Collaboration.configure({ document: doc }),
+        ServerAiToolkit,
+      ],
+    },
+    [provider],
+  );
+
+  const editorRef = useRef(editor);
+  editorRef.current = editor;
 
   // Get JWT token and appId from server action
   useEffect(() => {
+    let cancelled = false;
+    let createdProvider: TiptapCollabProvider | null = null;
+
     const setupProvider = async () => {
       try {
         const { appId, collabBaseUrl } = await getCollabConfig(
           "user-1",
           documentId,
         );
+        if (cancelled) return;
 
-        const collabProvider = new TiptapCollabProvider({
+        createdProvider = new TiptapCollabProvider({
           ...(collabBaseUrl ? { baseUrl: collabBaseUrl } : { appId }),
           name: documentId,
           // Pass the token as a function so the provider mints a fresh JWT on
@@ -56,22 +66,27 @@ export default function Page() {
             console.log("WebSocket connection opened.");
           },
           onConnect() {
-            editor?.commands.setContent(initialContent);
+            // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
+            editorRef.current
+              ?.chain()
+              .setContent(initialContent)
+              .setMeta("addToHistory", false)
+              .run();
           },
         });
 
-        collabProvider.on("synced", () => {
+        createdProvider.on("synced", () => {
           console.log("Collaboration document synced.");
         });
 
-        collabProvider.on(
+        createdProvider.on(
           "authenticationFailed",
           ({ reason }: { reason: unknown }) => {
             console.error("Collaboration authentication failed:", reason);
           },
         );
 
-        providerRef.current = collabProvider;
+        setProvider(createdProvider);
       } catch (error) {
         console.error("Failed to setup collaboration:", error);
       }
@@ -80,12 +95,11 @@ export default function Page() {
     setupProvider();
 
     return () => {
-      if (providerRef.current) {
-        providerRef.current.destroy();
-        providerRef.current = null;
-      }
+      cancelled = true;
+      createdProvider?.destroy();
+      setProvider(null);
     };
-  }, [documentId, doc, editor]);
+  }, [documentId, doc]);
 
   // Fixes issue: https://github.com/vercel/ai/issues/7819
   const editorContext = editor ? getEditorContext(editor) : null;
