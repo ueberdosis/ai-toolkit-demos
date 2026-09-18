@@ -1,4 +1,5 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
+import { openai } from "@ai-sdk/openai";
 import {
   createAgentUIStreamResponse,
   gateway,
@@ -41,6 +42,7 @@ export async function POST(req: Request) {
   // Get tool definitions from the Server AI Toolkit API
   const toolsResponse = await getTools({
     editorContext,
+    tools: { tiptapQuery: true },
   });
 
   // Convert API tool definitions to AI SDK tool format
@@ -77,16 +79,22 @@ export async function POST(req: Request) {
   );
 
   const model = wrapLanguageModel({
-    model: gateway("openai/gpt-5.6-luna"),
+    model:
+      process.env.OPENAI_API_KEY && !process.env.AI_GATEWAY_API_KEY
+        ? openai("gpt-5.6-luna")
+        : gateway("openai/gpt-5.6-luna"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
   const agent = new ToolLoopAgent({
     model,
+    // Query reads can initialize hashes; serialize calls against the same document.
+    providerOptions: { openai: { parallelToolCalls: false } },
     instructions: `You are an assistant that can edit rich text documents.
 In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
 Before calling any tools, summarize you're going to do (in a sentence or less), as a high-level view of the task, like a human writer would describe it.
+Rule: Use tiptapQuery to read and edit the document. Read only the relevant content before editing; search or select headings instead of reading the whole document. For incomplete reads, continue with the returned next operation when more content is needed.
 Rule: In your responses, do not give any details of the tool calls
 Rule: In your responses, do not give any details of the Tiptap JSON content of the document.
 Rule: In your responses, never mention the hashes of the document.
