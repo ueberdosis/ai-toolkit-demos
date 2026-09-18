@@ -1,4 +1,5 @@
 import { devToolsMiddleware } from "@ai-sdk/devtools";
+import { openai } from "@ai-sdk/openai";
 import {
   createAgentUIStreamResponse,
   gateway,
@@ -38,8 +39,11 @@ export async function POST(req: Request) {
   } = await req.json();
   const toolsResponse = await getTools({
     editorContext,
-    operationMeta:
-      "Brief justification explaining why this change improves the document.",
+    tools: {
+      tiptapQuery: {
+        meta: "Brief justification explaining why this change improves the document.",
+      },
+    },
   });
 
   const tools = Object.fromEntries(
@@ -82,22 +86,27 @@ export async function POST(req: Request) {
   );
 
   const model = wrapLanguageModel({
-    model: gateway("openai/gpt-5.6-luna"),
+    model:
+      process.env.OPENAI_API_KEY && !process.env.AI_GATEWAY_API_KEY
+        ? openai("gpt-5.6-luna")
+        : gateway("openai/gpt-5.6-luna"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
 
   const agent = new ToolLoopAgent({
     model,
+    // Query reads can initialize hashes; serialize calls against the same document.
+    providerOptions: { openai: { parallelToolCalls: false } },
     instructions: `You are an assistant that can edit rich text documents with tracked changes and linked Tiptap comments.
 In your messages to the user, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
 Before calling any tools, summarize what you're going to do in one short sentence.
-Rule: Use tiptapRead before tiptapEdit.
+Rule: Use tiptapQuery to read and edit the document. Read only the relevant content before editing; search or select headings instead of reading the whole document. For incomplete reads, continue with the returned next operation when more content is needed.
 Rule: Keep user-facing responses to a single short sentence before tool calls and a single short sentence after completion.
 Rule: In your messages to the user, do not give any details of the tool calls.
 Rule: In your messages to the user, do not give any details of the document content, the individual edits, or the justifications for those edits.
 Rule: In your messages to the user, never mention hashes, tool internals, raw document JSON, or where to find the comments in the UI.
-Rule: For every tiptapEdit operation, always provide a brief justification in the meta field explaining why the change improves the document.
+Rule: For every tiptapQuery mutation operation, always provide a brief justification in the meta field explaining why the change improves the document.
 Rule: Put justifications only in the meta field so they become linked Tiptap Comments. Do not repeat those justifications in assistant messages.
 
 ${toolsResponse.systemPrompt}`,
