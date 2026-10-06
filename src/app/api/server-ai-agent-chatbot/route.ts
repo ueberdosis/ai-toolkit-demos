@@ -80,7 +80,9 @@ export async function POST(req: Request) {
 
   const model = wrapLanguageModel({
     model:
-      process.env.OPENAI_API_KEY && !process.env.AI_GATEWAY_API_KEY
+      process.env.NODE_ENV !== "production" &&
+      process.env.OPENAI_API_KEY &&
+      !process.env.AI_GATEWAY_API_KEY
         ? openai("gpt-5.6-luna")
         : gateway("openai/gpt-5.6-luna"),
     middleware:
