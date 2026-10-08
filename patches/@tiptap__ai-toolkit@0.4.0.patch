@@ -1,0 +1,432 @@
+diff --git a/dist/selection-awareness.cjs b/dist/selection-awareness.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..6f1df8b6c9da8d23947d1125e89ee0a6719ff0c7
+--- /dev/null
++++ b/dist/selection-awareness.cjs
+@@ -0,0 +1,90 @@
++Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
++const require_rolldown_runtime = require("./rolldown-runtime-VH7oDXx4.cjs");
++let _tiptap_core = require("@tiptap/core");
++let _tiptap_pm_state = require("@tiptap/pm/state");
++let _tiptap_y_tiptap = require("@tiptap/y-tiptap");
++let yjs = require("yjs");
++yjs = require_rolldown_runtime.__toESM(yjs, 1);
++//#region src/selection-awareness.ts
++function readFields(state) {
++	const value = state.aiToolkitSelection;
++	if (!value || typeof value !== "object" || !("fields" in value)) return {};
++	const fields = value.fields;
++	return fields && typeof fields === "object" && !Array.isArray(fields) ? Object.fromEntries(Object.entries(fields)) : {};
++}
++/**
++* Publishes a selection per collaborative field and retains it when the editor blurs.
++* Requires Collaboration and a provider for the same Y.Doc; no caret extension is needed.
++*
++* @example
++* AiSelectionAwareness.configure({ provider, userId: 'user-1' })
++*/
++const AiSelectionAwareness = _tiptap_core.Extension.create({
++	name: "aiSelectionAwareness",
++	addOptions() {
++		return {
++			provider: null,
++			userId: ""
++		};
++	},
++	addProseMirrorPlugins() {
++		var _this$options$provide;
++		const awareness = (_this$options$provide = this.options.provider) === null || _this$options$provide === void 0 ? void 0 : _this$options$provide.awareness;
++		const userId = this.options.userId.trim();
++		if (!awareness || !userId) throw new Error("AiSelectionAwareness requires provider.awareness and a non-empty userId");
++		return [new _tiptap_pm_state.Plugin({
++			key: new _tiptap_pm_state.PluginKey("aiSelectionAwareness"),
++			view: (view) => {
++				let field;
++				const write = (entry) => {
++					const state = awareness.getLocalState();
++					if (!state || field === void 0) return;
++					const fields = readFields(state);
++					if (JSON.stringify(fields[field]) === JSON.stringify(entry)) return;
++					awareness.setLocalStateField("aiToolkitSelection", {
++						version: 1,
++						fields: {
++							...fields,
++							[field]: entry
++						}
++					});
++				};
++				const publish = () => {
++					var _Array$from$find;
++					const sync = _tiptap_y_tiptap.ySyncPluginKey.getState(view.state);
++					if (!(sync === null || sync === void 0 ? void 0 : sync.binding)) return;
++					const doc = sync.doc;
++					field = (_Array$from$find = Array.from(doc.share).find(([, type]) => type === sync.type)) === null || _Array$from$find === void 0 ? void 0 : _Array$from$find[0];
++					if (field === void 0) throw new Error("AiSelectionAwareness requires a named collaborative document field");
++					const { anchor, head } = view.state.selection;
++					write({
++						userId,
++						anchor: yjs.relativePositionToJSON((0, _tiptap_y_tiptap.absolutePositionToRelativePosition)(anchor, sync.type, sync.binding.mapping)),
++						head: yjs.relativePositionToJSON((0, _tiptap_y_tiptap.absolutePositionToRelativePosition)(head, sync.type, sync.binding.mapping))
++					});
++				};
++				publish();
++				view.dom.addEventListener("focusin", publish);
++				return {
++					update: (_, previous) => {
++						const sync = _tiptap_y_tiptap.ySyncPluginKey.getState(view.state);
++						if ((sync === null || sync === void 0 ? void 0 : sync.isChangeOrigin) && !view.hasFocus()) return;
++						if (!previous.selection.eq(view.state.selection) || previous.doc !== view.state.doc) publish();
++					},
++					destroy: () => {
++						view.dom.removeEventListener("focusin", publish);
++						write({
++							userId,
++							anchor: null,
++							head: null
++						});
++					}
++				};
++			}
++		})];
++	}
++});
++//#endregion
++exports.AiSelectionAwareness = AiSelectionAwareness;
++
++//# sourceMappingURL=selection-awareness.cjs.map
+\ No newline at end of file
+diff --git a/dist/selection-awareness.cjs.map b/dist/selection-awareness.cjs.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..e63b756c76122e8ffeacefc2e33b1a4e00300cdd
+--- /dev/null
++++ b/dist/selection-awareness.cjs.map
+@@ -0,0 +1 @@
++{"version":3,"file":"selection-awareness.cjs","names":["Extension","Plugin","PluginKey","ySyncPluginKey","Y","absolutePositionToRelativePosition"],"sources":["../src/selection-awareness.ts"],"sourcesContent":["import { Extension } from '@tiptap/core'\nimport { Plugin, PluginKey } from '@tiptap/pm/state'\nimport { absolutePositionToRelativePosition, ySyncPluginKey } from '@tiptap/y-tiptap'\nimport * as Y from 'yjs'\n\n/** The provider awareness surface used to publish AI selections. */\nexport type AiSelectionProvider = {\n  awareness?: {\n    getLocalState(): Record<string, unknown> | null\n    setLocalStateField(field: string, value: unknown): void\n  } | null\n}\n\n/** Configuration for {@link AiSelectionAwareness}. */\nexport type AiSelectionAwarenessOptions = {\n  /** The provider connected to the editor's collaborative document. */\n  provider: AiSelectionProvider | null\n  /** The user ID passed to the server as `tool.config.user`. */\n  userId: string\n}\n\ntype SelectionEntry = {\n  userId: string\n  anchor: ReturnType<typeof Y.relativePositionToJSON> | null\n  head: ReturnType<typeof Y.relativePositionToJSON> | null\n}\n\nfunction readFields(state: Record<string, unknown>): Record<string, unknown> {\n  const value = state.aiToolkitSelection\n  if (!value || typeof value !== 'object' || !('fields' in value)) return {}\n  const fields = value.fields\n  return fields && typeof fields === 'object' && !Array.isArray(fields)\n    ? Object.fromEntries(Object.entries(fields))\n    : {}\n}\n\n/**\n * Publishes a selection per collaborative field and retains it when the editor blurs.\n * Requires Collaboration and a provider for the same Y.Doc; no caret extension is needed.\n *\n * @example\n * AiSelectionAwareness.configure({ provider, userId: 'user-1' })\n */\nexport const AiSelectionAwareness = Extension.create<AiSelectionAwarenessOptions>({\n  name: 'aiSelectionAwareness',\n\n  addOptions() {\n    return { provider: null, userId: '' }\n  },\n\n  addProseMirrorPlugins() {\n    const awareness = this.options.provider?.awareness\n    const userId = this.options.userId.trim()\n    if (!awareness || !userId) {\n      throw new Error('AiSelectionAwareness requires provider.awareness and a non-empty userId')\n    }\n\n    return [\n      new Plugin({\n        key: new PluginKey('aiSelectionAwareness'),\n        view: view => {\n          let field: string | undefined\n\n          const write = (entry: SelectionEntry) => {\n            const state = awareness.getLocalState()\n            if (!state || field === undefined) return\n            const fields = readFields(state)\n            if (JSON.stringify(fields[field]) === JSON.stringify(entry)) return\n            awareness.setLocalStateField('aiToolkitSelection', {\n              version: 1,\n              fields: { ...fields, [field]: entry },\n            })\n          }\n\n          const publish = () => {\n            const sync = ySyncPluginKey.getState(view.state)\n            if (!sync?.binding) return\n            const doc: Y.Doc = sync.doc\n            field = Array.from(doc.share).find(([, type]) => type === sync.type)?.[0]\n            if (field === undefined) {\n              throw new Error('AiSelectionAwareness requires a named collaborative document field')\n            }\n            const { anchor, head } = view.state.selection\n            write({\n              userId,\n              anchor: Y.relativePositionToJSON(\n                absolutePositionToRelativePosition(anchor, sync.type, sync.binding.mapping),\n              ),\n              head: Y.relativePositionToJSON(\n                absolutePositionToRelativePosition(head, sync.type, sync.binding.mapping),\n              ),\n            })\n          }\n\n          publish()\n          view.dom.addEventListener('focusin', publish)\n\n          return {\n            update: (_, previous) => {\n              const sync = ySyncPluginKey.getState(view.state)\n              // Keep the relative positions during remote edits while the user is in chat.\n              if (sync?.isChangeOrigin && !view.hasFocus()) return\n              if (!previous.selection.eq(view.state.selection) || previous.doc !== view.state.doc) {\n                publish()\n              }\n            },\n            destroy: () => {\n              view.dom.removeEventListener('focusin', publish)\n              write({ userId, anchor: null, head: null })\n            },\n          }\n        },\n      }),\n    ]\n  },\n})\n"],"mappings":";;;;;;;;AA2BA,SAAS,WAAW,OAAyD;CAC3E,MAAM,QAAQ,MAAM;CACpB,IAAI,CAAC,SAAS,OAAO,UAAU,YAAY,EAAE,YAAY,QAAQ,OAAO,CAAC;CACzE,MAAM,SAAS,MAAM;CACrB,OAAO,UAAU,OAAO,WAAW,YAAY,CAAC,MAAM,QAAQ,MAAM,IAChE,OAAO,YAAY,OAAO,QAAQ,MAAM,CAAC,IACzC,CAAC;AACP;;;;;;;;AASA,MAAa,uBAAuBA,aAAAA,UAAU,OAAoC;CAChF,MAAM;CAEN,aAAa;EACX,OAAO;GAAE,UAAU;GAAM,QAAQ;EAAG;CACtC;CAEA,wBAAwB;;EACtB,MAAM,aAAA,wBAAY,KAAK,QAAQ,cAAA,QAAA,0BAAA,KAAA,IAAA,KAAA,IAAA,sBAAU;EACzC,MAAM,SAAS,KAAK,QAAQ,OAAO,KAAK;EACxC,IAAI,CAAC,aAAa,CAAC,QACjB,MAAM,IAAI,MAAM,yEAAyE;EAG3F,OAAO,CACL,IAAIC,iBAAAA,OAAO;GACT,KAAK,IAAIC,iBAAAA,UAAU,sBAAsB;GACzC,OAAM,SAAQ;IACZ,IAAI;IAEJ,MAAM,SAAS,UAA0B;KACvC,MAAM,QAAQ,UAAU,cAAc;KACtC,IAAI,CAAC,SAAS,UAAU,KAAA,GAAW;KACnC,MAAM,SAAS,WAAW,KAAK;KAC/B,IAAI,KAAK,UAAU,OAAO,MAAM,MAAM,KAAK,UAAU,KAAK,GAAG;KAC7D,UAAU,mBAAmB,sBAAsB;MACjD,SAAS;MACT,QAAQ;OAAE,GAAG;QAAS,QAAQ;MAAM;KACtC,CAAC;IACH;IAEA,MAAM,gBAAgB;;KACpB,MAAM,OAAOC,iBAAAA,eAAe,SAAS,KAAK,KAAK;KAC/C,IAAI,EAAA,SAAA,QAAA,SAAA,KAAA,IAAA,KAAA,IAAC,KAAM,UAAS;KACpB,MAAM,MAAa,KAAK;KACxB,SAAA,mBAAQ,MAAM,KAAK,IAAI,KAAK,CAAC,CAAC,MAAM,GAAG,UAAU,SAAS,KAAK,IAAI,OAAA,QAAA,qBAAA,KAAA,IAAA,KAAA,IAAA,iBAAI;KACvE,IAAI,UAAU,KAAA,GACZ,MAAM,IAAI,MAAM,oEAAoE;KAEtF,MAAM,EAAE,QAAQ,SAAS,KAAK,MAAM;KACpC,MAAM;MACJ;MACA,QAAQC,IAAE,wBAAA,GACRC,iBAAAA,mCAAAA,CAAmC,QAAQ,KAAK,MAAM,KAAK,QAAQ,OAAO,CAC5E;MACA,MAAMD,IAAE,wBAAA,GACNC,iBAAAA,mCAAAA,CAAmC,MAAM,KAAK,MAAM,KAAK,QAAQ,OAAO,CAC1E;KACF,CAAC;IACH;IAEA,QAAQ;IACR,KAAK,IAAI,iBAAiB,WAAW,OAAO;IAE5C,OAAO;KACL,SAAS,GAAG,aAAa;MACvB,MAAM,OAAOF,iBAAAA,eAAe,SAAS,KAAK,KAAK;MAE/C,KAAA,SAAA,QAAA,SAAA,KAAA,IAAA,KAAA,IAAI,KAAM,mBAAkB,CAAC,KAAK,SAAS,GAAG;MAC9C,IAAI,CAAC,SAAS,UAAU,GAAG,KAAK,MAAM,SAAS,KAAK,SAAS,QAAQ,KAAK,MAAM,KAC9E,QAAQ;KAEZ;KACA,eAAe;MACb,KAAK,IAAI,oBAAoB,WAAW,OAAO;MAC/C,MAAM;OAAE;OAAQ,QAAQ;OAAM,MAAM;MAAK,CAAC;KAC5C;IACF;GACF;EACF,CAAC,CACH;CACF;AACF,CAAC"}
+\ No newline at end of file
+diff --git a/dist/selection-awareness.d.cts b/dist/selection-awareness.d.cts
+new file mode 100644
+index 0000000000000000000000000000000000000000..eee97a0f738436d29968d9cbe1df492dec211544
+--- /dev/null
++++ b/dist/selection-awareness.d.cts
+@@ -0,0 +1,27 @@
++import { Extension } from "@tiptap/core";
++//#region src/selection-awareness.d.ts
++/** The provider awareness surface used to publish AI selections. */
++type AiSelectionProvider = {
++  awareness?: {
++    getLocalState(): Record<string, unknown> | null;
++    setLocalStateField(field: string, value: unknown): void;
++  } | null;
++};
++/** Configuration for {@link AiSelectionAwareness}. */
++type AiSelectionAwarenessOptions = {
++  /** The provider connected to the editor's collaborative document. */
++  provider: AiSelectionProvider | null;
++  /** The user ID passed to the server as `tool.config.user`. */
++  userId: string;
++};
++/**
++ * Publishes a selection per collaborative field and retains it when the editor blurs.
++ * Requires Collaboration and a provider for the same Y.Doc; no caret extension is needed.
++ *
++ * @example
++ * AiSelectionAwareness.configure({ provider, userId: 'user-1' })
++ */
++declare const AiSelectionAwareness: Extension<AiSelectionAwarenessOptions, any>;
++//#endregion
++export { AiSelectionAwareness, AiSelectionAwarenessOptions, AiSelectionProvider };
++//# sourceMappingURL=selection-awareness.d.cts.map
+\ No newline at end of file
+diff --git a/dist/selection-awareness.d.cts.map b/dist/selection-awareness.d.cts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..3f34007e1824723d94aa35dcfe2f308dc16723be
+--- /dev/null
++++ b/dist/selection-awareness.d.cts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"selection-awareness.d.cts","names":[],"sources":["../src/selection-awareness.ts"],"mappings":";;;KAMY;EACV;IACE,iBAAiB;IACjB,mBAAmB,eAAe;;;;KAK1B;;EAEV,UAAU;;EAEV;;;;;;;;;cAyBW,sBAAoB,UAAA"}
+\ No newline at end of file
+diff --git a/dist/selection-awareness.d.ts b/dist/selection-awareness.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..cab88026efe1b59eb64e9636ed41633d1efcd41d
+--- /dev/null
++++ b/dist/selection-awareness.d.ts
+@@ -0,0 +1,27 @@
++import { Extension } from "@tiptap/core";
++//#region src/selection-awareness.d.ts
++/** The provider awareness surface used to publish AI selections. */
++type AiSelectionProvider = {
++  awareness?: {
++    getLocalState(): Record<string, unknown> | null;
++    setLocalStateField(field: string, value: unknown): void;
++  } | null;
++};
++/** Configuration for {@link AiSelectionAwareness}. */
++type AiSelectionAwarenessOptions = {
++  /** The provider connected to the editor's collaborative document. */
++  provider: AiSelectionProvider | null;
++  /** The user ID passed to the server as `tool.config.user`. */
++  userId: string;
++};
++/**
++ * Publishes a selection per collaborative field and retains it when the editor blurs.
++ * Requires Collaboration and a provider for the same Y.Doc; no caret extension is needed.
++ *
++ * @example
++ * AiSelectionAwareness.configure({ provider, userId: 'user-1' })
++ */
++declare const AiSelectionAwareness: Extension<AiSelectionAwarenessOptions, any>;
++//#endregion
++export { AiSelectionAwareness, AiSelectionAwarenessOptions, AiSelectionProvider };
++//# sourceMappingURL=selection-awareness.d.ts.map
+\ No newline at end of file
+diff --git a/dist/selection-awareness.d.ts.map b/dist/selection-awareness.d.ts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..00765b827af92df9b4b34222686e8b9d09510a63
+--- /dev/null
++++ b/dist/selection-awareness.d.ts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"selection-awareness.d.ts","names":[],"sources":["../src/selection-awareness.ts"],"mappings":";;;KAMY;EACV;IACE,iBAAiB;IACjB,mBAAmB,eAAe;;;;KAK1B;;EAEV,UAAU;;EAEV;;;;;;;;;cAyBW,sBAAoB,UAAA"}
+\ No newline at end of file
+diff --git a/dist/selection-awareness.js b/dist/selection-awareness.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..c06988d374fd0ba04acb7161d3115a6be436e59d
+--- /dev/null
++++ b/dist/selection-awareness.js
+@@ -0,0 +1,87 @@
++import { Extension } from "@tiptap/core";
++import { Plugin, PluginKey } from "@tiptap/pm/state";
++import { absolutePositionToRelativePosition, ySyncPluginKey } from "@tiptap/y-tiptap";
++import * as Y from "yjs";
++//#region src/selection-awareness.ts
++function readFields(state) {
++	const value = state.aiToolkitSelection;
++	if (!value || typeof value !== "object" || !("fields" in value)) return {};
++	const fields = value.fields;
++	return fields && typeof fields === "object" && !Array.isArray(fields) ? Object.fromEntries(Object.entries(fields)) : {};
++}
++/**
++* Publishes a selection per collaborative field and retains it when the editor blurs.
++* Requires Collaboration and a provider for the same Y.Doc; no caret extension is needed.
++*
++* @example
++* AiSelectionAwareness.configure({ provider, userId: 'user-1' })
++*/
++const AiSelectionAwareness = Extension.create({
++	name: "aiSelectionAwareness",
++	addOptions() {
++		return {
++			provider: null,
++			userId: ""
++		};
++	},
++	addProseMirrorPlugins() {
++		var _this$options$provide;
++		const awareness = (_this$options$provide = this.options.provider) === null || _this$options$provide === void 0 ? void 0 : _this$options$provide.awareness;
++		const userId = this.options.userId.trim();
++		if (!awareness || !userId) throw new Error("AiSelectionAwareness requires provider.awareness and a non-empty userId");
++		return [new Plugin({
++			key: new PluginKey("aiSelectionAwareness"),
++			view: (view) => {
++				let field;
++				const write = (entry) => {
++					const state = awareness.getLocalState();
++					if (!state || field === void 0) return;
++					const fields = readFields(state);
++					if (JSON.stringify(fields[field]) === JSON.stringify(entry)) return;
++					awareness.setLocalStateField("aiToolkitSelection", {
++						version: 1,
++						fields: {
++							...fields,
++							[field]: entry
++						}
++					});
++				};
++				const publish = () => {
++					var _Array$from$find;
++					const sync = ySyncPluginKey.getState(view.state);
++					if (!(sync === null || sync === void 0 ? void 0 : sync.binding)) return;
++					const doc = sync.doc;
++					field = (_Array$from$find = Array.from(doc.share).find(([, type]) => type === sync.type)) === null || _Array$from$find === void 0 ? void 0 : _Array$from$find[0];
++					if (field === void 0) throw new Error("AiSelectionAwareness requires a named collaborative document field");
++					const { anchor, head } = view.state.selection;
++					write({
++						userId,
++						anchor: Y.relativePositionToJSON(absolutePositionToRelativePosition(anchor, sync.type, sync.binding.mapping)),
++						head: Y.relativePositionToJSON(absolutePositionToRelativePosition(head, sync.type, sync.binding.mapping))
++					});
++				};
++				publish();
++				view.dom.addEventListener("focusin", publish);
++				return {
++					update: (_, previous) => {
++						const sync = ySyncPluginKey.getState(view.state);
++						if ((sync === null || sync === void 0 ? void 0 : sync.isChangeOrigin) && !view.hasFocus()) return;
++						if (!previous.selection.eq(view.state.selection) || previous.doc !== view.state.doc) publish();
++					},
++					destroy: () => {
++						view.dom.removeEventListener("focusin", publish);
++						write({
++							userId,
++							anchor: null,
++							head: null
++						});
++					}
++				};
++			}
++		})];
++	}
++});
++//#endregion
++export { AiSelectionAwareness };
++
++//# sourceMappingURL=selection-awareness.js.map
+\ No newline at end of file
+diff --git a/dist/selection-awareness.js.map b/dist/selection-awareness.js.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..b57c2f943b4968cb25d9b0f191275923753ada39
+--- /dev/null
++++ b/dist/selection-awareness.js.map
+@@ -0,0 +1 @@
++{"version":3,"file":"selection-awareness.js","names":[],"sources":["../src/selection-awareness.ts"],"sourcesContent":["import { Extension } from '@tiptap/core'\nimport { Plugin, PluginKey } from '@tiptap/pm/state'\nimport { absolutePositionToRelativePosition, ySyncPluginKey } from '@tiptap/y-tiptap'\nimport * as Y from 'yjs'\n\n/** The provider awareness surface used to publish AI selections. */\nexport type AiSelectionProvider = {\n  awareness?: {\n    getLocalState(): Record<string, unknown> | null\n    setLocalStateField(field: string, value: unknown): void\n  } | null\n}\n\n/** Configuration for {@link AiSelectionAwareness}. */\nexport type AiSelectionAwarenessOptions = {\n  /** The provider connected to the editor's collaborative document. */\n  provider: AiSelectionProvider | null\n  /** The user ID passed to the server as `tool.config.user`. */\n  userId: string\n}\n\ntype SelectionEntry = {\n  userId: string\n  anchor: ReturnType<typeof Y.relativePositionToJSON> | null\n  head: ReturnType<typeof Y.relativePositionToJSON> | null\n}\n\nfunction readFields(state: Record<string, unknown>): Record<string, unknown> {\n  const value = state.aiToolkitSelection\n  if (!value || typeof value !== 'object' || !('fields' in value)) return {}\n  const fields = value.fields\n  return fields && typeof fields === 'object' && !Array.isArray(fields)\n    ? Object.fromEntries(Object.entries(fields))\n    : {}\n}\n\n/**\n * Publishes a selection per collaborative field and retains it when the editor blurs.\n * Requires Collaboration and a provider for the same Y.Doc; no caret extension is needed.\n *\n * @example\n * AiSelectionAwareness.configure({ provider, userId: 'user-1' })\n */\nexport const AiSelectionAwareness = Extension.create<AiSelectionAwarenessOptions>({\n  name: 'aiSelectionAwareness',\n\n  addOptions() {\n    return { provider: null, userId: '' }\n  },\n\n  addProseMirrorPlugins() {\n    const awareness = this.options.provider?.awareness\n    const userId = this.options.userId.trim()\n    if (!awareness || !userId) {\n      throw new Error('AiSelectionAwareness requires provider.awareness and a non-empty userId')\n    }\n\n    return [\n      new Plugin({\n        key: new PluginKey('aiSelectionAwareness'),\n        view: view => {\n          let field: string | undefined\n\n          const write = (entry: SelectionEntry) => {\n            const state = awareness.getLocalState()\n            if (!state || field === undefined) return\n            const fields = readFields(state)\n            if (JSON.stringify(fields[field]) === JSON.stringify(entry)) return\n            awareness.setLocalStateField('aiToolkitSelection', {\n              version: 1,\n              fields: { ...fields, [field]: entry },\n            })\n          }\n\n          const publish = () => {\n            const sync = ySyncPluginKey.getState(view.state)\n            if (!sync?.binding) return\n            const doc: Y.Doc = sync.doc\n            field = Array.from(doc.share).find(([, type]) => type === sync.type)?.[0]\n            if (field === undefined) {\n              throw new Error('AiSelectionAwareness requires a named collaborative document field')\n            }\n            const { anchor, head } = view.state.selection\n            write({\n              userId,\n              anchor: Y.relativePositionToJSON(\n                absolutePositionToRelativePosition(anchor, sync.type, sync.binding.mapping),\n              ),\n              head: Y.relativePositionToJSON(\n                absolutePositionToRelativePosition(head, sync.type, sync.binding.mapping),\n              ),\n            })\n          }\n\n          publish()\n          view.dom.addEventListener('focusin', publish)\n\n          return {\n            update: (_, previous) => {\n              const sync = ySyncPluginKey.getState(view.state)\n              // Keep the relative positions during remote edits while the user is in chat.\n              if (sync?.isChangeOrigin && !view.hasFocus()) return\n              if (!previous.selection.eq(view.state.selection) || previous.doc !== view.state.doc) {\n                publish()\n              }\n            },\n            destroy: () => {\n              view.dom.removeEventListener('focusin', publish)\n              write({ userId, anchor: null, head: null })\n            },\n          }\n        },\n      }),\n    ]\n  },\n})\n"],"mappings":";;;;;AA2BA,SAAS,WAAW,OAAyD;CAC3E,MAAM,QAAQ,MAAM;CACpB,IAAI,CAAC,SAAS,OAAO,UAAU,YAAY,EAAE,YAAY,QAAQ,OAAO,CAAC;CACzE,MAAM,SAAS,MAAM;CACrB,OAAO,UAAU,OAAO,WAAW,YAAY,CAAC,MAAM,QAAQ,MAAM,IAChE,OAAO,YAAY,OAAO,QAAQ,MAAM,CAAC,IACzC,CAAC;AACP;;;;;;;;AASA,MAAa,uBAAuB,UAAU,OAAoC;CAChF,MAAM;CAEN,aAAa;EACX,OAAO;GAAE,UAAU;GAAM,QAAQ;EAAG;CACtC;CAEA,wBAAwB;;EACtB,MAAM,aAAA,wBAAY,KAAK,QAAQ,cAAA,QAAA,0BAAA,KAAA,IAAA,KAAA,IAAA,sBAAU;EACzC,MAAM,SAAS,KAAK,QAAQ,OAAO,KAAK;EACxC,IAAI,CAAC,aAAa,CAAC,QACjB,MAAM,IAAI,MAAM,yEAAyE;EAG3F,OAAO,CACL,IAAI,OAAO;GACT,KAAK,IAAI,UAAU,sBAAsB;GACzC,OAAM,SAAQ;IACZ,IAAI;IAEJ,MAAM,SAAS,UAA0B;KACvC,MAAM,QAAQ,UAAU,cAAc;KACtC,IAAI,CAAC,SAAS,UAAU,KAAA,GAAW;KACnC,MAAM,SAAS,WAAW,KAAK;KAC/B,IAAI,KAAK,UAAU,OAAO,MAAM,MAAM,KAAK,UAAU,KAAK,GAAG;KAC7D,UAAU,mBAAmB,sBAAsB;MACjD,SAAS;MACT,QAAQ;OAAE,GAAG;QAAS,QAAQ;MAAM;KACtC,CAAC;IACH;IAEA,MAAM,gBAAgB;;KACpB,MAAM,OAAO,eAAe,SAAS,KAAK,KAAK;KAC/C,IAAI,EAAA,SAAA,QAAA,SAAA,KAAA,IAAA,KAAA,IAAC,KAAM,UAAS;KACpB,MAAM,MAAa,KAAK;KACxB,SAAA,mBAAQ,MAAM,KAAK,IAAI,KAAK,CAAC,CAAC,MAAM,GAAG,UAAU,SAAS,KAAK,IAAI,OAAA,QAAA,qBAAA,KAAA,IAAA,KAAA,IAAA,iBAAI;KACvE,IAAI,UAAU,KAAA,GACZ,MAAM,IAAI,MAAM,oEAAoE;KAEtF,MAAM,EAAE,QAAQ,SAAS,KAAK,MAAM;KACpC,MAAM;MACJ;MACA,QAAQ,EAAE,uBACR,mCAAmC,QAAQ,KAAK,MAAM,KAAK,QAAQ,OAAO,CAC5E;MACA,MAAM,EAAE,uBACN,mCAAmC,MAAM,KAAK,MAAM,KAAK,QAAQ,OAAO,CAC1E;KACF,CAAC;IACH;IAEA,QAAQ;IACR,KAAK,IAAI,iBAAiB,WAAW,OAAO;IAE5C,OAAO;KACL,SAAS,GAAG,aAAa;MACvB,MAAM,OAAO,eAAe,SAAS,KAAK,KAAK;MAE/C,KAAA,SAAA,QAAA,SAAA,KAAA,IAAA,KAAA,IAAI,KAAM,mBAAkB,CAAC,KAAK,SAAS,GAAG;MAC9C,IAAI,CAAC,SAAS,UAAU,GAAG,KAAK,MAAM,SAAS,KAAK,SAAS,QAAQ,KAAK,MAAM,KAC9E,QAAQ;KAEZ;KACA,eAAe;MACb,KAAK,IAAI,oBAAoB,WAAW,OAAO;MAC/C,MAAM;OAAE;OAAQ,QAAQ;OAAM,MAAM;MAAK,CAAC;KAC5C;IACF;GACF;EACF,CAAC,CACH;CACF;AACF,CAAC"}
+\ No newline at end of file
+diff --git a/package.json b/package.json
+index 85ea5159092be75025d2d726e57b0a09fed54d4f..990d36e217e5ea1d884a4fc6aaf68a7b3f746d8f 100644
+--- a/package.json
++++ b/package.json
+@@ -40,6 +40,14 @@
+       "import": "./dist/index.js",
+       "require": "./dist/index.cjs"
+     },
++    "./selection-awareness": {
++      "types": {
++        "import": "./dist/selection-awareness.d.ts",
++        "require": "./dist/selection-awareness.d.cts"
++      },
++      "import": "./dist/selection-awareness.js",
++      "require": "./dist/selection-awareness.cjs"
++    },
+     "./streaming-reveal": {
+       "types": {
+         "import": "./dist/streaming-reveal.d.ts",
+diff --git a/src/selection-awareness.ts b/src/selection-awareness.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..2e62cf640c40db327978eeee6de44b345cc26600
+--- /dev/null
++++ b/src/selection-awareness.ts
+@@ -0,0 +1,116 @@
++import { Extension } from '@tiptap/core'
++import { Plugin, PluginKey } from '@tiptap/pm/state'
++import { absolutePositionToRelativePosition, ySyncPluginKey } from '@tiptap/y-tiptap'
++import * as Y from 'yjs'
++
++/** The provider awareness surface used to publish AI selections. */
++export type AiSelectionProvider = {
++  awareness?: {
++    getLocalState(): Record<string, unknown> | null
++    setLocalStateField(field: string, value: unknown): void
++  } | null
++}
++
++/** Configuration for {@link AiSelectionAwareness}. */
++export type AiSelectionAwarenessOptions = {
++  /** The provider connected to the editor's collaborative document. */
++  provider: AiSelectionProvider | null
++  /** The user ID passed to the server as `tool.config.user`. */
++  userId: string
++}
++
++type SelectionEntry = {
++  userId: string
++  anchor: ReturnType<typeof Y.relativePositionToJSON> | null
++  head: ReturnType<typeof Y.relativePositionToJSON> | null
++}
++
++function readFields(state: Record<string, unknown>): Record<string, unknown> {
++  const value = state.aiToolkitSelection
++  if (!value || typeof value !== 'object' || !('fields' in value)) return {}
++  const fields = value.fields
++  return fields && typeof fields === 'object' && !Array.isArray(fields)
++    ? Object.fromEntries(Object.entries(fields))
++    : {}
++}
++
++/**
++ * Publishes a selection per collaborative field and retains it when the editor blurs.
++ * Requires Collaboration and a provider for the same Y.Doc; no caret extension is needed.
++ *
++ * @example
++ * AiSelectionAwareness.configure({ provider, userId: 'user-1' })
++ */
++export const AiSelectionAwareness = Extension.create<AiSelectionAwarenessOptions>({
++  name: 'aiSelectionAwareness',
++
++  addOptions() {
++    return { provider: null, userId: '' }
++  },
++
++  addProseMirrorPlugins() {
++    const awareness = this.options.provider?.awareness
++    const userId = this.options.userId.trim()
++    if (!awareness || !userId) {
++      throw new Error('AiSelectionAwareness requires provider.awareness and a non-empty userId')
++    }
++
++    return [
++      new Plugin({
++        key: new PluginKey('aiSelectionAwareness'),
++        view: view => {
++          let field: string | undefined
++
++          const write = (entry: SelectionEntry) => {
++            const state = awareness.getLocalState()
++            if (!state || field === undefined) return
++            const fields = readFields(state)
++            if (JSON.stringify(fields[field]) === JSON.stringify(entry)) return
++            awareness.setLocalStateField('aiToolkitSelection', {
++              version: 1,
++              fields: { ...fields, [field]: entry },
++            })
++          }
++
++          const publish = () => {
++            const sync = ySyncPluginKey.getState(view.state)
++            if (!sync?.binding) return
++            const doc: Y.Doc = sync.doc
++            field = Array.from(doc.share).find(([, type]) => type === sync.type)?.[0]
++            if (field === undefined) {
++              throw new Error('AiSelectionAwareness requires a named collaborative document field')
++            }
++            const { anchor, head } = view.state.selection
++            write({
++              userId,
++              anchor: Y.relativePositionToJSON(
++                absolutePositionToRelativePosition(anchor, sync.type, sync.binding.mapping),
++              ),
++              head: Y.relativePositionToJSON(
++                absolutePositionToRelativePosition(head, sync.type, sync.binding.mapping),
++              ),
++            })
++          }
++
++          publish()
++          view.dom.addEventListener('focusin', publish)
++
++          return {
++            update: (_, previous) => {
++              const sync = ySyncPluginKey.getState(view.state)
++              // Keep the relative positions during remote edits while the user is in chat.
++              if (sync?.isChangeOrigin && !view.hasFocus()) return
++              if (!previous.selection.eq(view.state.selection) || previous.doc !== view.state.doc) {
++                publish()
++              }
++            },
++            destroy: () => {
++              view.dom.removeEventListener('focusin', publish)
++              write({ userId, anchor: null, head: null })
++            },
++          }
++        },
++      }),
++    ]
++  },
++})

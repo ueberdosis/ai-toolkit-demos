@@ -2,8 +2,8 @@
 
 import { useChat } from "@ai-sdk/react";
 import { getEditorContext, ServerAiToolkit } from "@tiptap/ai-toolkit";
+import { AiSelectionAwareness } from "@tiptap/ai-toolkit/selection-awareness";
 import { Collaboration } from "@tiptap/extension-collaboration";
-import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
 import { Selection } from "@tiptap/extensions";
 import type { Editor } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -18,7 +18,7 @@ import { getCollabConfig } from "./actions";
 import "./selection.css";
 
 /**
- * The awareness user.id this client publishes. The agent forwards it as the
+ * The selection userId this client publishes. The agent forwards it as the
  * readSelection tool's config.user, so the server reads THIS user's selection.
  */
 const HUMAN_USER_ID = "human-1";
@@ -32,33 +32,30 @@ export default function Page() {
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-read-selection/${uuid()}`);
   const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
+  const [synced, setSynced] = useState(false);
+  const [field, setField] = useState<"title" | "body">("body");
   const seededRef = useRef(false);
 
-  // The editor is (re)created once the provider exists so CollaborationCaret can
-  // publish this user's selection to awareness (which is what readSelection reads).
-  const editor = useEditor(
-    {
-      immediatelyRender: false,
-      extensions: [
-        StarterKit.configure({ undoRedo: false }),
-        Collaboration.configure({ document: doc }),
-        ServerAiToolkit,
-        Selection,
-        ...(provider
-          ? [
-              CollaborationCaret.configure({
-                provider,
-                user: { id: HUMAN_USER_ID, name: "You", color: "#6a00f5" },
-              }),
-            ]
-          : []),
-      ],
-    },
-    [provider],
-  );
+  const editor = useSelectionEditor(doc, provider, "body");
+  const titleEditor = useSelectionEditor(doc, provider, "title");
 
-  const editorRef = useRef(editor);
-  editorRef.current = editor;
+  useEffect(() => {
+    if (!synced || !provider || !editor || !titleEditor || seededRef.current)
+      return;
+    seededRef.current = true;
+    editor
+      .chain()
+      .setContent(initialContent)
+      .setMeta("addToHistory", false)
+      .run();
+    titleEditor
+      .chain()
+      .setContent("<p>Project update</p>")
+      .setMeta("addToHistory", false)
+      .run();
+    titleEditor.commands.setTextSelection({ from: 1, to: 15 });
+    selectText(editor, SEEDED_SENTENCE);
+  }, [synced, provider, editor, titleEditor]);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,20 +73,8 @@ export default function Page() {
         token: async () => (await getCollabConfig("user-1", documentId)).token,
         document: doc,
         user: "user-1",
-        onConnect() {
-          if (seededRef.current) return;
-          seededRef.current = true;
-          const currentEditor = editorRef.current;
-          if (!currentEditor) return;
-          // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
-          currentEditor
-            .chain()
-            .setContent(initialContent)
-            .setMeta("addToHistory", false)
-            .run();
-          // Find the seeded text rather than relying on fragile hardcoded
-          // positions, then focus so CollaborationCaret publishes it.
-          selectText(currentEditor, SEEDED_SENTENCE);
+        onSynced() {
+          if (!cancelled) setSynced(true);
         },
       });
       setProvider(created);
@@ -110,6 +95,8 @@ export default function Page() {
   const editorContext = editor ? getEditorContext(editor) : null;
   const editorContextRef = useRef(editorContext);
   editorContextRef.current = editorContext;
+  const fieldRef = useRef(field);
+  fieldRef.current = field;
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
@@ -118,6 +105,7 @@ export default function Page() {
         editorContext: editorContextRef.current,
         documentId,
         selectionUserId: HUMAN_USER_ID,
+        field: fieldRef.current,
       }),
     }),
   });
@@ -131,19 +119,39 @@ export default function Page() {
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (!editor || !input.trim()) return;
-    // Moving to the chat input blurred the editor, and CollaborationCaret nulls
-    // the awareness cursor on blur. Re-focus to re-publish the selection so the
-    // agent's readSelection can read it.
-    editor.commands.focus();
     sendMessage({ text: input });
     setInput("");
   };
 
-  if (!editor || !provider) return null;
+  if (!editor || !titleEditor || !provider) return null;
 
   return (
     <div className="flex h-screen">
       <div className="flex-1 overflow-y-auto">
+        <div className="space-y-3 border-b p-6">
+          <h1 className="text-xl font-semibold">Selection awareness</h1>
+          <p>
+            Select text in either field, then type in chat. Each field keeps its
+            selection when you leave the editor.
+          </p>
+          <label className="flex items-center gap-2">
+            Ask AI about
+            <select
+              value={field}
+              disabled={isLoading}
+              onChange={(event) =>
+                setField(event.target.value === "title" ? "title" : "body")
+              }
+              className="rounded border px-2 py-1"
+            >
+              <option value="title">Title</option>
+              <option value="body">Body</option>
+            </select>
+          </label>
+        </div>
+        <h2 className="px-6 pt-6 font-semibold">Title</h2>
+        <EditorContent editor={titleEditor} />
+        <h2 className="px-6 pt-6 font-semibold">Body</h2>
         <EditorContent editor={editor} />
       </div>
 
@@ -156,6 +164,33 @@ export default function Page() {
         placeholder="Select text, then ask the AI to change it..."
       />
     </div>
+  );
+}
+
+function useSelectionEditor(
+  doc: Y.Doc,
+  provider: TiptapCollabProvider | null,
+  field: string,
+) {
+  return useEditor(
+    {
+      immediatelyRender: false,
+      extensions: [
+        StarterKit.configure({ undoRedo: false }),
+        Collaboration.configure({ document: doc, field }),
+        ServerAiToolkit,
+        Selection,
+        ...(provider
+          ? [
+              AiSelectionAwareness.configure({
+                provider,
+                userId: HUMAN_USER_ID,
+              }),
+            ]
+          : []),
+      ],
+    },
+    [provider, field],
   );
 }
 
