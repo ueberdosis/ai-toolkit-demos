@@ -18,7 +18,7 @@ import { getCollabConfig } from "./actions";
 import "./selection.css";
 
 /**
- * The awareness user.id this client publishes. The agent forwards it as the
+ * The selection userId this client publishes. The agent forwards it as the
  * readSelection tool's config.user, so the server reads THIS user's selection.
  */
 const HUMAN_USER_ID = "human-1";
@@ -32,10 +32,9 @@ export default function Page() {
   const [doc] = useState(() => new Y.Doc());
   const [documentId] = useState(() => `server-read-selection/${uuid()}`);
   const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
+  const [synced, setSynced] = useState(false);
   const seededRef = useRef(false);
 
-  // The editor is (re)created once the provider exists so CollaborationCaret can
-  // publish this user's selection to awareness (which is what readSelection reads).
   const editor = useEditor(
     {
       immediatelyRender: false,
@@ -43,22 +42,30 @@ export default function Page() {
         StarterKit.configure({ undoRedo: false }),
         Collaboration.configure({ document: doc }),
         ServerAiToolkit,
-        Selection,
         ...(provider
           ? [
               CollaborationCaret.configure({
                 provider,
-                user: { id: HUMAN_USER_ID, name: "You", color: "#6a00f5" },
+                user: { id: HUMAN_USER_ID, name: "You", color: "#6366f1" },
               }),
             ]
           : []),
+        Selection,
       ],
     },
     [provider],
   );
 
-  const editorRef = useRef(editor);
-  editorRef.current = editor;
+  useEffect(() => {
+    if (!synced || !provider || !editor || seededRef.current) return;
+    seededRef.current = true;
+    editor
+      .chain()
+      .setContent(initialContent)
+      .setMeta("addToHistory", false)
+      .run();
+    selectText(editor, SEEDED_SENTENCE);
+  }, [synced, provider, editor]);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,20 +83,8 @@ export default function Page() {
         token: async () => (await getCollabConfig("user-1", documentId)).token,
         document: doc,
         user: "user-1",
-        onConnect() {
-          if (seededRef.current) return;
-          seededRef.current = true;
-          const currentEditor = editorRef.current;
-          if (!currentEditor) return;
-          // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
-          currentEditor
-            .chain()
-            .setContent(initialContent)
-            .setMeta("addToHistory", false)
-            .run();
-          // Find the seeded text rather than relying on fragile hardcoded
-          // positions, then focus so CollaborationCaret publishes it.
-          selectText(currentEditor, SEEDED_SENTENCE);
+        onSynced() {
+          if (!cancelled) setSynced(true);
         },
       });
       setProvider(created);
@@ -131,10 +126,6 @@ export default function Page() {
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (!editor || !input.trim()) return;
-    // Moving to the chat input blurred the editor, and CollaborationCaret nulls
-    // the awareness cursor on blur. Re-focus to re-publish the selection so the
-    // agent's readSelection can read it.
-    editor.commands.focus();
     sendMessage({ text: input });
     setInput("");
   };
