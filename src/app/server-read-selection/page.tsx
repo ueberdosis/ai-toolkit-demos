@@ -2,8 +2,8 @@
 
 import { useChat } from "@ai-sdk/react";
 import { getEditorContext, ServerAiToolkit } from "@tiptap/ai-toolkit";
-import { AiSelectionAwareness } from "@tiptap/ai-toolkit/selection-awareness";
 import { Collaboration } from "@tiptap/extension-collaboration";
+import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
 import { Selection } from "@tiptap/extensions";
 import type { Editor } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -44,9 +44,9 @@ export default function Page() {
         ServerAiToolkit,
         ...(provider
           ? [
-              AiSelectionAwareness.configure({
+              CollaborationCaret.configure({
                 provider,
-                userId: HUMAN_USER_ID,
+                user: { id: HUMAN_USER_ID, name: "You", color: "#6366f1" },
               }),
             ]
           : []),

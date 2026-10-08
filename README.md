@@ -40,15 +40,15 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 
 ## Selection awareness preview
 
-The server selection demo adds `AiSelectionAwareness` from
-`@tiptap/ai-toolkit/selection-awareness`, configured with `{ provider, userId }`. It needs no Collaboration Caret dependency or
-chat-submit refocus workaround. Select text, then type in chat. The editor and tool
+The server selection demo uses `CollaborationCaret`, configured with a provider and
+`user.id`. Its built-in AI selection awareness needs no extra extension or chat-submit
+refocus workaround. Select text, then type in chat. The editor and tool
 requests use the default collaborative field without configuring it explicitly.
 
 Release this demo after [Tiptap PR #8455](https://github.com/ueberdosis/tiptap/pull/8455)
-has been published. Before releasing, upgrade `@tiptap/ai-toolkit` to the version
-containing the selection awareness extension and regenerate the lockfile; the currently
-pinned 0.4.0 version does not include this extension. Deploy the companion AI Server
+has been published. Before releasing, upgrade the Tiptap editor packages together, including
+`@tiptap/extension-collaboration-caret`, and regenerate the lockfile; the currently
+pinned 3.22.5 version does not include this feature. Deploy the companion AI Server
 change first: older servers cannot read the new field-specific awareness.
 
 Manual checks for `/server-read-selection`:
