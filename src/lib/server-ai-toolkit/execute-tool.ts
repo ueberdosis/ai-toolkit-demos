@@ -6,7 +6,6 @@ import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
 export interface ExecuteToolOptions {
   documentId?: string;
-  field?: string;
   userId?: string;
   toolConfig?: Record<string, unknown>;
   reviewOptions?: {
@@ -62,7 +61,6 @@ export async function executeTool(
             content: document,
           },
       user: options.userId ?? null,
-      field: options.field,
       tool: {
         name: toolName,
         input,

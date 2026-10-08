@@ -32,29 +32,35 @@ export default function Page() {
   const [documentId] = useState(() => `server-read-selection/${uuid()}`);
   const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
   const [synced, setSynced] = useState(false);
-  const [field, setField] = useState<"title" | "body">("body");
   const seededRef = useRef(false);
 
-  const editor = useSelectionEditor(doc, provider, "body");
-  const titleEditor = useSelectionEditor(doc, provider, "title");
+  const editor = useEditor(
+    {
+      immediatelyRender: false,
+      extensions: [
+        StarterKit.configure({ undoRedo: false }),
+        Collaboration.configure({ document: doc }),
+        ServerAiToolkit.configure({
+          selectionAwareness: provider
+            ? { provider, userId: HUMAN_USER_ID }
+            : false,
+        }),
+        Selection,
+      ],
+    },
+    [provider],
+  );
 
   useEffect(() => {
-    if (!synced || !provider || !editor || !titleEditor || seededRef.current)
-      return;
+    if (!synced || !provider || !editor || seededRef.current) return;
     seededRef.current = true;
     editor
       .chain()
       .setContent(initialContent)
       .setMeta("addToHistory", false)
       .run();
-    titleEditor
-      .chain()
-      .setContent("<p>Project update</p>")
-      .setMeta("addToHistory", false)
-      .run();
-    titleEditor.commands.setTextSelection({ from: 1, to: 15 });
     selectText(editor, SEEDED_SENTENCE);
-  }, [synced, provider, editor, titleEditor]);
+  }, [synced, provider, editor]);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,8 +100,6 @@ export default function Page() {
   const editorContext = editor ? getEditorContext(editor) : null;
   const editorContextRef = useRef(editorContext);
   editorContextRef.current = editorContext;
-  const fieldRef = useRef(field);
-  fieldRef.current = field;
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
@@ -104,7 +108,6 @@ export default function Page() {
         editorContext: editorContextRef.current,
         documentId,
         selectionUserId: HUMAN_USER_ID,
-        field: fieldRef.current,
       }),
     }),
   });
@@ -122,7 +125,7 @@ export default function Page() {
     setInput("");
   };
 
-  if (!editor || !titleEditor || !provider) return null;
+  if (!editor || !provider) return null;
 
   return (
     <div className="flex h-screen">
@@ -130,27 +133,10 @@ export default function Page() {
         <div className="space-y-3 border-b p-6">
           <h1 className="text-xl font-semibold">Selection awareness</h1>
           <p>
-            Select text in either field, then type in chat. Each field keeps its
-            selection when you leave the editor.
+            Select text, then type in chat. Your selection stays available when
+            you leave the editor.
           </p>
-          <label className="flex items-center gap-2">
-            Ask AI about
-            <select
-              value={field}
-              disabled={isLoading}
-              onChange={(event) =>
-                setField(event.target.value === "title" ? "title" : "body")
-              }
-              className="rounded border px-2 py-1"
-            >
-              <option value="title">Title</option>
-              <option value="body">Body</option>
-            </select>
-          </label>
         </div>
-        <h2 className="px-6 pt-6 font-semibold">Title</h2>
-        <EditorContent editor={titleEditor} />
-        <h2 className="px-6 pt-6 font-semibold">Body</h2>
         <EditorContent editor={editor} />
       </div>
 
@@ -163,29 +149,6 @@ export default function Page() {
         placeholder="Select text, then ask the AI to change it..."
       />
     </div>
-  );
-}
-
-function useSelectionEditor(
-  doc: Y.Doc,
-  provider: TiptapCollabProvider | null,
-  field: string,
-) {
-  return useEditor(
-    {
-      immediatelyRender: false,
-      extensions: [
-        StarterKit.configure({ undoRedo: false }),
-        Collaboration.configure({ document: doc, field }),
-        ServerAiToolkit.configure({
-          selectionAwareness: provider
-            ? { provider, userId: HUMAN_USER_ID }
-            : false,
-        }),
-        Selection,
-      ],
-    },
-    [provider, field],
   );
 }
 

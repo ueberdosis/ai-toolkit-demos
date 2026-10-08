@@ -34,7 +34,7 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 
 - **Server AI Agent Chatbot** (`/server-ai-agent-chatbot`) - A server-side AI agent that can edit collaborative documents
 - **Server Comments** (`/server-comments`) - A server-side AI agent that can add and manage comments via Tiptap Collaboration
-- **Server Selection Awareness** (`/server-read-selection`) - Two collaborative fields retain independent selections while you type in chat
+- **Server Selection Awareness** (`/server-read-selection`) - Your editor selection stays available while you type in chat
 - **Server Stream Tool** (`/server-ai-stream-tool-chatbot`) - Streams a `tiptapEdit` tool call to the server so edits appear live, character by character
 - **Server Stream Tool (Tracked Changes)** (`/server-ai-stream-tool-chatbot-tracked-changes`) - Same streaming flow with tracked-changes mode, so edits arrive as accept/reject suggestions
 
@@ -42,8 +42,8 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 
 The server selection demo configures `ServerAiToolkit` with
 `selectionAwareness: { provider, userId }`, with no extra extension or Collaboration Caret dependency or
-chat-submit refocus workaround. Select text in Title and Body, choose the field in
-"Ask AI about", then type in chat. Every tool call receives that field.
+chat-submit refocus workaround. Select text, then type in chat. The editor and tool
+requests use the default collaborative field without configuring it explicitly.
 
 Release this demo after [Tiptap PR #8455](https://github.com/ueberdosis/tiptap/pull/8455)
 has been published. Before releasing, upgrade `@tiptap/ai-toolkit` to the version
@@ -53,11 +53,9 @@ change first: older servers cannot read the new field-specific awareness.
 
 Manual checks for `/server-read-selection`:
 
-- Select a few words in Body, click into chat, and ask to translate the selection.
+- Select a few words, click into chat, and ask to translate the selection.
   The editor should remain blurred, and the selected words should be read.
-- Select text in Title, choose Title, and submit. Body's selection and content
-  should remain unchanged. Switching back to Body should read its selection.
-- Collapse a selection to a cursor, then submit for that field. `readSelection`
+- Collapse a selection to a cursor, then submit. `readSelection`
   should report an empty selection.
 
 ## Tech Stack

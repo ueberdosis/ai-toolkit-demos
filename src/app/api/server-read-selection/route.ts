@@ -17,21 +17,12 @@ export async function POST(req: Request) {
     editorContext,
     documentId,
     selectionUserId,
-    field,
   }: {
     messages: UIMessage[];
     editorContext: unknown;
     documentId: string;
     selectionUserId: string;
-    field: "title" | "body";
   } = await req.json();
-
-  if (field !== "title" && field !== "body") {
-    return Response.json(
-      { error: "Choose the title or body field." },
-      { status: 400 },
-    );
-  }
 
   const toolsResponse = await getTools({
     editorContext,
@@ -54,7 +45,6 @@ export async function POST(req: Request) {
               editorContext,
               {
                 documentId,
-                field,
                 userId: "ai-assistant",
                 // readSelection reads a specific collaborator's live selection;
                 // the human's awareness id is developer config, not model input.
