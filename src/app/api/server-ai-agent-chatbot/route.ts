@@ -1,14 +1,11 @@
-import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { openai } from "@ai-sdk/openai";
 import {
   createAgentUIStreamResponse,
-  gateway,
   ToolLoopAgent,
   tool,
   type UIMessage,
-  wrapLanguageModel,
 } from "ai";
 import z from "zod";
+import { getModel } from "@/lib/get-model";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
 import { getTools } from "@/lib/server-ai-toolkit/get-tools";
@@ -42,7 +39,6 @@ export async function POST(req: Request) {
   // Get tool definitions from the Server AI Toolkit API
   const toolsResponse = await getTools({
     editorContext,
-    tools: { tiptapQuery: true },
   });
 
   // Convert API tool definitions to AI SDK tool format
@@ -78,16 +74,7 @@ export async function POST(req: Request) {
     ]),
   );
 
-  const model = wrapLanguageModel({
-    model:
-      process.env.NODE_ENV !== "production" &&
-      process.env.OPENAI_API_KEY &&
-      !process.env.AI_GATEWAY_API_KEY
-        ? openai("gpt-5.6-luna")
-        : gateway("openai/gpt-5.6-luna"),
-    middleware:
-      process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
-  });
+  const model = getModel();
 
   const agent = new ToolLoopAgent({
     model,
