@@ -1,6 +1,3 @@
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - sharp
-
-patchedDependencies:
-  '@tiptap/ai-toolkit@0.4.0': patches/@tiptap__ai-toolkit@0.4.0.patch

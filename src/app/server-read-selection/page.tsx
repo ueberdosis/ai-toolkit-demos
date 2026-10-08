@@ -2,7 +2,6 @@
 
 import { useChat } from "@ai-sdk/react";
 import { getEditorContext, ServerAiToolkit } from "@tiptap/ai-toolkit";
-import { AiSelectionAwareness } from "@tiptap/ai-toolkit/selection-awareness";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { Selection } from "@tiptap/extensions";
 import type { Editor } from "@tiptap/react";
@@ -178,16 +177,12 @@ function useSelectionEditor(
       extensions: [
         StarterKit.configure({ undoRedo: false }),
         Collaboration.configure({ document: doc, field }),
-        ServerAiToolkit,
+        ServerAiToolkit.configure({
+          selectionAwareness: provider
+            ? { provider, userId: HUMAN_USER_ID }
+            : false,
+        }),
         Selection,
-        ...(provider
-          ? [
-              AiSelectionAwareness.configure({
-                provider,
-                userId: HUMAN_USER_ID,
-              }),
-            ]
-          : []),
       ],
     },
     [provider, field],

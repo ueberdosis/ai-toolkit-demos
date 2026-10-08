@@ -40,17 +40,16 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 
 ## Selection awareness preview
 
-The server selection demo uses `AiSelectionAwareness` from
-`@tiptap/ai-toolkit/selection-awareness`, with no Collaboration Caret dependency or
+The server selection demo configures `ServerAiToolkit` with
+`selectionAwareness: { provider, userId }`, with no extra extension or Collaboration Caret dependency or
 chat-submit refocus workaround. Select text in Title and Body, choose the field in
 "Ask AI about", then type in chat. Every tool call receives that field.
 
-Until the extension is released, `patches/@tiptap__ai-toolkit@0.4.0.patch` supplies
-the built entry point and source from [Tiptap PR #8455](https://github.com/ueberdosis/tiptap/pull/8455). `pnpm install`
-applies it automatically. Once a package release includes `AiSelectionAwareness`,
-upgrade `@tiptap/ai-toolkit`, remove its `patchedDependencies` entry and patch file,
-and regenerate the lockfile. Deploy the companion AI Server change before using
-this demo: older servers cannot read the new field-specific awareness.
+Release this demo after [Tiptap PR #8455](https://github.com/ueberdosis/tiptap/pull/8455)
+has been published. Before releasing, upgrade `@tiptap/ai-toolkit` to the version
+containing built-in selection awareness and regenerate the lockfile; the currently
+pinned 0.4.0 version does not include this option. Deploy the companion AI Server
+change first: older servers cannot read the new field-specific awareness.
 
 Manual checks for `/server-read-selection`:
 
