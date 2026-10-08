@@ -135,13 +135,6 @@ export default function Page() {
   return (
     <div className="flex h-screen">
       <div className="flex-1 overflow-y-auto">
-        <div className="space-y-3 border-b p-6">
-          <h1 className="text-xl font-semibold">Selection awareness</h1>
-          <p>
-            Select text, then type in chat. Your selection stays available when
-            you leave the editor.
-          </p>
-        </div>
         <EditorContent editor={editor} />
       </div>
 
