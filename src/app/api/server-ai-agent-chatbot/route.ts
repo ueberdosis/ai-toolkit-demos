@@ -1,13 +1,11 @@
-import { devToolsMiddleware } from "@ai-sdk/devtools";
 import {
   createAgentUIStreamResponse,
-  gateway,
   ToolLoopAgent,
   tool,
   type UIMessage,
-  wrapLanguageModel,
 } from "ai";
 import z from "zod";
+import { getModel } from "@/lib/get-model";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
 import { getTools } from "@/lib/server-ai-toolkit/get-tools";
@@ -76,14 +74,12 @@ export async function POST(req: Request) {
     ]),
   );
 
-  const model = wrapLanguageModel({
-    model: gateway("openai/gpt-5.6-luna"),
-    middleware:
-      process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
-  });
+  const model = getModel();
 
   const agent = new ToolLoopAgent({
     model,
+    // Query reads can initialize hashes; serialize calls against the same document.
+    providerOptions: { openai: { parallelToolCalls: false } },
     instructions: `You are an assistant that can edit rich text documents.
 In your responses, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
 Before calling any tools, summarize you're going to do (in a sentence or less), as a high-level view of the task, like a human writer would describe it.

@@ -18,6 +18,8 @@ interface BuildCaptureArgs {
 }
 
 interface PmNode {
+  type?: string;
+  text?: string;
   attrs?: Record<string, unknown> | null;
   content?: PmNode[];
 }
@@ -25,6 +27,18 @@ interface PmNode {
 interface TiptapReadOutput {
   content?: PmNode[];
   nodeRange?: [number, number];
+}
+
+/** One item of a tiptapQuery read result. */
+interface QueryReadItem {
+  hash?: string;
+  type?: string;
+  text?: string;
+  content?: unknown;
+}
+
+interface TiptapQueryOutput {
+  operationResults?: { items?: QueryReadItem[] }[];
 }
 
 function deepClone<T>(value: T): T {
@@ -53,11 +67,76 @@ function copyHashes(into: PmNode | undefined, from: PmNode | undefined): void {
   }
 }
 
+/** Removes the line breaks and leaf placeholders that tiptapQuery adds to read text. */
+function withoutBreaks(text: string): string {
+  return text.replace(/[\n￼]/g, "");
+}
+
+/** Text of a node, comparable with tiptapQuery read text. */
+function comparableText(node: PmNode): string {
+  if (typeof node.text === "string") {
+    return withoutBreaks(node.text);
+  }
+  return (node.content ?? []).map(comparableText).join("");
+}
+
+/** All nodes below `root` in document order, without text nodes. */
+function descendantsOf(root: PmNode): PmNode[] {
+  return (root.content ?? []).flatMap((child) =>
+    child.type === "text" ? [] : [child, ...descendantsOf(child)],
+  );
+}
+
 /**
- * The editor's raw `documentBefore` has no `_hash` attrs — the toolkit assigns
- * them (randomly) during `tiptapRead`, and edit operations `target` those
- * hashes. So stamp the hashes from the captured `tiptapRead` output onto the
- * before-doc; without this, replaying the capture fails with "target not found".
+ * Stamps the hash of a tiptapQuery read item onto the one node it can belong
+ * to: a node of the item's type with the same text or, for a text match, the
+ * text block that contains the text. Leaves ambiguous items unstamped.
+ */
+function stampQueryItem(nodes: PmNode[], item: QueryReadItem): void {
+  const { hash, type } = item;
+  if (
+    !hash ||
+    !type ||
+    type === "content" ||
+    nodes.some((node) => node.attrs?._hash === hash)
+  ) {
+    return;
+  }
+  const itemNodes = Array.isArray(item.content)
+    ? (item.content as PmNode[])
+    : undefined;
+  const itemText = item.text ?? itemNodes?.map(comparableText).join("");
+  if (itemText === undefined) {
+    return;
+  }
+  const text = withoutBreaks(itemText);
+  const unhashed = nodes.filter((node) => !node.attrs?._hash);
+  const candidates =
+    type === "text"
+      ? unhashed.filter(
+          (node) =>
+            node.content?.some((child) => child.type === "text") &&
+            comparableText(node).includes(text),
+        )
+      : unhashed.filter(
+          (node) => node.type === type && comparableText(node) === text,
+        );
+  if (candidates.length !== 1) {
+    return;
+  }
+  const [node] = candidates;
+  node.attrs = { ...node.attrs, _hash: hash };
+  if (type !== "text" && itemNodes?.length === 1) {
+    copyHashes(node, itemNodes[0]);
+  }
+}
+
+/**
+ * The editor's raw `documentBefore` has no `_hash` attrs on nodes the toolkit
+ * has not read yet. The toolkit assigns them (randomly) when it reads, and edit
+ * operations target those hashes. So stamp the hashes from the captured
+ * `tiptapRead` and `tiptapQuery` outputs onto the before-doc; without this,
+ * replaying the capture can't find the targeted nodes.
  */
 function withReplayHashes(
   documentBefore: unknown,
@@ -71,7 +150,8 @@ function withReplayHashes(
       call.toolName === "tiptapRead" &&
       Array.isArray((call.output as TiptapReadOutput | null)?.content),
   );
-  if (reads.length === 0) {
+  const queries = toolCalls.filter((call) => call.toolName === "tiptapQuery");
+  if (reads.length === 0 && queries.length === 0) {
     return documentBefore;
   }
 
@@ -85,6 +165,15 @@ function withReplayHashes(
       copyHashes(beforeNodes[offset + i], readNodes[i]);
     }
   }
+  const nodes = descendantsOf(before);
+  for (const query of queries) {
+    const output = query.output as TiptapQueryOutput | null;
+    for (const result of output?.operationResults ?? []) {
+      for (const item of result.items ?? []) {
+        stampQueryItem(nodes, item);
+      }
+    }
+  }
   return before;
 }
 
@@ -92,8 +181,8 @@ function withReplayHashes(
  * Builds the JSON a developer copies when they spot a toolkit bug: the document
  * before and after the AI's edits, the schema, and the tool calls/requests made
  * to the Server AI Toolkit. `documentBefore` carries the `_hash` values the edit
- * operations target (stamped from the `tiptapRead` output) so the capture
- * replays directly. `editorContext` is included once to keep the payload small.
+ * operations target (stamped from the captured reads) so the capture replays
+ * directly. `editorContext` is included once to keep the payload small.
  * The result is raw material a human turns into a regression test by hand.
  */
 export function buildCaptureJson(args: BuildCaptureArgs): string {
