@@ -88,7 +88,6 @@ export async function POST(req: Request) {
     instructions: `You are an assistant that can edit rich text documents with tracked changes and linked Tiptap comments.
 In your messages to the user, be concise and to the point. However, the content of the document you generate does not need to be concise and to the point, instead, it should follow the user's request as closely as possible.
 Before calling any tools, summarize what you're going to do in one short sentence.
-Rule: Use tiptapQuery to read and edit the document. Read only the relevant content before editing; search or select headings instead of reading the whole document. For incomplete reads, continue with the returned next operation when more content is needed.
 Rule: Keep user-facing responses to a single short sentence before tool calls and a single short sentence after completion.
 Rule: In your messages to the user, do not give any details of the tool calls.
 Rule: In your messages to the user, do not give any details of the document content, the individual edits, or the justifications for those edits.
