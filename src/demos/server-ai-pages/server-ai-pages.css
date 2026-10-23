@@ -1,0 +1,11 @@
+/*
+ * ConvertKit zeroes paragraph spacing so DOCX spacing renders exactly. Give
+ * text without DOCX spacing readable typography; inline DOCX styles still win.
+ */
+.server-ai-pages-canvas .tiptap p {
+  line-height: 1.5;
+}
+
+.server-ai-pages-canvas .tiptap > p {
+  margin-bottom: 0.75rem;
+}

@@ -208,6 +208,12 @@ const CATEGORIES = [
               "Streaming /stream-tool in tracked-changes mode: the AI edit types into a live red/green suggestion you can accept or reject",
             href: "/server-ai-stream-tool-chatbot-tracked-changes",
           },
+          {
+            title: "Server Pages (Large Documents)",
+            description:
+              "Paginated collaborative editor with the server AI agent; generate or import thousands of pages and measure load, layout, sync, and AI tool timings",
+            href: "/server-ai-pages",
+          },
         ],
       },
     ],

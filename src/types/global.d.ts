@@ -1,5 +1,10 @@
 declare module "*.css";
 
+// pdf.js entry that also starts its web worker; it re-exports the main build.
+declare module "pdfjs-dist/webpack.mjs" {
+  export * from "pdfjs-dist";
+}
+
 declare global {
   namespace NodeJS {
     interface ProcessEnv {

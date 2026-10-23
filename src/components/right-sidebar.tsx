@@ -6,7 +6,7 @@ import { ChatSidebar, type Message } from "./chat-sidebar";
 import { ResponsiveRightSidebar } from "./responsive-right-sidebar";
 import { SegmentedControl } from "./segmented-control";
 
-export type PanelId = "chat" | "tracked" | "comments";
+export type PanelId = "chat" | "tracked" | "comments" | "metrics";
 
 interface RightSidebarProps {
   activePanel: PanelId;
@@ -19,6 +19,7 @@ interface RightSidebarProps {
   placeholder?: string;
   trackedPanel?: ReactNode;
   commentsPanel?: ReactNode;
+  metricsPanel?: ReactNode;
   inputAction?: ReactNode;
 }
 
@@ -34,6 +35,7 @@ export function RightSidebar({
   placeholder = "Ask the AI to edit the document...",
   trackedPanel,
   commentsPanel,
+  metricsPanel,
   inputAction,
 }: RightSidebarProps) {
   const panels: Array<{ id: PanelId; label: string; content: ReactNode }> = [
@@ -65,6 +67,10 @@ export function RightSidebar({
 
   if (commentsPanel) {
     panels.push({ id: "comments", label: "Comments", content: commentsPanel });
+  }
+
+  if (metricsPanel) {
+    panels.push({ id: "metrics", label: "Metrics", content: metricsPanel });
   }
 
   const active = panels.find((panel) => panel.id === activePanel) ?? panels[0];

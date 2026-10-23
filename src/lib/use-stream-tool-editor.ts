@@ -14,8 +14,10 @@ import { getCollabConfig } from "@/app/server-ai-agent-chatbot/actions";
 type UseStreamToolEditorOptions = {
   /** Slug used to build the collaborative document id. */
   slug: string;
-  /** HTML content applied to the document on first connect. */
-  initialContent: string;
+  /** Joins this document instead of creating a new `${slug}/<uuid>` one. */
+  documentId?: string;
+  /** HTML content applied to the document on every connect. Omit to keep the stored content. */
+  initialContent?: string;
   /** Content extensions placed before the collaboration baseline (StarterKit, Table, ...). */
   extensions: AnyExtension[];
   /** Extensions placed after ServerAiToolkit (e.g. TrackedChanges). */
@@ -23,19 +25,22 @@ type UseStreamToolEditorOptions = {
 };
 
 /**
- * Shared editor + collaboration wiring for the server stream-tool demos. Owns
- * the Y.Doc, the TiptapCollabProvider lifecycle, and the editor (with a shared
+ * Shared editor + collaboration wiring for the server AI demos. Owns the
+ * Y.Doc, the TiptapCollabProvider lifecycle, and the editor (with a shared
  * Collaboration / CollaborationCaret / ServerAiToolkit baseline plus the
- * caller's demo-specific extensions). Streamed edits arrive via Y.Doc sync.
+ * caller's demo-specific extensions). Server-side edits arrive via Y.Doc sync.
  */
 export function useStreamToolEditor({
   slug,
+  documentId: requestedDocumentId,
   initialContent,
   extensions,
   trailingExtensions = [],
 }: UseStreamToolEditorOptions) {
   const [doc] = useState(() => new Y.Doc());
-  const [documentId] = useState(() => `${slug}/${uuid()}`);
+  const [documentId] = useState(
+    () => requestedDocumentId ?? `${slug}/${uuid()}`,
+  );
   const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
 
   const editor = useEditor(
@@ -43,9 +48,11 @@ export function useStreamToolEditor({
       immediatelyRender: false,
       extensions: [
         ...extensions,
-        Collaboration.configure({ document: doc }),
+        // The Y.Doc is bound only once the provider exists, so extensions can
+        // wait for its first sync before writing to the shared document.
         ...(provider
           ? [
+              Collaboration.configure({ document: doc, provider }),
               CollaborationCaret.configure({
                 provider,
                 user: { name: "You", color: "#0EA5E9" },
@@ -121,6 +128,7 @@ export function useStreamToolEditor({
           document: doc,
           user: "user-1",
           onConnect() {
+            if (initialContent === undefined) return;
             // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
             editorRef.current
               ?.chain()
@@ -144,5 +152,5 @@ export function useStreamToolEditor({
     };
   }, [documentId, doc, initialContent]);
 
-  return { editor, documentId };
+  return { editor, documentId, provider };
 }

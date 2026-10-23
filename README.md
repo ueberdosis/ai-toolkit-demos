@@ -36,6 +36,7 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 - **Server Comments** (`/server-comments`) - A server-side AI agent that can add and manage comments via Tiptap Collaboration
 - **Server Stream Tool** (`/server-ai-stream-tool-chatbot`) - Streams a `tiptapEdit` tool call to the server so edits appear live, character by character
 - **Server Stream Tool (Tracked Changes)** (`/server-ai-stream-tool-chatbot-tracked-changes`) - Same streaming flow with tracked-changes mode, so edits arrive as accept/reject suggestions
+- **Server Pages** (`/server-ai-pages`) - A paginated, collaborative editor (Tiptap Pages) with the server-side AI agent, for testing large documents. Generate thousands of pages or import a DOCX, PDF, JSON, or HTML file, then read load, layout, sync, and AI tool timings in the Metrics tab. DOCX import uses Tiptap Conversion with the same access-control keys; PDF import reads the text layer in the browser with pdf.js (text only)
 
 ## Tech Stack
 
