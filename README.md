@@ -38,25 +38,19 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 - **Server Stream Tool** (`/server-ai-stream-tool-chatbot`) - Streams a `tiptapEdit` tool call to the server so edits appear live, character by character
 - **Server Stream Tool (Tracked Changes)** (`/server-ai-stream-tool-chatbot-tracked-changes`) - Same streaming flow with tracked-changes mode, so edits arrive as accept/reject suggestions
 
-## Selection awareness preview
+## Selection awareness
 
-The server selection demo uses `CollaborationCaret`, configured with a provider and
-`user.id`. Its built-in AI selection awareness needs no extra extension or chat-submit
-refocus workaround. Select text, then type in chat. The editor and tool
-requests use the default collaborative field without configuring it explicitly.
-
-Release this demo after [Tiptap PR #8455](https://github.com/ueberdosis/tiptap/pull/8455)
-has been published. Before releasing, upgrade the Tiptap editor packages together, including
-`@tiptap/extension-collaboration-caret`, and regenerate the lockfile; the currently
-pinned 3.22.5 version does not include this feature. Deploy the companion AI Server
-change first: older servers cannot read the new field-specific awareness.
+The server selection demo relies on `@tiptap/y-tiptap` 3.1.0 or later. When the editor loses
+focus, `CollaborationCaret` keeps its last selection in awareness, so the agent can read it
+while you type in chat. Add `@tiptap/y-tiptap@^3.1.0` to the dependencies once it is
+published ([Tiptap PR #8455](https://github.com/ueberdosis/tiptap/pull/8455)), and deploy the
+companion AI Server change first.
 
 Manual checks for `/server-read-selection`:
 
 - Select a few words, click into chat, and ask to translate the selection.
-  The editor should remain blurred, and the selected words should be read.
-- Collapse a selection to a cursor, then submit. `readSelection`
-  should report an empty selection.
+  The editor stays blurred, and the agent reads the selected words.
+- Collapse the selection to a cursor, then submit. `readSelection` reports an empty selection.
 
 ## Tech Stack
 
