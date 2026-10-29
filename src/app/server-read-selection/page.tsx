@@ -131,10 +131,6 @@ export default function Page() {
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (!editor || !input.trim()) return;
-    // Moving to the chat input blurred the editor, and CollaborationCaret nulls
-    // the awareness cursor on blur. Re-focus to re-publish the selection so the
-    // agent's readSelection can read it.
-    editor.commands.focus();
     sendMessage({ text: input });
     setInput("");
   };
