@@ -35,6 +35,11 @@ const CATEGORIES = [
             description: "Context-aware editing from selection",
             href: "/selection-awareness",
           },
+          {
+            title: "Diagrams",
+            description: "Add and change charts and Mermaid diagrams",
+            href: "/diagrams",
+          },
         ],
       },
       {
@@ -195,6 +200,12 @@ const CATEGORIES = [
             description:
               "AI reads your live selection server-side and edits only the selected text",
             href: "/server-read-selection",
+          },
+          {
+            title: "Server Diagrams",
+            description:
+              "Server-side AI agent that adds and changes charts and Mermaid diagrams",
+            href: "/server-ai-diagrams",
           },
           {
             title: "Server Streaming",

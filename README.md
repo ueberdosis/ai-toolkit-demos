@@ -18,6 +18,7 @@ AI agents allow the AI model to choose from a set of tools to perform tasks. The
 - **Comments** (`/comments`) - An AI agent that can add and manage comments and threads in a Tiptap document
 - **Schema Awareness** (`/schema-awareness`) - An AI agent with schema awareness enabled. It understands custom nodes and marks.
 - **Selection Awareness** (`/selection-awareness`) - An AI agent that is aware of the current selection in the editor
+- **Diagrams** (`/diagrams`) - An AI agent that can add and change the charts and Mermaid diagrams of the Diagrams extension
 
 ## Workflows
 
@@ -34,6 +35,7 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 
 - **Server AI Agent Chatbot** (`/server-ai-agent-chatbot`) - A server-side AI agent that can edit collaborative documents
 - **Server Comments** (`/server-comments`) - A server-side AI agent that can add and manage comments via Tiptap Collaboration
+- **Server Diagrams** (`/server-ai-diagrams`) - A server-side AI agent that can add and change the charts and Mermaid diagrams of the Diagrams extension
 - **Server Stream Tool** (`/server-ai-stream-tool-chatbot`) - Streams a `tiptapEdit` tool call to the server so edits appear live, character by character
 - **Server Stream Tool (Tracked Changes)** (`/server-ai-stream-tool-chatbot-tracked-changes`) - Same streaming flow with tracked-changes mode, so edits arrive as accept/reject suggestions
 
