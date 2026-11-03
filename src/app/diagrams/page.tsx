@@ -15,7 +15,6 @@ import {
   diagramsExtension,
   diagramsInitialContent,
 } from "../../demos/diagrams/diagrams-setup";
-import { diagramsHtmlItems } from "./diagrams-html-items";
 
 export default function Page() {
   const editor = useEditor({
@@ -26,9 +25,7 @@ export default function Page() {
 
   // Fixes issue: https://github.com/vercel/ai/issues/7819
   const schemaAwareness = editor
-    ? getAiToolkit(editor).getHtmlSchemaAwareness({
-        customNodes: diagramsHtmlItems,
-      })
+    ? getAiToolkit(editor).getHtmlSchemaAwareness()
     : "";
   const schemaAwarenessRef = useRef(schemaAwareness);
   schemaAwarenessRef.current = schemaAwareness;
