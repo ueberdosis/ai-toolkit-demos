@@ -14,10 +14,13 @@ import {
   mermaidRenderer,
 } from "@tiptap-pro/extension-diagrams/mermaid";
 
-// Served by /api/diagrams-assets: the Mermaid Renderer loads them into its sandboxed iframe.
+// The build emits both files as static assets; the Mermaid Renderer loads them into its iframe by URL.
 const mermaidFiles = {
-  mermaidUrl: "/api/diagrams-assets/mermaid.min.js",
-  rendererUrl: "/api/diagrams-assets/mermaid-renderer.js",
+  mermaidUrl: new URL("mermaid/dist/mermaid.min.js", import.meta.url).href,
+  rendererUrl: new URL(
+    "@tiptap-pro/extension-diagrams/mermaid-renderer",
+    import.meta.url,
+  ).href,
 };
 
 /** The Diagrams extension with ECharts for charts and Mermaid for charts and diagrams. */
