@@ -30,8 +30,7 @@ export async function getTools(options: GetToolsOptions): Promise<{
     body: JSON.stringify({
       editorContext: options.editorContext,
       tools: options.tools ?? {
-        tiptapRead: true,
-        tiptapEdit: options.operationMeta
+        tiptapQuery: options.operationMeta
           ? { meta: options.operationMeta }
           : true,
       },
