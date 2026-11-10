@@ -40,11 +40,12 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 
 ## Selection awareness
 
-The server selection demo relies on `@tiptap/y-tiptap` 3.1.0 or later. When the editor loses
+The server selection demo relies on `@tiptap/y-tiptap` 3.3.0 or later. When the editor loses
 focus, `CollaborationCaret` keeps its last selection in awareness, so the agent can read it
-while you type in chat. Add `@tiptap/y-tiptap@^3.1.0` to the dependencies once it is
-published ([Tiptap PR #8455](https://github.com/ueberdosis/tiptap/pull/8455)), and deploy the
-companion AI Server change first.
+while you type in chat. This behavior was released in 3.3.0
+([Tiptap PR #8455](https://github.com/ueberdosis/tiptap/pull/8455)). Deploy the
+[companion AI Server change](https://git.ueberlab.com/tiptap/ai-server/-/merge_requests/443)
+before using this demo.
 
 Manual checks for `/server-read-selection`:
 

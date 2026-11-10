@@ -41,6 +41,7 @@
     "@tiptap/pm": "3.22.5",
     "@tiptap/react": "3.22.5",
     "@tiptap/starter-kit": "3.22.5",
+    "@tiptap/y-tiptap": "^3.3.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
