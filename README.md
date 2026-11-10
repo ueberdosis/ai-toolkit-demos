@@ -34,8 +34,24 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 
 - **Server AI Agent Chatbot** (`/server-ai-agent-chatbot`) - A server-side AI agent that can edit collaborative documents
 - **Server Comments** (`/server-comments`) - A server-side AI agent that can add and manage comments via Tiptap Collaboration
+- **Server Selection Awareness** (`/server-read-selection`) - Your editor selection stays available while you type in chat
 - **Server Stream Tool** (`/server-ai-stream-tool-chatbot`) - Streams a `tiptapEdit` tool call to the server so edits appear live, character by character
 - **Server Stream Tool (Tracked Changes)** (`/server-ai-stream-tool-chatbot-tracked-changes`) - Same streaming flow with tracked-changes mode, so edits arrive as accept/reject suggestions
+
+## Selection awareness
+
+The server selection demo relies on `@tiptap/y-tiptap` 3.3.0 or later. When the editor loses
+focus, `CollaborationCaret` keeps its last selection in awareness, so the agent can read it
+while you type in chat. This behavior was released in 3.3.0
+([Tiptap PR #8455](https://github.com/ueberdosis/tiptap/pull/8455)). Deploy the
+[companion AI Server change](https://git.ueberlab.com/tiptap/ai-server/-/merge_requests/443)
+before using this demo.
+
+Manual checks for `/server-read-selection`:
+
+- Select a few words, click into chat, and ask to translate the selection.
+  The editor stays blurred, and the agent reads the selected words.
+- Collapse the selection to a cursor, then submit. `readSelection` reports an empty selection.
 
 ## Tech Stack
 
