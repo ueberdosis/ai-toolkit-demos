@@ -12,9 +12,9 @@ import {
 import z from "zod";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { getTiptapCloudAiJwtToken } from "@/lib/server-ai-toolkit/get-tiptap-cloud-ai-jwt-token";
-import { streamToolFetch } from "@/lib/server-ai-toolkit/stream-tool-fetch";
+import { openStreamToolSocket } from "@/lib/server-ai-toolkit/stream-tool-socket";
 
-// Duplex request-body streaming requires the Node.js runtime (not Edge). Raise the
+// The `ws` WebSocket client requires the Node.js runtime (not Edge). Raise the
 // function timeout so a long, paced AI edit isn't cut off by the platform default.
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -28,7 +28,7 @@ export const maxDuration = 60;
  *                          - tool.inputSchema  = tiptapEdit.inputSchema from /fetch-tools
  *                          - tool.description  = tiptapEdit.description from /fetch-tools
  *                          - tool.onInputDelta → /stream-tool `delta` msg
- *                       → AI server's NDJSON response → browser log panel
+ *                       → /stream-tool over a WebSocket (start / delta / end)
  *
  * Document content is fetched via the `readDocument` tool through
  * `/execute-tool` instead of the legacy `/read-document` REST endpoint —
@@ -36,8 +36,8 @@ export const maxDuration = 60;
  * hit the Document API REST surface (which has stricter scope requirements
  * for the customer's multi-aud JWT).
  *
- * Streaming wire format unchanged: each `onInputDelta` callback forwards
- * raw `argsTextDelta` text to `/stream-tool` as NDJSON.
+ * Each `onInputDelta` callback forwards raw `argsTextDelta` text to
+ * `/stream-tool` as one WebSocket message.
  */
 export async function POST(req: Request) {
   if (process.env.UPSTASH_REDIS_REST_URL) {
@@ -186,43 +186,17 @@ export async function POST(req: Request) {
     );
   }
 
-  // 3) Build the NDJSON request body driven by the tool's onInput* callbacks.
-  const encoder = new TextEncoder();
-  // Ref so TS doesn't narrow the controller binding to `null` through
-  // the closure assignment in `start()`.
-  const controllerRef: {
-    current: ReadableStreamDefaultController<Uint8Array> | null;
-  } = { current: null };
-  const ndjsonRequestBody = new ReadableStream<Uint8Array>({
-    start(controller) {
-      controllerRef.current = controller;
-    },
-  });
-  let forwardedStart = false;
-  let forwardedEnd = false;
-
-  const writeNdjson = (payload: Record<string, unknown>) => {
-    if (!controllerRef.current) return;
-    controllerRef.current.enqueue(
-      encoder.encode(`${JSON.stringify(payload)}\n`),
-    );
-  };
-
-  // Streams the request body while reading the response (full-duplex), forced
-  // over HTTP/2 so a reverse proxy does not truncate the upload. See streamToolFetch.
-  const upstreamPromise = streamToolFetch(
+  // 3) Open the WebSocket to /stream-tool. The tool's onInput* callbacks send
+  //    `start`, `delta` and `end` over it as the model generates the input.
+  const streamTool = openStreamToolSocket(
     `${apiBaseUrl}/v4/ai/toolkit/stream-tool`,
     {
-      method: "POST",
-      duplex: "half",
-      headers: {
-        "Content-Type": "application/x-ndjson",
-        Authorization: `Bearer ${tiptapCloudAiJwtToken}`,
-        Origin: "http://localhost:3000",
-      },
-      body: ndjsonRequestBody,
+      Authorization: `Bearer ${tiptapCloudAiJwtToken}`,
+      Origin: "http://localhost:3000",
     },
   );
+  let forwardedStart = false;
+  let forwardedEnd = false;
 
   // 4) LLM call. The tool uses `tiptapEdit`'s canonical inputSchema (now
   //    strict — `content` items cannot carry operation keywords as their
@@ -239,6 +213,9 @@ export async function POST(req: Request) {
     model,
     instructions: `You are an expert editor that edits rich text documents using the tiptapEdit tool. You will be given a document and a task. Call tiptapEdit exactly once to make the edit, then reply with one short sentence confirming what you changed. Do not include document contents, hashes, or operation details in your reply.\n\n${toolsResponse.systemPrompt}`,
     prompt: JSON.stringify({ content: documentContent, task }),
+    // Close the connection if the model fails, so the stream doesn't stay open on the server.
+    onError: () => streamTool.close(),
+    onAbort: () => streamTool.close(),
     tools: {
       tiptapEdit: tool({
         description: tiptapEditTool.description,
@@ -251,7 +228,7 @@ export async function POST(req: Request) {
         onInputStart: () => {
           if (forwardedStart) return;
           forwardedStart = true;
-          writeNdjson({
+          return streamTool.send({
             version: 1,
             type: "start",
             editorContext: schemaAwarenessData,
@@ -263,7 +240,7 @@ export async function POST(req: Request) {
         onInputDelta: ({ inputTextDelta }) => {
           if (!forwardedStart || forwardedEnd) return;
           if (!inputTextDelta) return;
-          writeNdjson({
+          return streamTool.send({
             version: 1,
             type: "delta",
             argsTextDelta: inputTextDelta,
@@ -272,18 +249,12 @@ export async function POST(req: Request) {
         onInputAvailable: () => {
           if (forwardedEnd) return;
           forwardedEnd = true;
-          writeNdjson({ version: 1, type: "end" });
-          controllerRef.current?.close();
-          controllerRef.current = null;
+          return streamTool.send({ version: 1, type: "end" });
         },
         // Drive the /stream-tool bridge to completion and report a result so the
         // useChat turn finishes. The edit reaches the editor via Y.Doc sync, not
         // through this value.
-        execute: async () => {
-          const upstream = await upstreamPromise;
-          await upstream.text();
-          return { ok: upstream.ok };
-        },
+        execute: () => streamTool.result,
       }),
     },
     // Step 0: force the edit so the typing effect always happens. Step 1: forbid
