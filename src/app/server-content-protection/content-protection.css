@@ -1,0 +1,35 @@
+.tiptap p[data-protection] {
+  position: relative;
+  border-radius: 0.5rem;
+  padding: 1.75rem 0.75rem 0.75rem;
+}
+
+.tiptap p[data-protection]::before {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tiptap p[data-protection="locked"] {
+  background: var(--gray-1);
+  border: 1px solid var(--gray-3);
+}
+
+.tiptap p[data-protection="locked"]::before {
+  content: "Read-only for the AI";
+  color: var(--gray-5);
+}
+
+.tiptap p[data-protection="hidden"] {
+  background: var(--purple-light);
+  border: 1px dashed var(--purple);
+}
+
+.tiptap p[data-protection="hidden"]::before {
+  content: "Hidden from the AI";
+  color: var(--purple);
+}
