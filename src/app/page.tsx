@@ -191,6 +191,12 @@ const CATEGORIES = [
             href: "/server-comments",
           },
           {
+            title: "Server Content Protection",
+            description:
+              "Policies that keep content read-only or hidden from the AI agent",
+            href: "/server-content-protection",
+          },
+          {
             title: "Server Read Selection",
             description:
               "AI reads your live selection server-side and edits only the selected text",

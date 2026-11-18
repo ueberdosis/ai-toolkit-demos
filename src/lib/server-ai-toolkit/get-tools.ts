@@ -6,6 +6,8 @@ export interface GetToolsOptions {
   editorContext: unknown;
   operationMeta?: string;
   tools?: Record<string, boolean | Record<string, unknown>>;
+  /** Rules for what the AI can read and edit. The system prompt explains them. */
+  contentProtectionPolicy?: unknown;
 }
 
 /**
@@ -34,6 +36,9 @@ export async function getTools(options: GetToolsOptions): Promise<{
           ? { meta: options.operationMeta }
           : true,
       },
+      ...(options.contentProtectionPolicy
+        ? { contentProtectionPolicy: options.contentProtectionPolicy }
+        : {}),
     }),
   });
 

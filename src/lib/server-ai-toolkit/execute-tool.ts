@@ -15,6 +15,8 @@ export interface ExecuteToolOptions {
     threadData?: Record<string, unknown>;
     commentData?: Record<string, unknown>;
   };
+  /** Rules for what the AI can read and edit, enforced on every tool call. */
+  contentProtectionPolicy?: unknown;
 }
 
 /**
@@ -71,6 +73,9 @@ export async function executeTool(
       },
       ...(options.reviewOptions
         ? { reviewOptions: options.reviewOptions }
+        : {}),
+      ...(options.contentProtectionPolicy
+        ? { contentProtectionPolicy: options.contentProtectionPolicy }
         : {}),
     }),
   });
