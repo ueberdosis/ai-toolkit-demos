@@ -8,8 +8,8 @@ export function getModel() {
       process.env.NODE_ENV !== "production" &&
       process.env.OPENAI_API_KEY &&
       !process.env.AI_GATEWAY_API_KEY
-        ? openai("gpt-5.6-luna")
-        : gateway("openai/gpt-5.6-luna"),
+        ? openai("gpt-6-luna")
+        : gateway("openai/gpt-6-luna"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });

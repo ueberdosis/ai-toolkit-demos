@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   const workflow = createTiptapEditWorkflow();
 
   const model = wrapLanguageModel({
-    model: gateway("openai/gpt-5.6-luna"),
+    model: gateway("openai/gpt-6-luna"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
