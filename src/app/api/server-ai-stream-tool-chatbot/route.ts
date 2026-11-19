@@ -204,7 +204,7 @@ export async function POST(req: Request) {
   //    callback yields raw text deltas as the model generates them —
   //    which is what `/stream-tool` expects.
   const model = wrapLanguageModel({
-    model: gateway("openai/gpt-5.6-luna"),
+    model: gateway("openai/gpt-6-luna"),
     middleware:
       process.env.NODE_ENV === "production" ? [] : devToolsMiddleware(),
   });
