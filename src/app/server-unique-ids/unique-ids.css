@@ -1,0 +1,17 @@
+/* Shows the first characters of each node ID above the node. */
+.tiptap [data-id]::before {
+  content: attr(data-id);
+  display: block;
+  max-width: 8ch;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.65rem;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--gray-4);
+}
+
+.tiptap li[data-id] > p[data-id]::before {
+  display: none;
+}

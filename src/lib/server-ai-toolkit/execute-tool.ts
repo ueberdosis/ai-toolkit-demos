@@ -17,6 +17,15 @@ export interface ExecuteToolOptions {
   };
   /** Rules for what the AI can read and edit, enforced on every tool call. */
   contentProtectionPolicy?: unknown;
+  /** `error` rejects a cloud document whose content doesn't match the schema, instead of removing that content. */
+  onInvalidContent?: "remove" | "error";
+  /** Settings of the editor's Unique ID extension, so nodes the AI writes get valid IDs. */
+  uniqueId?: UniqueIdOptions;
+}
+
+export interface UniqueIdOptions {
+  attributeName?: string;
+  types: string[];
 }
 
 /**
@@ -57,6 +66,9 @@ export async function executeTool(
         ? {
             type: "cloud",
             id: options.documentId,
+            ...(options.onInvalidContent
+              ? { onInvalidContent: options.onInvalidContent }
+              : {}),
           }
         : {
             type: "inline",
@@ -77,6 +89,7 @@ export async function executeTool(
       ...(options.contentProtectionPolicy
         ? { contentProtectionPolicy: options.contentProtectionPolicy }
         : {}),
+      ...(options.uniqueId ? { uniqueId: options.uniqueId } : {}),
     }),
   });
 

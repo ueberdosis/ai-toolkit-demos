@@ -197,6 +197,18 @@ const CATEGORIES = [
             href: "/server-content-protection",
           },
           {
+            title: "Server Invalid Content",
+            description:
+              "Reject a cloud document that doesn't match the editor schema instead of removing that content",
+            href: "/server-invalid-content",
+          },
+          {
+            title: "Server Unique IDs",
+            description:
+              "Keep the node IDs of the Unique ID extension valid when the AI edits the document",
+            href: "/server-unique-ids",
+          },
+          {
             title: "Server Read Selection",
             description:
               "AI reads your live selection server-side and edits only the selected text",

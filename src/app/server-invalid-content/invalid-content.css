@@ -1,0 +1,25 @@
+.tiptap div[data-callout] {
+  position: relative;
+  border-radius: 0.5rem;
+  padding: 1.75rem 0.75rem 0.75rem;
+  background: var(--purple-light);
+  border: 1px dashed var(--purple);
+}
+
+.tiptap div[data-callout]::before {
+  content: "Callout: not in the AI request schema";
+  position: absolute;
+  top: 0.4rem;
+  left: 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+
+.tiptap mark {
+  background: #fde68a;
+  border-radius: 0.2rem;
+  padding: 0 0.15rem;
+}

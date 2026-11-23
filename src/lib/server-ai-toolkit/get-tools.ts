@@ -1,5 +1,6 @@
 import type z from "zod";
 import { getServerAiToolkitApiBaseUrl } from "./config";
+import type { UniqueIdOptions } from "./execute-tool";
 import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
 
 export interface GetToolsOptions {
@@ -8,6 +9,8 @@ export interface GetToolsOptions {
   tools?: Record<string, boolean | Record<string, unknown>>;
   /** Rules for what the AI can read and edit. The system prompt explains them. */
   contentProtectionPolicy?: unknown;
+  /** Settings of the editor's Unique ID extension. The system prompt leaves the ID attribute out. */
+  uniqueId?: UniqueIdOptions;
 }
 
 /**
@@ -39,6 +42,7 @@ export async function getTools(options: GetToolsOptions): Promise<{
       ...(options.contentProtectionPolicy
         ? { contentProtectionPolicy: options.contentProtectionPolicy }
         : {}),
+      ...(options.uniqueId ? { uniqueId: options.uniqueId } : {}),
     }),
   });
 
