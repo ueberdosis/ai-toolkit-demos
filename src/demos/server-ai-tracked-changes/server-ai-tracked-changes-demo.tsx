@@ -542,7 +542,7 @@ export function TrackedChangesEditor({
         documentsPanel={workspace?.documentsPanel}
         chatExtras={workspace?.chatExtras}
         chatDisabled={workspace?.disabled}
-        chatActive={isFocused}
+        isActive={isFocused}
         placeholder={
           workspace ? "Ask about this study, or mention @Protocol…" : undefined
         }

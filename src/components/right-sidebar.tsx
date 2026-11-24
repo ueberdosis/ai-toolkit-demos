@@ -23,7 +23,7 @@ interface RightSidebarProps {
   documentsPanel?: ReactNode;
   chatExtras?: ReactNode;
   chatDisabled?: boolean;
-  chatActive?: boolean;
+  isActive?: boolean;
 }
 
 // A tab is offered only for the panels the demo passes in.
@@ -42,13 +42,13 @@ export function RightSidebar({
   documentsPanel,
   chatExtras,
   chatDisabled,
-  chatActive = true,
+  isActive = true,
 }: RightSidebarProps) {
   const panels: Array<{ id: PanelId; label: string; content: ReactNode }> = [
     {
       id: "chat",
       label: "Chat",
-      content: chatActive ? (
+      content: isActive ? (
         <ChatSidebar
           embedded
           messages={messages}
@@ -90,6 +90,7 @@ export function RightSidebar({
 
   return (
     <ResponsiveRightSidebar
+      isActive={isActive}
       mobileTitle="AI Chat"
       triggerLabel={isLoading ? "AI thinking..." : "Chat"}
       triggerIcon={
