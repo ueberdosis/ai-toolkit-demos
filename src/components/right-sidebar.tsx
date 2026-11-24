@@ -23,6 +23,7 @@ interface RightSidebarProps {
   documentsPanel?: ReactNode;
   chatExtras?: ReactNode;
   chatDisabled?: boolean;
+  chatActive?: boolean;
 }
 
 // A tab is offered only for the panels the demo passes in.
@@ -41,12 +42,13 @@ export function RightSidebar({
   documentsPanel,
   chatExtras,
   chatDisabled,
+  chatActive = true,
 }: RightSidebarProps) {
   const panels: Array<{ id: PanelId; label: string; content: ReactNode }> = [
     {
       id: "chat",
       label: "Chat",
-      content: (
+      content: chatActive ? (
         <ChatSidebar
           embedded
           messages={messages}
@@ -60,7 +62,7 @@ export function RightSidebar({
         >
           {chatExtras}
         </ChatSidebar>
-      ),
+      ) : null,
     },
   ];
 
