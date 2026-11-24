@@ -1,0 +1,543 @@
+"use client";
+
+import { ServerAiToolkit } from "@tiptap/ai-toolkit";
+import { Collaboration } from "@tiptap/extension-collaboration";
+import LinkExtension from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
+import { type Editor, EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { CommentsKit } from "@tiptap-pro/extension-comments";
+import {
+  findSuggestions,
+  type Suggestion,
+  TrackedChanges,
+} from "@tiptap-pro/extension-tracked-changes";
+import type { TiptapCollabProvider } from "@tiptap-pro/provider";
+import type { UIMessage } from "ai";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import type * as Y from "yjs";
+import { type PanelId, RightSidebar } from "@/components/right-sidebar";
+import { SuggestionReviewTooltip } from "@/components/suggestion-review-tooltip";
+import { CommentsPanel } from "./comments-panel";
+import "../../styles/tracked-changes.css";
+import "./document-editor.css";
+import { getUniqueSuggestions } from "./suggestion-utils";
+import { TrackedChangesPanel } from "./tracked-changes-panel";
+import { useDemoThreads } from "./use-demo-threads";
+
+type SuggestionTooltipMount = {
+  suggestionId: string;
+  element: HTMLElement;
+  text: string;
+};
+
+function getTrackedChangesEnabled(editor: { storage: unknown }) {
+  const storage = (editor.storage as { trackedChanges?: unknown })
+    .trackedChanges as { enabled?: boolean } | undefined;
+
+  return Boolean(storage?.enabled);
+}
+
+const demoUser = {
+  id: "demo-user",
+  name: "Demo User",
+  avatarUrl: "https://i.pravatar.cc/150?u=demo-user",
+};
+
+export type WorkspaceEditorOptions = {
+  title: string;
+  isFocused: boolean;
+  content: string;
+  messages: UIMessage[];
+  input: string;
+  setInput: (value: string) => void;
+  sendMessage: (message: { text: string }) => unknown;
+  isLoading: boolean;
+  disabled: boolean;
+  documentsPanel: ReactNode;
+  chatExtras: ReactNode;
+  onEditor: (editor: Editor | null) => void;
+};
+
+export function ClinicalDocumentEditor({
+  doc,
+  provider,
+  workspace,
+}: {
+  workspace: WorkspaceEditorOptions;
+  doc: Y.Doc;
+  provider: TiptapCollabProvider;
+}) {
+  const [activePanel, setActivePanel] = useState<PanelId>("chat");
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [selectedThread, setSelectedThread] = useState<string | null>(null);
+  const [showResolvedThreads, setShowResolvedThreads] = useState(false);
+  const [tooltipMount, setTooltipMount] =
+    useState<SuggestionTooltipMount | null>(null);
+  const anchorRef = useRef<HTMLSpanElement | null>(null);
+  const didSetInitialContentRef = useRef(false);
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
+    extensions: [
+      StarterKit.configure({ undoRedo: false, link: false }),
+      LinkExtension.configure({ openOnClick: false }),
+      Collaboration.configure({ document: doc }),
+      ServerAiToolkit,
+      TrackedChanges.configure({
+        enabled: false,
+        userId: demoUser.id,
+        userMetadata: {
+          name: demoUser.name,
+          avatarUrl: demoUser.avatarUrl,
+        },
+      }),
+      CommentsKit.configure({
+        provider,
+        onClickThread: (threadId: string | null) => {
+          if (!threadId) {
+            setSelectedThread(null);
+            editor?.chain().unselectThread().run();
+            return;
+          }
+
+          setSelectedThread(threadId);
+          editor
+            ?.chain()
+            .selectThread({ id: threadId, updateSelection: false })
+            .run();
+        },
+      }),
+      Placeholder.configure({
+        placeholder: "Ask the AI to improve this document...",
+      }),
+    ],
+    editorProps: {
+      attributes: {
+        class: "server-ai-tracked-editor",
+        spellcheck: "false",
+      },
+    },
+    onCreate: ({ editor: currentEditor }) => {
+      setSuggestions(
+        getUniqueSuggestions(findSuggestions(currentEditor, "suggestion")),
+      );
+    },
+    onUpdate: ({ editor: currentEditor }) => {
+      setSuggestions(
+        getUniqueSuggestions(findSuggestions(currentEditor, "suggestion")),
+      );
+    },
+  });
+
+  const { threads, createThread } = useDemoThreads(provider, editor, demoUser);
+
+  useEffect(() => {
+    if (!editor || didSetInitialContentRef.current || !editor.isEmpty) {
+      return;
+    }
+
+    // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
+    editor
+      .chain()
+      .setContent(workspace.content)
+      .setMeta("addToHistory", false)
+      .run();
+    didSetInitialContentRef.current = true;
+  }, [editor, workspace.content]);
+
+  const onWorkspaceEditor = workspace.onEditor;
+  useEffect(() => {
+    onWorkspaceEditor?.(editor);
+    return () => onWorkspaceEditor?.(null);
+  }, [editor, onWorkspaceEditor]);
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const updateSuggestions = () => {
+      setSuggestions(
+        getUniqueSuggestions(findSuggestions(editor, "suggestion")),
+      );
+    };
+
+    editor.on("transaction", updateSuggestions);
+    return () => {
+      editor.off("transaction", updateSuggestions);
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const handleClick = (event: MouseEvent) => {
+      const result = editor.view.posAtCoords({
+        left: event.clientX,
+        top: event.clientY,
+      });
+      if (!result) {
+        setTooltipMount(null);
+        return;
+      }
+      const selectedSuggestion = findSuggestions(editor, "suggestion").find(
+        (suggestion) =>
+          result.pos >= suggestion.from && result.pos <= suggestion.to,
+      );
+
+      if (!selectedSuggestion) {
+        setTooltipMount(null);
+        return;
+      }
+
+      const coords = editor.view.coordsAtPos(selectedSuggestion.to);
+
+      if (!anchorRef.current) {
+        anchorRef.current = document.createElement("span");
+        anchorRef.current.style.cssText =
+          "position: fixed; width: 1px; height: 1px; pointer-events: none;";
+        document.body.appendChild(anchorRef.current);
+      }
+
+      anchorRef.current.style.left = `${coords.left}px`;
+      anchorRef.current.style.top = `${coords.top}px`;
+
+      const matchingThread = threads.find(
+        (thread) => thread.data?.suggestionId === selectedSuggestion.id,
+      );
+      const comment = matchingThread
+        ? provider.getThreadComments(matchingThread.id, true)?.[0]
+        : null;
+      const text =
+        typeof comment?.content === "string" && comment.content
+          ? comment.content
+          : matchingThread?.data?.suggestionReason ||
+            "Review this tracked change";
+
+      setTooltipMount({
+        suggestionId: selectedSuggestion.id,
+        element: anchorRef.current,
+        text,
+      });
+    };
+
+    const dom = editor.view.dom;
+    dom.addEventListener("click", handleClick);
+
+    return () => {
+      dom.removeEventListener("click", handleClick);
+      anchorRef.current?.remove();
+      anchorRef.current = null;
+    };
+  }, [editor, provider, threads]);
+
+  const isFocused = workspace.isFocused;
+  useEffect(() => {
+    if (!isFocused) {
+      setTooltipMount(null);
+      anchorRef.current?.remove();
+      anchorRef.current = null;
+    }
+  }, [isFocused]);
+
+  const { messages, sendMessage, input, setInput, isLoading } = workspace;
+
+  const reasonBySuggestionId = useMemo(
+    () =>
+      Object.fromEntries(
+        threads
+          .filter(
+            (thread) =>
+              typeof thread.data?.suggestionId === "string" &&
+              typeof thread.data?.suggestionReason === "string",
+          )
+          .map((thread) => [
+            thread.data?.suggestionId as string,
+            thread.data?.suggestionReason as string,
+          ]),
+      ),
+    [threads],
+  );
+
+  const handleSubmit = (event: SubmitEvent) => {
+    event.preventDefault();
+
+    if (input.trim() && !isLoading && !workspace.disabled) {
+      const submitted = sendMessage({ text: input });
+      if (submitted === false) return;
+      setInput("");
+      setActivePanel("chat");
+    }
+  };
+
+  const selectThreadInEditor = useCallback(
+    (threadId: string) => {
+      setSelectedThread(threadId);
+      editor
+        ?.chain()
+        .selectThread({ id: threadId, scrollIntoView: true })
+        .run();
+    },
+    [editor],
+  );
+
+  const toggleLink = useCallback(() => {
+    if (!editor) {
+      return;
+    }
+
+    const currentHref = editor.getAttributes("link").href || "";
+    const href = window.prompt("Enter the URL for this link:", currentHref);
+
+    if (href === null) {
+      return;
+    }
+
+    if (href.trim().length === 0) {
+      editor.chain().focus().unsetLink().run();
+      return;
+    }
+
+    editor.chain().focus().setLink({ href: href.trim() }).run();
+  }, [editor]);
+
+  if (!editor) {
+    return null;
+  }
+
+  const trackedPanel = (
+    <TrackedChangesPanel
+      editor={editor}
+      suggestions={suggestions}
+      reasonBySuggestionId={reasonBySuggestionId}
+    />
+  );
+
+  const commentsPanel = (
+    <CommentsPanel
+      editor={editor}
+      provider={provider}
+      threads={threads}
+      selectedThread={selectedThread}
+      showResolved={showResolvedThreads}
+      onShowResolvedChange={setShowResolvedThreads}
+      onSelectThread={selectThreadInEditor}
+      onCreateThread={createThread}
+    />
+  );
+
+  return (
+    <div className="server-ai-tracked-changes-demo flex h-screen overflow-hidden bg-white">
+      <main className="flex min-w-0 flex-1 flex-col">
+        {workspace && (
+          <header className="border-b border-blue-100 bg-blue-50 px-6 py-4">
+            <p className="text-sm text-blue-800">
+              Asterion Pharma / LUMEN-204 / Study workspace
+            </p>
+            <h1 className="mt-1 text-lg font-semibold text-slate-900">
+              {workspace.title}
+            </h1>
+            <p className="mt-1 text-xs text-slate-600">
+              Fictional study materials for demonstration. AI edits require your
+              review.
+            </p>
+          </header>
+        )}
+        <Toolbar
+          isTrackedChangesEnabled={getTrackedChangesEnabled(editor)}
+          isBoldActive={editor.isActive("bold")}
+          isItalicActive={editor.isActive("italic")}
+          isLinkActive={editor.isActive("link")}
+          hasSelection={!editor.state.selection.empty}
+          onToggleTrackedChanges={() => {
+            editor.commands.toggleTrackedChanges();
+          }}
+          onBold={() => editor.chain().focus().toggleBold().run()}
+          onItalic={() => editor.chain().focus().toggleItalic().run()}
+          onLink={toggleLink}
+          onAddComment={createThread}
+          onAddInsertion={() => {
+            const content = window.prompt(
+              "Enter the inline content to insert:",
+              "",
+            );
+            if (!content?.trim()) {
+              return;
+            }
+            editor.commands.addTrackedInsertion({
+              from: editor.state.selection.from,
+              content: content.trim(),
+            });
+          }}
+          onAddDeletion={() => {
+            const { from, to, empty } = editor.state.selection;
+            if (!empty) {
+              editor.commands.addTrackedDeletion({ from, to });
+            }
+          }}
+          onAddReplacement={() => {
+            const content = window.prompt(
+              "Enter the inline replacement content:",
+              "",
+            );
+            const { from, to, empty } = editor.state.selection;
+            if (!empty && content?.trim()) {
+              editor.commands.addTrackedReplacement({
+                from,
+                to,
+                content: content.trim(),
+              });
+            }
+          }}
+        />
+
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <EditorContent editor={editor} />
+          {isFocused && tooltipMount && (
+            <SuggestionReviewTooltip
+              referenceElement={tooltipMount.element}
+              text={tooltipMount.text}
+              onAccept={() => {
+                editor.commands.acceptSuggestion({
+                  id: tooltipMount.suggestionId,
+                });
+                setTooltipMount(null);
+              }}
+              onReject={() => {
+                editor.commands.rejectSuggestion({
+                  id: tooltipMount.suggestionId,
+                });
+                setTooltipMount(null);
+              }}
+            />
+          )}
+        </div>
+      </main>
+
+      <RightSidebar
+        activePanel={activePanel}
+        onActivePanelChange={setActivePanel}
+        messages={messages}
+        input={input}
+        onInputChange={setInput}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+        trackedPanel={trackedPanel}
+        commentsPanel={commentsPanel}
+        documentsPanel={workspace.documentsPanel}
+        chatExtras={workspace.chatExtras}
+        chatDisabled={workspace.disabled}
+        isActive={isFocused}
+        placeholder="Ask about this study, or mention @Protocol…"
+      />
+    </div>
+  );
+}
+
+function Toolbar({
+  isTrackedChangesEnabled,
+  isBoldActive,
+  isItalicActive,
+  isLinkActive,
+  hasSelection,
+  onToggleTrackedChanges,
+  onBold,
+  onItalic,
+  onLink,
+  onAddComment,
+  onAddInsertion,
+  onAddDeletion,
+  onAddReplacement,
+}: {
+  isTrackedChangesEnabled: boolean;
+  isBoldActive: boolean;
+  isItalicActive: boolean;
+  isLinkActive: boolean;
+  hasSelection: boolean;
+  onToggleTrackedChanges: () => void;
+  onBold: () => void;
+  onItalic: () => void;
+  onLink: () => void;
+  onAddComment: () => void;
+  onAddInsertion: () => void;
+  onAddDeletion: () => void;
+  onAddReplacement: () => void;
+}) {
+  const buttonClass =
+    "cursor-pointer rounded-lg border-none bg-[var(--gray-2)] px-2.5 py-1.5 text-sm font-medium leading-[1.15] text-[var(--black)] transition-all duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] hover:bg-[var(--gray-3)] hover:text-[var(--black-contrast)] disabled:cursor-default disabled:bg-[var(--gray-1)] disabled:text-[var(--gray-4)]";
+  const activeButtonClass =
+    "bg-[var(--purple)] text-[var(--white)] hover:bg-[var(--purple-contrast)] hover:text-[var(--white)]";
+
+  return (
+    <div className="flex flex-wrap gap-1 border-b border-slate-200 bg-white p-4">
+      <button
+        type="button"
+        onClick={onBold}
+        className={`${buttonClass} ${isBoldActive ? activeButtonClass : ""}`}
+      >
+        Bold
+      </button>
+      <button
+        type="button"
+        onClick={onItalic}
+        className={`${buttonClass} ${isItalicActive ? activeButtonClass : ""}`}
+      >
+        Italic
+      </button>
+      <button
+        type="button"
+        onClick={onLink}
+        className={`${buttonClass} ${isLinkActive ? activeButtonClass : ""}`}
+      >
+        Link
+      </button>
+      <button
+        type="button"
+        onClick={onToggleTrackedChanges}
+        className={`${buttonClass} ${
+          isTrackedChangesEnabled ? activeButtonClass : ""
+        }`}
+      >
+        Track changes {isTrackedChangesEnabled ? "on" : "off"}
+      </button>
+      <button type="button" onClick={onAddInsertion} className={buttonClass}>
+        Add insertion
+      </button>
+      <button
+        type="button"
+        onClick={onAddDeletion}
+        disabled={!hasSelection}
+        className={buttonClass}
+      >
+        Add deletion
+      </button>
+      <button
+        type="button"
+        onClick={onAddReplacement}
+        disabled={!hasSelection}
+        className={buttonClass}
+      >
+        Add replacement
+      </button>
+      <button
+        type="button"
+        onClick={onAddComment}
+        disabled={!hasSelection}
+        className={buttonClass}
+      >
+        Comment
+      </button>
+    </div>
+  );
+}

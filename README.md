@@ -140,3 +140,7 @@ node --test --test-concurrency=1 tests/clinical-workspace*.test.mjs
 2. In any demo, you can ask the AI to improve the document
 3. In the Review Changes demo, you'll see suggestions highlighted and can accept/reject them
 4. The AI will respond and make changes based on your requests
+
+## Standalone clinical workspace
+
+The independently deployable app is in [`apps/multi-document-clinical-workspace-demo`](apps/multi-document-clinical-workspace-demo/README.md). Its home page opens the clinical workspace directly and it has no source imports from the parent application.

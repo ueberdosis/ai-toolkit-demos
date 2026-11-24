@@ -14,7 +14,8 @@
       "!**/.next",
       "!**/out",
       "!**/build",
-      "!**/dist"
+      "!**/dist",
+      "!!apps"
     ]
   },
   "formatter": {
@@ -36,5 +37,9 @@
       }
     }
   },
-  "css": { "parser": { "tailwindDirectives": true } }
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  }
 }
