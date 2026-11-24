@@ -17,7 +17,7 @@ export async function createClinicalWorkspace() {
       return {
         id,
         documentId,
-        config: await getCollabConfig("demo-user", documentId),
+        config: await getCollabConfig("demo-user", documentId, token),
       };
     }),
   );
@@ -34,6 +34,10 @@ export async function refreshClinicalDocumentToken(
     sessionId,
     clinicalDocumentIdSchema.parse(id),
   );
-  const { token } = await getCollabConfig("demo-user", documentId);
+  const { token } = await getCollabConfig(
+    "demo-user",
+    documentId,
+    workspaceToken,
+  );
   return token;
 }

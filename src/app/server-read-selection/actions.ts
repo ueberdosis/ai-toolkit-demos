@@ -1,6 +1,7 @@
 "use server";
 
 import jwt from "jsonwebtoken";
+import { assertDocumentAccess } from "@/lib/clinical-workspace-session";
 
 /**
  * Mints the Documents:Write collab token the browser provider uses to connect
@@ -9,7 +10,9 @@ import jwt from "jsonwebtoken";
 export async function getCollabConfig(
   userId: string,
   documentName: string,
+  workspaceToken?: string,
 ): Promise<{ token: string; appId: string; collabBaseUrl?: string }> {
+  assertDocumentAccess(documentName, workspaceToken);
   const privateKey = process.env.TIPTAP_AUTH_PRIVATE_KEY?.replace(/\\n/g, "\n");
   const environmentId = process.env.TIPTAP_AUTH_ENVIRONMENT_ID;
   const documentServerId = process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;

@@ -8,6 +8,24 @@ import {
   workspaceDocumentName,
 } from "../src/lib/clinical-workspace-session.ts";
 
+// Exercise the real shared credential entry points with the project's TS alias.
+const { registerHooks } = await import("node:module");
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier.startsWith("@/")) {
+      return nextResolve(new URL(`../src/${specifier.slice(2)}.ts`, import.meta.url).href, context);
+    }
+    return nextResolve(specifier, context);
+  },
+});
+const { getTiptapCloudAiJwtToken } = await import("../src/lib/server-ai-toolkit/get-tiptap-cloud-ai-jwt-token.ts");
+const collabSigners = await Promise.all([
+  import("../src/app/server-ai-agent-chatbot/actions.ts"),
+  import("../src/app/server-comments/actions.ts"),
+  import("../src/app/server-read-selection/actions.ts"),
+]);
+
+
 const originalKey = process.env.TIPTAP_AUTH_PRIVATE_KEY;
 const { privateKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
 const key = privateKey.export({ type: "pkcs8", format: "pem" });
@@ -44,4 +62,35 @@ test("reject arbitrary cloud document names and invalid session paths", () => {
     assert.throws(() => workspaceDocumentName(sessionId, id));
   }
   assert.throws(() => workspaceDocumentName("../../other-session", "protocol"));
+});
+
+test("every credential entry point protects clinical names and wildcard access", async () => {
+  const savedEnvironment = process.env.TIPTAP_AUTH_ENVIRONMENT_ID;
+  const savedServer = process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
+  process.env.TIPTAP_AUTH_ENVIRONMENT_ID = "test-environment";
+  process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID = "test-server";
+  try {
+    const session = createWorkspaceSession();
+    const other = createWorkspaceSession();
+    const documentId = workspaceDocumentName(session.sessionId, "protocol");
+    for (const { getCollabConfig } of collabSigners) {
+      await assert.rejects(getCollabConfig("user", documentId));
+      await assert.rejects(getCollabConfig("user", documentId, other.token));
+      await assert.rejects(getCollabConfig("user", "*"));
+      const { token } = await getCollabConfig("user", documentId, session.token);
+      assert.deepEqual(jwt.decode(token).permissions, [{ action: "Documents:Write", resource: documentId }]);
+      await getCollabConfig("user", "server-demo/existing-document");
+    }
+    assert.throws(() => getTiptapCloudAiJwtToken({ documentId }));
+    assert.throws(() => getTiptapCloudAiJwtToken({ documentId, workspaceToken: other.token }));
+    assert.throws(() => getTiptapCloudAiJwtToken({ documentId: "*" }));
+    const token = getTiptapCloudAiJwtToken({ documentId, workspaceToken: session.token });
+    assert.ok(jwt.decode(token).permissions.some(p => p.action === "Documents:Write" && p.resource === documentId));
+    getTiptapCloudAiJwtToken({ documentId: "server-demo/existing-document" });
+  } finally {
+    if (savedEnvironment === undefined) delete process.env.TIPTAP_AUTH_ENVIRONMENT_ID;
+    else process.env.TIPTAP_AUTH_ENVIRONMENT_ID = savedEnvironment;
+    if (savedServer === undefined) delete process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
+    else process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID = savedServer;
+  }
 });

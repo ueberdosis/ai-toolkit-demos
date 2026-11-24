@@ -102,6 +102,7 @@ ${definitions.systemPrompt}`,
               editorContexts[id],
               {
                 documentId: workspaceDocumentName(sessionId, id),
+                workspaceToken,
                 userId: "ai-assistant",
                 reviewOptions: { mode: "trackedChanges" },
                 commentsOptions: {

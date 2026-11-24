@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { assertDocumentAccess } from "@/lib/clinical-workspace-session";
 
 type TiptapAccessPermission = {
   action: "AI:Toolkit" | "Documents:Write";
@@ -7,6 +8,7 @@ type TiptapAccessPermission = {
 
 export interface TiptapAccessTokenOptions {
   documentId?: string;
+  workspaceToken?: string;
 }
 
 /**
@@ -39,6 +41,7 @@ export function getTiptapCloudAiJwtToken(
   ];
 
   if (options.documentId) {
+    assertDocumentAccess(options.documentId, options.workspaceToken);
     permissions.push({
       action: "Documents:Write",
       resource: options.documentId,

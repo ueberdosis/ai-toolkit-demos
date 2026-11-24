@@ -39,3 +39,22 @@ export function verifyWorkspaceSession(token: string) {
 export function workspaceDocumentName(sessionId: string, documentId: string) {
   return `clinical-workspace/${z.uuid().parse(sessionId)}/${clinicalDocumentIdSchema.parse(documentId)}`;
 }
+
+/** Every credential path must honor the reserved clinical workspace namespace. */
+export function assertDocumentAccess(
+  documentName: string,
+  workspaceToken?: string,
+) {
+  z.string().min(1).parse(documentName);
+  if (documentName.includes("*")) {
+    throw new Error("Wildcard document credentials are not allowed");
+  }
+  if (!documentName.startsWith("clinical-workspace/")) return;
+  if (!workspaceToken)
+    throw new Error("A clinical workspace session is required");
+  const { sessionId } = verifyWorkspaceSession(workspaceToken);
+  const id = documentName.slice(documentName.lastIndexOf("/") + 1);
+  if (documentName !== workspaceDocumentName(sessionId, id)) {
+    throw new Error("Document does not belong to this clinical workspace");
+  }
+}
