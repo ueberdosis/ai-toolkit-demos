@@ -1,7 +1,16 @@
-import { createAgentUIStreamResponse, ToolLoopAgent, tool, type UIMessage } from "ai";
+import {
+  createAgentUIStreamResponse,
+  ToolLoopAgent,
+  tool,
+  type UIMessage,
+} from "ai";
 import { z } from "zod";
 import { clinicalDocuments } from "@/demos/clinical-workspace/documents";
-import { clinicalDocumentIdSchema, verifyWorkspaceSession, workspaceDocumentName } from "@/lib/clinical-workspace-session";
+import {
+  clinicalDocumentIdSchema,
+  verifyWorkspaceSession,
+  workspaceDocumentName,
+} from "@/lib/clinical-workspace-session";
 import { getModel } from "@/lib/get-model";
 import { getIp, rateLimit } from "@/lib/rate-limit";
 import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
@@ -17,28 +26,42 @@ const requestSchema = z.object({
     safety: z.record(z.string(), z.unknown()),
     analysis: z.record(z.string(), z.unknown()),
   }),
-  messages: z.array(z.custom<UIMessage>((value) =>
-    !!value && typeof value === "object" && "role" in value && "parts" in value,
-  )),
+  messages: z.array(
+    z.custom<UIMessage>(
+      (value) =>
+        !!value &&
+        typeof value === "object" &&
+        "role" in value &&
+        "parts" in value,
+    ),
+  ),
 });
 
 export async function POST(req: Request) {
   if (process.env.UPSTASH_REDIS_REST_URL && !(await rateLimit(await getIp()))) {
-    return new Response("Rate limit exceeded. Please try again later.", { status: 429 });
+    return new Response("Rate limit exceeded. Please try again later.", {
+      status: 429,
+    });
   }
   const parsed = requestSchema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return new Response("Invalid workspace request", { status: 400 });
-  const { workspaceToken, focusedDocumentId, editorContexts, messages } = parsed.data;
+  if (!parsed.success)
+    return new Response("Invalid workspace request", { status: 400 });
+  const { workspaceToken, focusedDocumentId, editorContexts, messages } =
+    parsed.data;
   let sessionId: string;
   try {
     ({ sessionId } = verifyWorkspaceSession(workspaceToken));
   } catch {
-    return new Response("Workspace session expired. Reload to start a new study workspace.", { status: 401 });
+    return new Response(
+      "Workspace session expired. Reload to start a new study workspace.",
+      { status: 401 },
+    );
   }
 
   const definitions = await getTools({
     editorContext: editorContexts[focusedDocumentId],
-    operationMeta: "Brief clinical or editorial justification for this proposed change.",
+    operationMeta:
+      "Brief clinical or editorial justification for this proposed change.",
   });
   const query = definitions.tools.find(({ name }) => name === "tiptapQuery");
   if (!query) throw new Error("The AI Toolkit did not provide tiptapQuery");
@@ -60,27 +83,41 @@ ${definitions.systemPrompt}`,
       tiptapQuery: tool({
         description: `${query.description}\nRead or edit one of the workspace documents. documentId is required.`,
         inputSchema: z.object({
-          documentId: documentIdSchema.describe("The workspace document to read or edit"),
-          query: z.fromJSONSchema(query.inputSchema).describe("The original AI Toolkit tiptapQuery arguments"),
+          documentId: documentIdSchema.describe(
+            "The workspace document to read or edit",
+          ),
+          query: z
+            .fromJSONSchema(query.inputSchema)
+            .describe("The original AI Toolkit tiptapQuery arguments"),
         }),
         strict: false,
         execute: async ({ documentId, query: input }) => {
           // Validate again at the execution boundary, before signing cloud access.
           const id = documentIdSchema.parse(documentId);
           try {
-            const result = await executeTool("tiptapQuery", input, null, editorContexts[id], {
-              documentId: workspaceDocumentName(sessionId, id),
-              userId: "ai-assistant",
-              reviewOptions: { mode: "trackedChanges" },
-              commentsOptions: {
-                threadData: { userName: "Tiptap AI" },
-                commentData: { userName: "Tiptap AI" },
+            const result = await executeTool(
+              "tiptapQuery",
+              input,
+              null,
+              editorContexts[id],
+              {
+                documentId: workspaceDocumentName(sessionId, id),
+                userId: "ai-assistant",
+                reviewOptions: { mode: "trackedChanges" },
+                commentsOptions: {
+                  threadData: { userName: "Tiptap AI" },
+                  commentData: { userName: "Tiptap AI" },
+                },
               },
-            });
+            );
             return { documentId: id, result: result.output };
           } catch (error) {
             console.error("Clinical workspace query failed", error);
-            return { documentId: id, error: "Document query failed. Retry a fresh read; if it still fails, ask the user to retry later." };
+            return {
+              documentId: id,
+              error:
+                "Document query failed. Retry a fresh read; if it still fails, ask the user to retry later.",
+            };
           }
         },
       }),

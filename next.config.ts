@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Collaboration refresh actions receive a workspace credential.
+  logging: { serverFunctions: false },
   async redirects() {
     return [
       {

@@ -4,7 +4,12 @@ import { z } from "zod";
 
 const sessionSchema = z.object({ sessionId: z.uuid() });
 const audience = "clinical-workspace";
-export const clinicalDocumentIdSchema = z.enum(["protocol", "consent", "safety", "analysis"]);
+export const clinicalDocumentIdSchema = z.enum([
+  "protocol",
+  "consent",
+  "safety",
+  "analysis",
+]);
 
 function signingKey() {
   const key = process.env.TIPTAP_AUTH_PRIVATE_KEY?.replace(/\\n/g, "\n");

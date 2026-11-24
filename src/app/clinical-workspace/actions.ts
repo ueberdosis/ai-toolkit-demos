@@ -25,9 +25,15 @@ export async function createClinicalWorkspace() {
 }
 
 /** Refresh only credentials for a document belonging to the signed workspace. */
-export async function refreshClinicalDocumentToken(workspaceToken: string, id: string) {
+export async function refreshClinicalDocumentToken(
+  workspaceToken: string,
+  id: string,
+) {
   const { sessionId } = verifyWorkspaceSession(workspaceToken);
-  const documentId = workspaceDocumentName(sessionId, clinicalDocumentIdSchema.parse(id));
+  const documentId = workspaceDocumentName(
+    sessionId,
+    clinicalDocumentIdSchema.parse(id),
+  );
   const { token } = await getCollabConfig("demo-user", documentId);
   return token;
 }

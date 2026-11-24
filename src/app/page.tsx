@@ -187,7 +187,8 @@ const CATEGORIES = [
           },
           {
             title: "Clinical Study Workspace",
-            description: "Multi-document clinical review with tracked changes, comments, and document mentions",
+            description:
+              "Multi-document clinical review with tracked changes, comments, and document mentions",
             href: "/clinical-workspace",
           },
           {

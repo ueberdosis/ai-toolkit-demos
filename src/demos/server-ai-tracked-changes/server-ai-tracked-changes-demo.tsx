@@ -15,7 +15,14 @@ import {
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { getCollabConfig } from "@/app/server-ai-agent-chatbot/actions";
@@ -347,7 +354,8 @@ export function TrackedChangesEditor({
   const input = workspace?.input ?? localInput;
   const setInput = workspace?.setInput ?? setLocalInput;
   const status = localChat.status;
-  const isLoading = workspace?.isLoading ?? (status !== "ready" && status !== "error");
+  const isLoading =
+    workspace?.isLoading ?? (status !== "ready" && status !== "error");
 
   const reasonBySuggestionId = useMemo(
     () =>
@@ -437,9 +445,16 @@ export function TrackedChangesEditor({
       <main className="flex min-w-0 flex-1 flex-col">
         {workspace && (
           <header className="border-b border-blue-100 bg-blue-50 px-6 py-4">
-            <p className="text-sm text-blue-800">Asterion Pharma / LUMEN-204 / Study workspace</p>
-            <h1 className="mt-1 text-lg font-semibold text-slate-900">{workspace.title}</h1>
-            <p className="mt-1 text-xs text-slate-600">Fictional study materials for demonstration. AI edits require your review.</p>
+            <p className="text-sm text-blue-800">
+              Asterion Pharma / LUMEN-204 / Study workspace
+            </p>
+            <h1 className="mt-1 text-lg font-semibold text-slate-900">
+              {workspace.title}
+            </h1>
+            <p className="mt-1 text-xs text-slate-600">
+              Fictional study materials for demonstration. AI edits require your
+              review.
+            </p>
           </header>
         )}
         <Toolbar
@@ -526,15 +541,19 @@ export function TrackedChangesEditor({
         documentsPanel={workspace?.documentsPanel}
         chatExtras={workspace?.chatExtras}
         chatDisabled={workspace?.disabled}
-        placeholder={workspace ? "Ask about this study, or mention @Protocol…" : undefined}
-        inputAction={workspace ? undefined : (
-          <CopyTestCaseButton
-            editor={editor}
-            messages={messages}
-            status={status}
-            requestConfig={{ reviewOptions: { mode: "trackedChanges" } }}
-          />
-        )}
+        placeholder={
+          workspace ? "Ask about this study, or mention @Protocol…" : undefined
+        }
+        inputAction={
+          workspace ? undefined : (
+            <CopyTestCaseButton
+              editor={editor}
+              messages={messages}
+              status={status}
+              requestConfig={{ reviewOptions: { mode: "trackedChanges" } }}
+            />
+          )
+        }
       />
     </div>
   );

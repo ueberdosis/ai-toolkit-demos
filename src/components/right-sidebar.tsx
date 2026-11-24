@@ -77,7 +77,11 @@ export function RightSidebar({
   }
 
   if (documentsPanel) {
-    panels.push({ id: "documents", label: "Documents", content: documentsPanel });
+    panels.push({
+      id: "documents",
+      label: "Documents",
+      content: documentsPanel,
+    });
   }
 
   const active = panels.find((panel) => panel.id === activePanel) ?? panels[0];
