@@ -1,8 +1,8 @@
 import {
   createAgentUIStreamResponse,
+  safeValidateUIMessages,
   ToolLoopAgent,
   tool,
-  type UIMessage,
 } from "ai";
 import { z } from "zod";
 import { clinicalDocuments } from "@/demos/clinical-workspace/documents";
@@ -26,15 +26,7 @@ const requestSchema = z.object({
     safety: z.record(z.string(), z.unknown()),
     analysis: z.record(z.string(), z.unknown()),
   }),
-  messages: z.array(
-    z.custom<UIMessage>(
-      (value) =>
-        !!value &&
-        typeof value === "object" &&
-        "role" in value &&
-        "parts" in value,
-    ),
-  ),
+  messages: z.array(z.unknown()),
 });
 
 export async function POST(req: Request) {
@@ -46,8 +38,19 @@ export async function POST(req: Request) {
   const parsed = requestSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
     return new Response("Invalid workspace request", { status: 400 });
-  const { workspaceToken, focusedDocumentId, editorContexts, messages } =
-    parsed.data;
+  const {
+    workspaceToken,
+    focusedDocumentId,
+    editorContexts,
+    messages: rawMessages,
+  } = parsed.data;
+  const validatedMessages = await safeValidateUIMessages({
+    messages: rawMessages,
+  });
+  if (!validatedMessages.success) {
+    return new Response("Invalid chat messages", { status: 400 });
+  }
+  const messages = validatedMessages.data;
   let sessionId: string;
   try {
     ({ sessionId } = verifyWorkspaceSession(workspaceToken));
