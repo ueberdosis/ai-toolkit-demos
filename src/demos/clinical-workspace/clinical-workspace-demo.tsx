@@ -170,6 +170,7 @@ function StudyWorkspace({ runtimes, workspaceToken }: { runtimes: DocumentRuntim
       return <div key={runtime.id} className={runtime.id === focusedId ? "h-screen" : "hidden"}>
         <TrackedChangesEditor doc={runtime.doc} documentId={runtime.documentId} provider={runtime.provider} workspace={{
           title: document.title,
+          isFocused: runtime.id === focusedId,
           content: document.content,
           messages, input, setInput, sendMessage: submit, isLoading, disabled: !ready,
           documentsPanel, chatExtras, onEditor: register[runtime.id],

@@ -124,6 +124,7 @@ export function ServerAiTrackedChangesDemo() {
 
 export type WorkspaceEditorOptions = {
   title: string;
+  isFocused: boolean;
   content: string;
   messages: UIMessage[];
   input: string;
@@ -314,6 +315,15 @@ export function TrackedChangesEditor({
     };
   }, [editor, provider, threads]);
 
+  const isFocused = workspace?.isFocused ?? true;
+  useEffect(() => {
+    if (!isFocused) {
+      setTooltipMount(null);
+      anchorRef.current?.remove();
+      anchorRef.current = null;
+    }
+  }, [isFocused]);
+
   const editorContext = editor ? getEditorContext(editor) : null;
   const editorContextRef = useRef(editorContext);
   editorContextRef.current = editorContext;
@@ -482,7 +492,7 @@ export function TrackedChangesEditor({
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           <EditorContent editor={editor} />
-          {tooltipMount && (
+          {isFocused && tooltipMount && (
             <SuggestionReviewTooltip
               referenceElement={tooltipMount.element}
               text={tooltipMount.text}
