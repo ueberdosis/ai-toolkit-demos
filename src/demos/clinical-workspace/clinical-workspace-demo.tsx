@@ -7,7 +7,7 @@ import { TiptapCollabProvider } from "@tiptap-pro/provider";
 import { DefaultChatTransport } from "ai";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as Y from "yjs";
-import { createClinicalWorkspace } from "@/app/clinical-workspace/actions";
+import { createClinicalWorkspace, refreshClinicalDocumentToken } from "@/app/clinical-workspace/actions";
 import { TrackedChangesEditor } from "@/demos/server-ai-tracked-changes/server-ai-tracked-changes-demo";
 import { type ClinicalDocumentId, clinicalDocuments } from "./documents";
 import "./clinical-workspace.css";
@@ -57,7 +57,7 @@ export function ClinicalWorkspaceDemo() {
         const provider = new TiptapCollabProvider({
           ...(config.collabBaseUrl ? { baseUrl: config.collabBaseUrl } : { appId: config.appId }),
           name: documentId,
-          token: config.token,
+          token: () => refreshClinicalDocumentToken(workspace.token, id),
           document: doc,
           user: "demo-user",
           onSynced: ({ state }: { state: boolean }) => {
