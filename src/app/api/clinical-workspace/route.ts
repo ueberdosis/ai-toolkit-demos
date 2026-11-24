@@ -6,6 +6,7 @@ import {
 } from "ai";
 import { z } from "zod";
 import { clinicalDocuments } from "@/demos/clinical-workspace/documents";
+import { prepareWorkspaceMessages } from "@/lib/clinical-workspace-messages";
 import {
   clinicalDocumentIdSchema,
   verifyWorkspaceSession,
@@ -127,5 +128,8 @@ ${definitions.systemPrompt}`,
       }),
     },
   });
-  return createAgentUIStreamResponse({ agent, uiMessages: messages });
+  return createAgentUIStreamResponse({
+    agent,
+    uiMessages: prepareWorkspaceMessages(messages),
+  });
 }

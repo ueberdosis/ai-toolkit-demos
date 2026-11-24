@@ -47,10 +47,10 @@ Each page load creates a fresh study workspace with a protocol, participant cons
 
 The agent receives the current focus with every request. Its only document tool is `tiptapQuery`, wrapped with a required allowlisted document ID and the original query arguments. Server-issued signed sessions determine the cloud document names; the chat endpoint never accepts arbitrary cloud names. AI edits use tracked changes and linked justification comments. Documents remain in Tiptap Cloud, but this demo does not restore a workspace after a page reload.
 
-Run the session-boundary checks with Node 24 or later:
+Run the session-boundary and interrupted-chat checks with Node 24 or later:
 
 ```bash
-node --test tests/clinical-workspace-session.test.mjs
+node --test --test-concurrency=1 tests/clinical-workspace*.test.mjs
 ```
 
 ## Tech Stack
