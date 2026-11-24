@@ -72,7 +72,13 @@ export function ClinicalWorkspaceDemo() {
           onSynced: ({ state }: { state: boolean }) => {
             if (!state || cancelled) return;
             synced.add(id);
-            if (synced.size === clinicalDocuments.length) {
+            if (
+              synced.size === clinicalDocuments.length &&
+              resources.every(
+                ({ provider: current }) =>
+                  current.isSynced && current.isAuthenticated,
+              )
+            ) {
               window.clearTimeout(timer);
               setSetupError("");
               setWorkspaceToken(workspace.token);
@@ -108,7 +114,7 @@ export function ClinicalWorkspaceDemo() {
     };
   }, [attempt]);
 
-  if (setupError) {
+  if (setupError && runtimes.length === 0) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 p-6 text-center">
         <h1 className="text-xl font-semibold">
@@ -134,18 +140,53 @@ export function ClinicalWorkspaceDemo() {
       </div>
     );
   return (
-    <StudyWorkspace
-      key={workspaceToken}
-      runtimes={runtimes}
-      workspaceToken={workspaceToken}
-    />
+    <>
+      {setupError && (
+        <div
+          role="alert"
+          className="fixed inset-x-0 top-0 z-50 flex flex-wrap items-center justify-center gap-3 border-b border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+        >
+          <span>
+            Study connection interrupted. Your documents and chat are kept open.
+          </span>
+          <button
+            type="button"
+            className="rounded border border-amber-400 px-3 py-1 font-medium"
+            onClick={() => {
+              for (const { provider } of runtimes) {
+                if (provider.isSynced && provider.isAuthenticated) continue;
+                const reconnect =
+                  provider.configuration.websocketProvider.status ===
+                  "connected"
+                    ? provider.sendToken().then(() => provider.startSync())
+                    : provider.connect();
+                void reconnect.catch(() =>
+                  setSetupError("Could not reconnect to the study."),
+                );
+              }
+              setSetupError("");
+            }}
+          >
+            Retry connection
+          </button>
+        </div>
+      )}
+      <StudyWorkspace
+        key={workspaceToken}
+        runtimes={runtimes}
+        workspaceToken={workspaceToken}
+        connectionError={Boolean(setupError)}
+      />
+    </>
   );
 }
 
 function StudyWorkspace({
   runtimes,
   workspaceToken,
+  connectionError,
 }: {
+  connectionError: boolean;
   runtimes: DocumentRuntime[];
   workspaceToken: string;
 }) {
@@ -181,7 +222,10 @@ function StudyWorkspace({
     const update = () =>
       setHasPendingChanges(
         runtimes.some(
-          ({ provider }) => provider.hasUnsyncedChanges || !provider.isSynced,
+          ({ provider }) =>
+            provider.hasUnsyncedChanges ||
+            !provider.isSynced ||
+            !provider.isAuthenticated,
         ),
       );
     for (const { provider } of runtimes) {
@@ -199,7 +243,9 @@ function StudyWorkspace({
     };
   }, [runtimes]);
   const ready =
-    readyIds.size === clinicalDocuments.length && !hasPendingChanges;
+    readyIds.size === clinicalDocuments.length &&
+    !hasPendingChanges &&
+    !connectionError;
   const register = useMemo(
     () =>
       Object.fromEntries(
@@ -222,7 +268,10 @@ function StudyWorkspace({
         isLoading ||
         !message.text.trim() ||
         runtimes.some(
-          ({ provider }) => provider.hasUnsyncedChanges || !provider.isSynced,
+          ({ provider }) =>
+            provider.hasUnsyncedChanges ||
+            !provider.isSynced ||
+            !provider.isAuthenticated,
         )
       )
         return;
