@@ -33,10 +33,25 @@ Workflows are scenarios where the AI model has a single, well-defined task. Buil
 Server-side AI toolkit demos that run AI operations on the server for enhanced security and performance.
 
 - **Server AI Agent Chatbot** (`/server-ai-agent-chatbot`) - A server-side AI agent that can edit collaborative documents
+- **Clinical Study Workspace** (`/clinical-workspace`) - Four fictional clinical-trial documents with shared chat, document mentions, tracked changes, and linked comments
 - **Server Comments** (`/server-comments`) - A server-side AI agent that can add and manage comments via Tiptap Collaboration
 - **Server Selection Awareness** (`/server-read-selection`) - Your editor selection stays available while you type in chat
 - **Server Stream Tool** (`/server-ai-stream-tool-chatbot`) - Streams a `tiptapEdit` tool call to the server so edits appear live, character by character
 - **Server Stream Tool (Tracked Changes)** (`/server-ai-stream-tool-chatbot-tracked-changes`) - Same streaming flow with tracked-changes mode, so edits arrive as accept/reject suggestions
+
+### Clinical study workspace
+
+Open `/clinical-workspace` after configuring the Server AI Toolkit and collaboration variables in `.env.example`, including `TIPTAP_CLOUD_DOCUMENT_SERVER_ID`, and the model credentials used by `getModel`.
+
+Each page load creates a fresh study workspace with a protocol, participant consent, safety monitoring plan, and statistical analysis plan. Switch documents in the **Documents** sidebar tab; **Comments** and **Tracked changes** always refer to the document displayed in the editor. Use `@Protocol`, `@Consent`, `@Safety`, and `@Analysis` in chat, or choose a suggested task. The sample consent schedule, safety reporting deadline, and analysis endpoint deliberately differ from the protocol for cross-document review.
+
+The agent receives the current focus with every request. Its only document tool is `tiptapQuery`, wrapped with a required allowlisted document ID and the original query arguments. Server-issued signed sessions determine the cloud document names; the chat endpoint never accepts arbitrary cloud names. AI edits use tracked changes and linked justification comments. Documents remain in Tiptap Cloud, but this demo does not restore a workspace after a page reload.
+
+Run the session-boundary checks with Node 24 or later:
+
+```bash
+node --test tests/clinical-workspace-session.test.mjs
+```
 
 ## Tech Stack
 

@@ -5,7 +5,7 @@ import { getEditorContext, ServerAiToolkit } from "@tiptap/ai-toolkit";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import LinkExtension from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { type Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { CommentsKit } from "@tiptap-pro/extension-comments";
 import {
@@ -14,8 +14,8 @@ import {
   TrackedChanges,
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import { DefaultChatTransport } from "ai";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { DefaultChatTransport, type UIMessage } from "ai";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { getCollabConfig } from "@/app/server-ai-agent-chatbot/actions";
@@ -122,11 +122,27 @@ export function ServerAiTrackedChangesDemo() {
   );
 }
 
-function TrackedChangesEditor({
+export type WorkspaceEditorOptions = {
+  title: string;
+  content: string;
+  messages: UIMessage[];
+  input: string;
+  setInput: (value: string) => void;
+  sendMessage: (message: { text: string }) => unknown;
+  isLoading: boolean;
+  disabled: boolean;
+  documentsPanel: ReactNode;
+  chatExtras: ReactNode;
+  onEditor: (editor: Editor | null) => void;
+};
+
+export function TrackedChangesEditor({
   doc,
   documentId,
   provider,
+  workspace,
 }: {
+  workspace?: WorkspaceEditorOptions;
   doc: Y.Doc;
   documentId: string;
   provider: TiptapCollabProvider;
@@ -204,11 +220,17 @@ function TrackedChangesEditor({
     // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
     editor
       .chain()
-      .setContent(initialTrackedChangesContent)
+      .setContent(workspace?.content ?? initialTrackedChangesContent)
       .setMeta("addToHistory", false)
       .run();
     didSetInitialContentRef.current = true;
-  }, [editor]);
+  }, [editor, workspace?.content]);
+
+  const onWorkspaceEditor = workspace?.onEditor;
+  useEffect(() => {
+    onWorkspaceEditor?.(editor);
+    return () => onWorkspaceEditor?.(null);
+  }, [editor, onWorkspaceEditor]);
 
   useEffect(() => {
     if (!editor) {
@@ -296,7 +318,7 @@ function TrackedChangesEditor({
   const editorContextRef = useRef(editorContext);
   editorContextRef.current = editorContext;
 
-  const { messages, sendMessage, status } = useChat({
+  const localChat = useChat({
     transport: new DefaultChatTransport({
       api: "/api/server-ai-tracked-changes",
       body: () => ({
@@ -306,11 +328,16 @@ function TrackedChangesEditor({
     }),
   });
 
-  const [input, setInput] = useState(
+  const [localInput, setLocalInput] = useState(
     "Replace the last paragraph with a short story about Tiptap.",
   );
 
-  const isLoading = status !== "ready";
+  const messages = workspace?.messages ?? localChat.messages;
+  const sendMessage = workspace?.sendMessage ?? localChat.sendMessage;
+  const input = workspace?.input ?? localInput;
+  const setInput = workspace?.setInput ?? setLocalInput;
+  const status = localChat.status;
+  const isLoading = workspace?.isLoading ?? (status !== "ready" && status !== "error");
 
   const reasonBySuggestionId = useMemo(
     () =>
@@ -332,7 +359,7 @@ function TrackedChangesEditor({
   const handleSubmit = (event: SubmitEvent) => {
     event.preventDefault();
 
-    if (input.trim()) {
+    if (input.trim() && !isLoading && !workspace?.disabled) {
       sendMessage({ text: input });
       setInput("");
       setActivePanel("chat");
@@ -398,6 +425,13 @@ function TrackedChangesEditor({
   return (
     <div className="server-ai-tracked-changes-demo flex h-screen overflow-hidden bg-white">
       <main className="flex min-w-0 flex-1 flex-col">
+        {workspace && (
+          <header className="border-b border-blue-100 bg-blue-50 px-6 py-4">
+            <p className="text-sm text-blue-800">Asterion Pharma / LUMEN-204 / Study workspace</p>
+            <h1 className="mt-1 text-lg font-semibold text-slate-900">{workspace.title}</h1>
+            <p className="mt-1 text-xs text-slate-600">Fictional study materials for demonstration. AI edits require your review.</p>
+          </header>
+        )}
         <Toolbar
           isTrackedChangesEnabled={getTrackedChangesEnabled(editor)}
           isBoldActive={editor.isActive("bold")}
@@ -479,14 +513,18 @@ function TrackedChangesEditor({
         isLoading={isLoading}
         trackedPanel={trackedPanel}
         commentsPanel={commentsPanel}
-        inputAction={
+        documentsPanel={workspace?.documentsPanel}
+        chatExtras={workspace?.chatExtras}
+        chatDisabled={workspace?.disabled}
+        placeholder={workspace ? "Ask about this study, or mention @Protocol…" : undefined}
+        inputAction={workspace ? undefined : (
           <CopyTestCaseButton
             editor={editor}
             messages={messages}
             status={status}
             requestConfig={{ reviewOptions: { mode: "trackedChanges" } }}
           />
-        }
+        )}
       />
     </div>
   );

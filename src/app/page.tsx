@@ -186,6 +186,11 @@ const CATEGORIES = [
             href: "/server-ai-tracked-changes",
           },
           {
+            title: "Clinical Study Workspace",
+            description: "Multi-document clinical review with tracked changes, comments, and document mentions",
+            href: "/clinical-workspace",
+          },
+          {
             title: "Server Comments",
             description: "Server-side comment threads stored on Tiptap Cloud",
             href: "/server-comments",
