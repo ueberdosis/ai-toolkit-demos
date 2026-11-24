@@ -85,6 +85,12 @@ export function ClinicalWorkspaceDemo() {
               setRuntimes([...resources]);
             }
           },
+          onClose: () => {
+            if (!cancelled)
+              setSetupError(
+                "Study connection interrupted. Retry to reconnect.",
+              );
+          },
           onAuthenticationFailed: () => {
             if (!cancelled)
               setSetupError(
@@ -232,6 +238,7 @@ function StudyWorkspace({
       provider.on("unsyncedChanges", update);
       provider.on("synced", update);
       provider.on("status", update);
+      provider.on("close", update);
     }
     update();
     return () => {
@@ -239,6 +246,7 @@ function StudyWorkspace({
         provider.off("unsyncedChanges", update);
         provider.off("synced", update);
         provider.off("status", update);
+        provider.off("close", update);
       }
     };
   }, [runtimes]);
@@ -274,7 +282,7 @@ function StudyWorkspace({
             !provider.isAuthenticated,
         )
       )
-        return;
+        return false;
       clearError();
       return sendMessage(message);
     },

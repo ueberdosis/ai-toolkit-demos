@@ -378,7 +378,8 @@ export function TrackedChangesEditor({
     event.preventDefault();
 
     if (input.trim() && !isLoading && !workspace?.disabled) {
-      sendMessage({ text: input });
+      const submitted = sendMessage({ text: input });
+      if (submitted === false) return;
       setInput("");
       setActivePanel("chat");
     }
