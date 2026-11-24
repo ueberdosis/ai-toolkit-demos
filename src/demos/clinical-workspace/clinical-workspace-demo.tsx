@@ -106,6 +106,7 @@ function StudyWorkspace({ runtimes, workspaceToken }: { runtimes: DocumentRuntim
   const [focusedId, setFocusedId] = useState<ClinicalDocumentId>("protocol");
   const [input, setInput] = useState("");
   const [readyIds, setReadyIds] = useState<Set<ClinicalDocumentId>>(new Set());
+  const [hasPendingChanges, setHasPendingChanges] = useState(true);
   const editors = useRef(new Map<ClinicalDocumentId, Editor>());
   const focusedRef = useRef(focusedId);
   focusedRef.current = focusedId;
@@ -119,7 +120,23 @@ function StudyWorkspace({ runtimes, workspaceToken }: { runtimes: DocumentRuntim
   }), [workspaceToken]);
   const { messages, sendMessage, status, error, clearError } = useChat({ transport });
   const isLoading = status === "submitted" || status === "streaming";
-  const ready = readyIds.size === clinicalDocuments.length;
+  useEffect(() => {
+    const update = () => setHasPendingChanges(runtimes.some(({ provider }) => provider.hasUnsyncedChanges || !provider.isSynced));
+    for (const { provider } of runtimes) {
+      provider.on("unsyncedChanges", update);
+      provider.on("synced", update);
+      provider.on("status", update);
+    }
+    update();
+    return () => {
+      for (const { provider } of runtimes) {
+        provider.off("unsyncedChanges", update);
+        provider.off("synced", update);
+        provider.off("status", update);
+      }
+    };
+  }, [runtimes]);
+  const ready = readyIds.size === clinicalDocuments.length && !hasPendingChanges;
   const register = useMemo(() => Object.fromEntries(clinicalDocuments.map(({ id }) => [id, (editor: Editor | null) => {
     if (editor) editors.current.set(id, editor);
     else editors.current.delete(id);
@@ -127,10 +144,10 @@ function StudyWorkspace({ runtimes, workspaceToken }: { runtimes: DocumentRuntim
   }])) as Record<ClinicalDocumentId, (editor: Editor | null) => void>, []);
 
   const submit = useCallback((message: { text: string }) => {
-    if (!ready || isLoading || !message.text.trim()) return;
+    if (!ready || isLoading || !message.text.trim() || runtimes.some(({ provider }) => provider.hasUnsyncedChanges || !provider.isSynced)) return;
     clearError();
     return sendMessage(message);
-  }, [ready, isLoading, clearError, sendMessage]);
+  }, [ready, isLoading, clearError, sendMessage, runtimes]);
 
   const documentsPanel = <div className="h-full overflow-auto p-4">
     <h2 className="font-semibold text-slate-900">Study documents</h2>
@@ -151,7 +168,7 @@ function StudyWorkspace({ runtimes, workspaceToken }: { runtimes: DocumentRuntim
   const chatExtras = <div className="max-h-[55vh] shrink-0 overflow-y-auto border-t border-slate-100 px-4 py-3">
     <p className="mb-2 text-xs text-slate-500">Focused on <strong>{clinicalDocuments.find(({ id }) => id === focusedId)?.mention}</strong></p>
     {error && <div role="alert" className="mb-3 text-sm text-red-700">The request failed. {error.message} You can send your request again.</div>}
-    {!ready && <p className="text-xs text-slate-500">Preparing all four editors…</p>}
+    {!ready && <p className="text-xs text-slate-500">Syncing study documents…</p>}
     {messages.length === 0 && <div className="space-y-2">
       <p className="text-sm font-semibold text-slate-800">Try a cross-document review</p>
       {tasks.map((task) => <button type="button" disabled={!ready || isLoading} key={task.title} onClick={() => submit({ text: task.text })} className="block w-full rounded-md border border-slate-200 px-3 py-2 text-left text-sm text-blue-800 hover:bg-blue-50 disabled:opacity-50">{task.title}</button>)}
