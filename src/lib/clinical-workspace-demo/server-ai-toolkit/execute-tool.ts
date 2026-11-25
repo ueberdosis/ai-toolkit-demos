@@ -1,0 +1,99 @@
+import {
+  getServerAiToolkitApiBaseUrl,
+  getServerAiToolkitOrigin,
+} from "./config";
+import { getTiptapCloudAiJwtToken } from "./get-tiptap-cloud-ai-jwt-token";
+
+export interface ExecuteToolOptions {
+  documentId?: string;
+  workspaceToken?: string;
+  userId?: string;
+  toolConfig?: Record<string, unknown>;
+  reviewOptions?: {
+    mode?: "disabled" | "trackedChanges";
+  };
+  commentsOptions?: {
+    threadData?: Record<string, unknown>;
+    commentData?: Record<string, unknown>;
+  };
+  /** Rules for what the AI can read and edit, enforced on every tool call. */
+  contentProtectionPolicy?: unknown;
+}
+
+/**
+ * Executes a tool via the Server AI Toolkit API.
+ *
+ * Single JWT model (access-control flow): the JWT minted by
+ * `getTiptapCloudAiJwtToken` carries `aud: ["AI", "Documents"]` so the same
+ * token authenticates both the AI server call and the Hocuspocus session the
+ * AI server opens on the user's behalf.
+ */
+export async function executeTool(
+  toolName: string,
+  input: unknown,
+  document: unknown,
+  editorContext: unknown,
+  options: ExecuteToolOptions = {},
+): Promise<{
+  output: unknown;
+  toolResult: unknown;
+  docChanged: boolean;
+  document?: unknown;
+}> {
+  const apiBaseUrl = getServerAiToolkitApiBaseUrl();
+
+  const response = await fetch(`${apiBaseUrl}/v4/ai/toolkit/execute-tool`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      // Set the Origin header because the Document Server has an allowlist of Origin headers
+      Origin: getServerAiToolkitOrigin(),
+      Authorization: `Bearer ${getTiptapCloudAiJwtToken({
+        documentId: options.documentId,
+        workspaceToken: options.workspaceToken,
+      })}`,
+    },
+    body: JSON.stringify({
+      editorContext,
+      document: options.documentId
+        ? {
+            type: "cloud",
+            id: options.documentId,
+          }
+        : {
+            type: "inline",
+            content: document,
+          },
+      user: options.userId ?? null,
+      tool: {
+        name: toolName,
+        input,
+        config: {
+          ...options.toolConfig,
+          ...options.commentsOptions,
+        },
+      },
+      ...(options.reviewOptions
+        ? { reviewOptions: options.reviewOptions }
+        : {}),
+      ...(options.contentProtectionPolicy
+        ? { contentProtectionPolicy: options.contentProtectionPolicy }
+        : {}),
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Tool execution failed: ${response.status} ${response.statusText} - ${await response.text()}`,
+    );
+  }
+
+  const responseData = await response.json();
+
+  return {
+    output: responseData.tool.output,
+    toolResult: responseData.tool,
+    docChanged: responseData.docChanged,
+    document: responseData.document,
+  };
+}
