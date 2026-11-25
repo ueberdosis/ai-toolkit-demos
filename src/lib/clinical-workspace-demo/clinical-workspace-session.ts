@@ -2,12 +2,14 @@ import { createPublicKey, randomUUID } from "node:crypto";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 
-import { clinicalDocumentIdSchema } from "./workspace-documents";
-
-export { clinicalDocumentIdSchema };
-
 const sessionSchema = z.object({ sessionId: z.uuid() });
 const audience = "clinical-workspace";
+export const clinicalDocumentIdSchema = z.enum([
+  "protocol",
+  "consent",
+  "safety",
+  "analysis",
+]);
 
 function signingKey() {
   const key = process.env.TIPTAP_AUTH_PRIVATE_KEY?.replace(/\\n/g, "\n");
