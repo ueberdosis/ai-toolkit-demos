@@ -9,14 +9,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as Y from "yjs";
 import {
   createClinicalWorkspace,
+  getClinicalDocumentConfig,
   refreshClinicalDocumentToken,
 } from "@/lib/clinical-workspace-demo/actions";
 import { ClinicalDocumentEditor } from "./document-editor";
-import { type ClinicalDocumentId, clinicalDocuments } from "./documents";
+import { clinicalDocuments } from "./documents";
+import {
+  type WorkspaceDocument,
+  workspaceDocumentSchema,
+} from "./workspace-documents";
 import "./clinical-workspace.css";
 
 type DocumentRuntime = {
-  id: ClinicalDocumentId;
+  id: string;
+  metadata: WorkspaceDocument;
   documentId: string;
   doc: Y.Doc;
   provider: TiptapCollabProvider;
@@ -32,8 +38,8 @@ const tasks = [
     text: "Read @Protocol and @Safety. Align the serious adverse event reporting deadline in @Safety with @Protocol, and add a clear participant-friendly instruction to @Consent about promptly contacting the study team about new symptoms. Propose tracked changes in both documents.",
   },
   {
-    title: "Check the primary endpoint",
-    text: "Compare the primary endpoint and assessment timepoint in @Analysis against @Protocol. Correct inconsistencies in @Analysis as tracked changes, preserving the statistical methods and adding a justification for each edit.",
+    title: "Create a participant visit guide",
+    text: "Read @Protocol and @Consent, then create a new document titled Participant visit guide with the mention @VisitGuide. Summarize the visit schedule, assessments, and participant responsibilities in plain language. Use the protocol as the source of truth, flag uncertainties for review, and leave the source documents unchanged.",
   },
 ];
 
@@ -42,6 +48,15 @@ export function ClinicalWorkspaceDemo() {
   const [workspaceToken, setWorkspaceToken] = useState("");
   const [setupError, setSetupError] = useState("");
   const [attempt, setAttempt] = useState(0);
+  const [connectingDocument, setConnectingDocument] = useState(false);
+  const retryDocumentsRef = useRef<() => void>(() => {});
+  const addDocumentRef = useRef<(document: WorkspaceDocument) => void>(
+    () => {},
+  );
+  const addDocument = useCallback(
+    (document: WorkspaceDocument) => addDocumentRef.current(document),
+    [],
+  );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Retry deliberately restarts the workspace connection.
   useEffect(() => {
@@ -58,8 +73,17 @@ export function ClinicalWorkspaceDemo() {
     const setup = async () => {
       const workspace = await createClinicalWorkspace();
       if (cancelled) return;
-      const synced = new Set<string>();
-      for (const { id, documentId, config } of workspace.documents) {
+      const connecting = new Set<string>();
+      const connect = async (
+        metadata: WorkspaceDocument,
+        connection?: Awaited<ReturnType<typeof getClinicalDocumentConfig>>,
+      ) => {
+        const { id } = metadata;
+        if (connecting.has(id)) return;
+        connecting.add(id);
+        const { documentId, config } =
+          connection ?? (await getClinicalDocumentConfig(workspace.token, id));
+        if (cancelled) return;
         const doc = new Y.Doc();
         const provider = new TiptapCollabProvider({
           ...(config.collabBaseUrl
@@ -71,9 +95,8 @@ export function ClinicalWorkspaceDemo() {
           user: "demo-user",
           onSynced: ({ state }: { state: boolean }) => {
             if (!state || cancelled) return;
-            synced.add(id);
             if (
-              synced.size === clinicalDocuments.length &&
+              resources.length >= clinicalDocuments.length &&
               resources.every(
                 ({ provider: current }) =>
                   current.isSynced && current.isAuthenticated,
@@ -98,8 +121,46 @@ export function ClinicalWorkspaceDemo() {
               );
           },
         });
-        resources.push({ id, documentId, doc, provider });
-      }
+        resources.push({ id, metadata, documentId, doc, provider });
+        // Render new editors immediately, and keep chat disabled until they sync.
+        if (resources.length > clinicalDocuments.length)
+          setRuntimes([...resources]);
+      };
+      const pending = new Map<string, WorkspaceDocument>();
+      const openPending = () => {
+        setConnectingDocument(pending.size > 0);
+        for (const document of pending.values()) {
+          if (connecting.has(document.id)) continue;
+          void connect(document)
+            .then(() => {
+              if (cancelled) return;
+              pending.delete(document.id);
+              setConnectingDocument(pending.size > 0);
+            })
+            .catch((error) => {
+              connecting.delete(document.id);
+              if (!cancelled)
+                setSetupError(
+                  error instanceof Error
+                    ? error.message
+                    : "Could not connect the new document.",
+                );
+            });
+        }
+      };
+      addDocumentRef.current = (document) => {
+        pending.set(document.id, document);
+        openPending();
+      };
+      retryDocumentsRef.current = openPending;
+      await Promise.all(
+        clinicalDocuments.map((document) =>
+          connect(
+            document,
+            workspace.documents.find(({ id }) => id === document.id),
+          ),
+        ),
+      );
     };
     setup().catch((error) => {
       window.clearTimeout(timer);
@@ -112,6 +173,8 @@ export function ClinicalWorkspaceDemo() {
     });
     return () => {
       cancelled = true;
+      addDocumentRef.current = () => {};
+      retryDocumentsRef.current = () => {};
       window.clearTimeout(timer);
       for (const { provider, doc } of resources) {
         provider.destroy();
@@ -171,6 +234,7 @@ export function ClinicalWorkspaceDemo() {
                 );
               }
               setSetupError("");
+              retryDocumentsRef.current();
             }}
           >
             Retry connection
@@ -181,7 +245,8 @@ export function ClinicalWorkspaceDemo() {
         key={workspaceToken}
         runtimes={runtimes}
         workspaceToken={workspaceToken}
-        connectionError={Boolean(setupError)}
+        connectionError={Boolean(setupError) || connectingDocument}
+        onDocumentCreated={addDocument}
       />
     </>
   );
@@ -191,16 +256,24 @@ function StudyWorkspace({
   runtimes,
   workspaceToken,
   connectionError,
+  onDocumentCreated,
 }: {
   connectionError: boolean;
+  onDocumentCreated: (document: WorkspaceDocument) => void;
   runtimes: DocumentRuntime[];
   workspaceToken: string;
 }) {
-  const [focusedId, setFocusedId] = useState<ClinicalDocumentId>("protocol");
+  const [focusedId, setFocusedId] = useState<string>("protocol");
+  const documents = useMemo(
+    () => runtimes.map(({ metadata }) => metadata),
+    [runtimes],
+  );
+  const documentsRef = useRef(documents);
+  documentsRef.current = documents;
   const [input, setInput] = useState("");
-  const [readyIds, setReadyIds] = useState<Set<ClinicalDocumentId>>(new Set());
+  const [readyIds, setReadyIds] = useState<Set<string>>(new Set());
   const [hasPendingChanges, setHasPendingChanges] = useState(true);
-  const editors = useRef(new Map<ClinicalDocumentId, Editor>());
+  const editors = useRef(new Map<string, Editor>());
   const focusedRef = useRef(focusedId);
   focusedRef.current = focusedId;
   const transport = useMemo(
@@ -209,6 +282,7 @@ function StudyWorkspace({
         api: "/api/clinical-workspace",
         body: () => ({
           workspaceToken,
+          documents: documentsRef.current,
           focusedDocumentId: focusedRef.current,
           editorContexts: Object.fromEntries(
             [...editors.current].map(([id, editor]) => [
@@ -223,6 +297,25 @@ function StudyWorkspace({
   const { messages, sendMessage, status, error, clearError } = useChat({
     transport,
   });
+  const createdIds = useRef(new Set<string>());
+  useEffect(() => {
+    for (const message of messages) {
+      for (const part of message.parts) {
+        if (
+          part.type !== "tool-createDocument" ||
+          !("state" in part) ||
+          part.state !== "output-available" ||
+          !("output" in part)
+        )
+          continue;
+        const output = part.output as { document?: unknown } | null;
+        const parsed = workspaceDocumentSchema.safeParse(output?.document);
+        if (!parsed.success || createdIds.current.has(parsed.data.id)) continue;
+        createdIds.current.add(parsed.data.id);
+        onDocumentCreated(parsed.data);
+      }
+    }
+  }, [messages, onDocumentCreated]);
   const isLoading = status === "submitted" || status === "streaming";
   useEffect(() => {
     const update = () =>
@@ -251,23 +344,18 @@ function StudyWorkspace({
     };
   }, [runtimes]);
   const ready =
-    readyIds.size === clinicalDocuments.length &&
+    readyIds.size === documents.length &&
     !hasPendingChanges &&
     !connectionError;
-  const register = useMemo(
-    () =>
-      Object.fromEntries(
-        clinicalDocuments.map(({ id }) => [
-          id,
-          (editor: Editor | null) => {
-            if (editor) editors.current.set(id, editor);
-            else editors.current.delete(id);
-            setReadyIds(new Set(editors.current.keys()));
-          },
-        ]),
-      ) as Record<ClinicalDocumentId, (editor: Editor | null) => void>,
-    [],
-  );
+  const register = useRef(new Map<string, (editor: Editor | null) => void>());
+  for (const { id } of documents) {
+    if (!register.current.has(id))
+      register.current.set(id, (editor) => {
+        if (editor) editors.current.set(id, editor);
+        else editors.current.delete(id);
+        setReadyIds(new Set(editors.current.keys()));
+      });
+  }
 
   const submit = useCallback(
     (message: { text: string }) => {
@@ -294,9 +382,9 @@ function StudyWorkspace({
       <h2 className="font-semibold text-slate-900">Study documents</h2>
       <p className="mt-1 mb-4 text-xs leading-relaxed text-slate-500">
         Switch documents to review their comments and tracked changes. Chat can
-        work across all four documents.
+        review existing documents and create new drafts.
       </p>
-      {clinicalDocuments.map((document) => (
+      {documents.map((document) => (
         <button
           type="button"
           key={document.id}
@@ -319,9 +407,9 @@ function StudyWorkspace({
     </div>
   );
 
-  const mentionMatch = /@([a-z]*)$/i.exec(input);
+  const mentionMatch = /@([a-z][a-z0-9]*|)$/i.exec(input);
   const mentions = mentionMatch
-    ? clinicalDocuments.filter(({ mention }) =>
+    ? documents.filter(({ mention }) =>
         mention.toLowerCase().startsWith(mentionMatch[1].toLowerCase()),
       )
     : [];
@@ -329,9 +417,7 @@ function StudyWorkspace({
     <div className="max-h-[55vh] shrink-0 overflow-y-auto border-t border-slate-100 px-4 py-3">
       <p className="mb-2 text-xs text-slate-500">
         Focused on{" "}
-        <strong>
-          {clinicalDocuments.find(({ id }) => id === focusedId)?.mention}
-        </strong>
+        <strong>{documents.find(({ id }) => id === focusedId)?.mention}</strong>
       </p>
       {error && (
         <div role="alert" className="mb-3 text-sm text-red-700">
@@ -344,7 +430,7 @@ function StudyWorkspace({
       {messages.length === 0 && (
         <div className="space-y-2">
           <p className="text-sm font-semibold text-slate-800">
-            Try a cross-document review
+            Try a study document task
           </p>
           {tasks.map((task) => (
             <button
@@ -366,7 +452,7 @@ function StudyWorkspace({
               type="button"
               key={id}
               onClick={() =>
-                setInput(input.replace(/@[a-z]*$/i, `@${mention} `))
+                setInput(input.replace(/@[a-z0-9]*$/i, `@${mention} `))
               }
               className="block w-full rounded px-2 py-1 text-left text-xs text-blue-800 hover:bg-blue-50"
             >
@@ -379,7 +465,7 @@ function StudyWorkspace({
           className="mt-3 flex flex-wrap gap-1"
           aria-label="Mention a document"
         >
-          {clinicalDocuments.map(({ id, mention }) => (
+          {documents.map(({ id, mention }) => (
             <button
               type="button"
               key={id}
@@ -402,8 +488,9 @@ function StudyWorkspace({
   return (
     <div className="clinical-workspace">
       {runtimes.map((runtime) => {
-        const document = clinicalDocuments.find(({ id }) => id === runtime.id);
-        if (!document) return null;
+        const document = runtime.metadata;
+        const onEditor = register.current.get(runtime.id);
+        if (!onEditor) return null;
         return (
           <div
             key={runtime.id}
@@ -415,7 +502,9 @@ function StudyWorkspace({
               workspace={{
                 title: document.title,
                 isFocused: runtime.id === focusedId,
-                content: document.content,
+                content:
+                  clinicalDocuments.find(({ id }) => id === runtime.id)
+                    ?.content ?? "",
                 messages,
                 input,
                 setInput,
@@ -424,7 +513,7 @@ function StudyWorkspace({
                 disabled: !ready,
                 documentsPanel,
                 chatExtras,
-                onEditor: register[runtime.id],
+                onEditor,
               }}
             />
           </div>

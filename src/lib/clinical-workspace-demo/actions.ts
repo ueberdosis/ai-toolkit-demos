@@ -41,3 +41,16 @@ export async function refreshClinicalDocumentToken(
   );
   return token;
 }
+
+/** Connect a newly created document using the same session-scoped credentials. */
+export async function getClinicalDocumentConfig(
+  workspaceToken: string,
+  id: string,
+) {
+  const { sessionId } = verifyWorkspaceSession(workspaceToken);
+  const documentId = workspaceDocumentName(sessionId, id);
+  return {
+    documentId,
+    config: await getCollabConfig("demo-user", documentId, workspaceToken),
+  };
+}
