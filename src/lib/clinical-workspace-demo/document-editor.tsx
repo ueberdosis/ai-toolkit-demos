@@ -145,12 +145,7 @@ export function ClinicalDocumentEditor({
   const { threads, createThread } = useDemoThreads(provider, editor, demoUser);
 
   useEffect(() => {
-    if (
-      !workspace.content ||
-      !editor ||
-      didSetInitialContentRef.current ||
-      !editor.isEmpty
-    ) {
+    if (!editor || didSetInitialContentRef.current || !editor.isEmpty) {
       return;
     }
 

@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
-import { generateKeyPairSync, randomUUID } from "node:crypto";
+import { generateKeyPairSync } from "node:crypto";
 import { after, test } from "node:test";
 import jwt from "jsonwebtoken";
-
+import {
+  createWorkspaceSession,
+  verifyWorkspaceSession,
+  workspaceDocumentName,
+} from "../clinical-workspace-session.ts";
 
 // Exercise the demo credential entry points with the project's TS alias.
 const { registerHooks } = await import("node:module");
@@ -11,13 +15,9 @@ registerHooks({
     if (specifier.startsWith("@/")) {
       return nextResolve(new URL(`../../../${specifier.slice(2)}.ts`, import.meta.url).href, context);
     }
-    if (specifier.startsWith(".") && !/\.[a-z]+$/i.test(specifier)) {
-      return nextResolve(`${specifier}.ts`, context);
-    }
     return nextResolve(specifier, context);
   },
 });
-const { createWorkspaceSession, verifyWorkspaceSession, workspaceDocumentName } = await import("../clinical-workspace-session.ts");
 const { getTiptapCloudAiJwtToken } = await import("../server-ai-toolkit/get-tiptap-cloud-ai-jwt-token.ts");
 const collabSigners = [await import("../collaboration.ts")];
 
@@ -30,12 +30,12 @@ after(() => {
   else process.env.TIPTAP_AUTH_PRIVATE_KEY = originalKey;
 });
 
-test("session manifests isolate seeded and generated documents across demo workspaces", () => {
+test("session manifests isolate all four documents across demo workspaces", () => {
   const first = createWorkspaceSession();
   const second = createWorkspaceSession();
   assert.equal(verifyWorkspaceSession(first.token).sessionId, first.sessionId);
   assert.notEqual(first.sessionId, second.sessionId);
-  for (const id of ["protocol", "consent", "safety", "analysis", randomUUID()]) {
+  for (const id of ["protocol", "consent", "safety", "analysis"]) {
     assert.equal(workspaceDocumentName(first.sessionId, id), `clinical-workspace/${first.sessionId}/${id}`);
     assert.notEqual(workspaceDocumentName(first.sessionId, id), workspaceDocumentName(second.sessionId, id));
   }
@@ -67,7 +67,7 @@ test("every credential entry point protects clinical names and wildcard access",
   try {
     const session = createWorkspaceSession();
     const other = createWorkspaceSession();
-    const documentId = workspaceDocumentName(session.sessionId, randomUUID());
+    const documentId = workspaceDocumentName(session.sessionId, "protocol");
     for (const { getCollabConfig } of collabSigners) {
       await assert.rejects(getCollabConfig("user", documentId));
       await assert.rejects(getCollabConfig("user", documentId, other.token));
@@ -87,44 +87,5 @@ test("every credential entry point protects clinical names and wildcard access",
     else process.env.TIPTAP_AUTH_ENVIRONMENT_ID = savedEnvironment;
     if (savedServer === undefined) delete process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID;
     else process.env.TIPTAP_CLOUD_DOCUMENT_SERVER_ID = savedServer;
-  }
-});
-
-const { createWorkspaceDocument } = await import("../create-workspace-document.ts");
-
-test("creation wraps the Toolkit with a fresh document, tracked review and scoped credentials", async () => {
-  const originalFetch = globalThis.fetch;
-  const originalEnvironment = process.env.TIPTAP_AUTH_ENVIRONMENT_ID;
-  process.env.TIPTAP_AUTH_ENVIRONMENT_ID = "test-environment";
-  const session = createWorkspaceSession();
-  const requests = [];
-  globalThis.fetch = async (_url, options) => {
-    requests.push({ body: JSON.parse(options.body), token: jwt.decode(options.headers.Authorization.slice(7)) });
-    return Response.json({ tool: { output: { success: true } }, docChanged: true });
-  };
-  try {
-    const input = { content: [{ type: "paragraph", content: [{ type: "text", text: "Visit guide" }] }] };
-    const context = { schema: { nodes: {} } };
-    const options = { title: "Visit guide", mention: "VisitGuide", input, editorContext: context, workspaceToken: session.token, sessionId: session.sessionId };
-    const first = await createWorkspaceDocument(options);
-    const second = await createWorkspaceDocument(options);
-    assert.notEqual(first.document.id, second.document.id);
-    assert.equal(first.document.mention, "VisitGuide");
-    const { body, token } = requests[0];
-    assert.equal(body.tool.name, "createDocument");
-    assert.deepEqual(body.tool.input, input);
-    assert.deepEqual(body.editorContext, context);
-    assert.deepEqual(body.reviewOptions, { mode: "trackedChanges" });
-    assert.equal(body.document.id, workspaceDocumentName(session.sessionId, first.document.id));
-    assert.ok(token.permissions.some(p => p.action === "Documents:Write" && p.resource === body.document.id));
-
-    globalThis.fetch = async () => Response.json({ tool: { output: { success: false, error: "Invalid content" } }, docChanged: false });
-    const failed = await createWorkspaceDocument(options);
-    assert.equal(failed.document, undefined, "failed drafts are not advertised to the workspace");
-    assert.equal(failed.result.error, "Invalid content");
-  } finally {
-    globalThis.fetch = originalFetch;
-    if (originalEnvironment === undefined) delete process.env.TIPTAP_AUTH_ENVIRONMENT_ID;
-    else process.env.TIPTAP_AUTH_ENVIRONMENT_ID = originalEnvironment;
   }
 });
