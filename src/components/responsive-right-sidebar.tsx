@@ -1,7 +1,7 @@
 "use client";
 
 import { PanelRightOpen, X } from "lucide-react";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useState } from "react";
 
 type ResponsiveRightSidebarProps = {
   children: ReactNode;
@@ -9,7 +9,6 @@ type ResponsiveRightSidebarProps = {
   triggerLabel: string;
   triggerIcon?: ReactNode;
   onOpen?: () => void;
-  isActive?: boolean;
 };
 
 export function ResponsiveRightSidebar({
@@ -18,13 +17,8 @@ export function ResponsiveRightSidebar({
   triggerLabel,
   triggerIcon,
   onOpen,
-  isActive = true,
 }: ResponsiveRightSidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isActive) setIsMobileOpen(false);
-  }, [isActive]);
 
   return (
     <>
@@ -44,7 +38,7 @@ export function ResponsiveRightSidebar({
         {triggerLabel}
       </button>
 
-      {isActive && isMobileOpen && (
+      {isMobileOpen && (
         <div className="fixed inset-0 z-50 flex flex-col bg-white sm:hidden">
           <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
             <span className="text-sm font-medium">{mobileTitle}</span>

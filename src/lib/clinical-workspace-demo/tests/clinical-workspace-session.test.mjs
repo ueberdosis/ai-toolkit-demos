@@ -6,20 +6,20 @@ import {
   createWorkspaceSession,
   verifyWorkspaceSession,
   workspaceDocumentName,
-} from "../src/lib/clinical-workspace-session.ts";
+} from "../clinical-workspace-session.ts";
 
-// Exercise the real shared credential entry points with the project's TS alias.
+// Exercise the demo credential entry points with the project's TS alias.
 const { registerHooks } = await import("node:module");
 registerHooks({
   resolve(specifier, context, nextResolve) {
     if (specifier.startsWith("@/")) {
-      return nextResolve(new URL(`../src/${specifier.slice(2)}.ts`, import.meta.url).href, context);
+      return nextResolve(new URL(`../../../${specifier.slice(2)}.ts`, import.meta.url).href, context);
     }
     return nextResolve(specifier, context);
   },
 });
-const { getTiptapCloudAiJwtToken } = await import("../src/lib/server-ai-toolkit/get-tiptap-cloud-ai-jwt-token.ts");
-const collabSigners = [await import("../src/lib/collaboration.ts")];
+const { getTiptapCloudAiJwtToken } = await import("../server-ai-toolkit/get-tiptap-cloud-ai-jwt-token.ts");
+const collabSigners = [await import("../collaboration.ts")];
 
 const originalKey = process.env.TIPTAP_AUTH_PRIVATE_KEY;
 const { privateKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });

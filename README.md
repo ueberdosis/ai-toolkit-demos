@@ -41,6 +41,8 @@ Server-side AI toolkit demos that run AI operations on the server for enhanced s
 
 ### Clinical study workspace
 
+The demo is self-contained in `src/lib/clinical-workspace-demo/`, including its editor, UI components, styles, server actions, chat handler, and server helpers. The page and API route are thin entry points; existing demos keep their original implementations.
+
 Open `/clinical-workspace` after configuring the Server AI Toolkit and collaboration variables in `.env.example`, including `TIPTAP_CLOUD_DOCUMENT_SERVER_ID`, and the model credentials used by `getModel`.
 
 Each page load creates a fresh study workspace with a protocol, participant consent, safety monitoring plan, and statistical analysis plan. Switch documents in the **Documents** sidebar tab; **Comments** and **Tracked changes** always refer to the document displayed in the editor. Use `@Protocol`, `@Consent`, `@Safety`, and `@Analysis` in chat, or choose a suggested task. The sample consent schedule, safety reporting deadline, and analysis endpoint deliberately differ from the protocol for cross-document review.
@@ -50,7 +52,7 @@ The agent receives the current focus with every request. Its only document tool 
 Run the session-boundary and interrupted-chat checks with Node 24 or later:
 
 ```bash
-node --test --test-concurrency=1 tests/clinical-workspace*.test.mjs
+node --test --test-concurrency=1 src/lib/clinical-workspace-demo/tests/clinical-workspace*.test.mjs
 ```
 
 ## Tech Stack
@@ -140,7 +142,3 @@ node --test --test-concurrency=1 tests/clinical-workspace*.test.mjs
 2. In any demo, you can ask the AI to improve the document
 3. In the Review Changes demo, you'll see suggestions highlighted and can accept/reject them
 4. The AI will respond and make changes based on your requests
-
-## Standalone clinical workspace
-
-The independently deployable app is in [`apps/multi-document-clinical-workspace-demo`](apps/multi-document-clinical-workspace-demo/README.md). Its home page opens the clinical workspace directly and it has no source imports from the parent application.

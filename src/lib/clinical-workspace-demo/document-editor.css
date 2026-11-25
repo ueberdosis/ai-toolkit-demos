@@ -1,0 +1,98 @@
+.clinical-workspace .tiptap {
+  min-height: 58vh;
+  color: rgb(15 23 42);
+  outline: none;
+}
+
+.clinical-workspace .tiptap :first-child {
+  margin-top: 0;
+}
+
+.clinical-workspace .tiptap p {
+  margin: 1rem 0;
+  line-height: 1.75;
+  word-break: break-word;
+}
+
+.clinical-workspace .tiptap h1,
+.clinical-workspace .tiptap h2,
+.clinical-workspace .tiptap h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: pretty;
+}
+
+.clinical-workspace .tiptap h1 {
+  font-size: 1.75rem;
+}
+
+.clinical-workspace .tiptap h2 {
+  font-size: 1.35rem;
+}
+
+.clinical-workspace .tiptap h3 {
+  font-size: 1.1rem;
+}
+
+.clinical-workspace .tiptap ul,
+.clinical-workspace .tiptap ol {
+  margin: 1.25rem 0;
+  padding-left: 1.5rem;
+}
+
+.clinical-workspace .tiptap ul {
+  list-style: disc;
+}
+
+.clinical-workspace .tiptap ol {
+  list-style: decimal;
+}
+
+.clinical-workspace .tiptap blockquote {
+  margin: 1.5rem 0;
+  border-left: 3px solid rgb(203 213 225);
+  padding-left: 1rem;
+  color: rgb(71 85 105);
+}
+
+.clinical-workspace .tiptap pre {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  background: rgb(15 23 42);
+  padding: 0.75rem 1rem;
+  color: white;
+}
+
+.clinical-workspace .tiptap code {
+  border-radius: 0.35rem;
+  background: rgb(241 245 249);
+  padding: 0.15rem 0.3rem;
+  font-size: 0.875em;
+}
+
+.clinical-workspace .tiptap pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.clinical-workspace .tiptap .is-empty.is-editor-empty::before {
+  float: left;
+  height: 0;
+  color: rgb(148 163 184);
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
+/* Linked comment threads. */
+.clinical-workspace .tiptap .tiptap-thread[data-type="inline"] {
+  border-bottom: 2px solid rgba(168, 85, 247, 0.45);
+}
+
+.clinical-workspace .tiptap .tiptap-thread[data-state="selected"],
+.clinical-workspace .tiptap .tiptap-thread[data-state="hovered"] {
+  background-color: rgba(168, 85, 247, 0.14);
+}

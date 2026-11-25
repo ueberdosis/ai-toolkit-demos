@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { assertDocumentAccess } from "@/lib/clinical-workspace-session";
+import { assertDocumentAccess } from "@/lib/clinical-workspace-demo/clinical-workspace-session";
 
 export async function getCollabConfig(
   userId: string,

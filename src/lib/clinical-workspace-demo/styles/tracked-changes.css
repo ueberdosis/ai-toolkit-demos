@@ -1,44 +1,56 @@
-.tiptap span[data-suggestion][data-suggestion-type="add"],
-.tiptap span[data-suggestion][data-suggestion-type="replaceInsertion"] {
+.clinical-workspace .tiptap span[data-suggestion][data-suggestion-type="add"],
+.clinical-workspace
+  .tiptap
+  span[data-suggestion][data-suggestion-type="replaceInsertion"] {
   background-color: oklch(87.1% 0.15 154.449);
 }
 
-.tiptap span[data-suggestion][data-suggestion-type="delete"],
-.tiptap span[data-suggestion][data-suggestion-type="replaceDeletion"] {
+.clinical-workspace
+  .tiptap
+  span[data-suggestion][data-suggestion-type="delete"],
+.clinical-workspace
+  .tiptap
+  span[data-suggestion][data-suggestion-type="replaceDeletion"] {
   background-color: oklch(80.8% 0.114 19.571);
   color: oklch(0.396 0.141 25.723);
   text-decoration: line-through;
 }
 
-.tiptap pre span[data-suggestion][data-suggestion-type="delete"],
-.tiptap pre span[data-suggestion][data-suggestion-type="replaceDeletion"] {
+.clinical-workspace
+  .tiptap
+  pre
+  span[data-suggestion][data-suggestion-type="delete"],
+.clinical-workspace
+  .tiptap
+  pre
+  span[data-suggestion][data-suggestion-type="replaceDeletion"] {
   color: oklch(0.97 0.012 17);
 }
 
-.tiptap img[data-suggestion-type],
-.tiptap hr[data-suggestion-type] {
+.clinical-workspace .tiptap img[data-suggestion-type],
+.clinical-workspace .tiptap hr[data-suggestion-type] {
   transition: all 0.2s ease;
 }
 
-.tiptap img[data-suggestion-type="add"] {
+.clinical-workspace .tiptap img[data-suggestion-type="add"] {
   outline: 3px solid oklch(0.72 0.16 154.449);
   box-shadow: 0 0 0 6px oklch(0.92 0.06 154.449);
 }
 
-.tiptap img[data-suggestion-type="delete"] {
+.clinical-workspace .tiptap img[data-suggestion-type="delete"] {
   outline: 3px solid oklch(0.62 0.21 25.723);
   box-shadow: 0 0 0 6px oklch(0.92 0.03 17.717);
   opacity: 0.55;
 }
 
-.tiptap hr[data-suggestion-type="add"] {
+.clinical-workspace .tiptap hr[data-suggestion-type="add"] {
   background-color: oklch(0.92 0.06 154.449);
   border-top-color: oklch(0.72 0.16 154.449);
   border-top-width: 3px;
   height: 4px;
 }
 
-.tiptap hr[data-suggestion-type="delete"] {
+.clinical-workspace .tiptap hr[data-suggestion-type="delete"] {
   background-color: oklch(0.92 0.03 17.717);
   border-top-color: oklch(0.62 0.21 25.723);
   border-top-width: 3px;
@@ -49,20 +61,23 @@
 /* Block-level suggestions (paragraphs, headings, list items, etc.)
    v2 extension adds data-suggestion-id directly to block nodes when
    the AI replaces an entire block. */
-.tiptap
-[data-suggestion-id][data-suggestion-type="add"]:not(span):not(img):not(hr),
-.tiptap
+.clinical-workspace .tiptap
+  [data-suggestion-id][data-suggestion-type="add"]:not(span):not(img):not(hr),
+.clinical-workspace
+  .tiptap
   [data-suggestion-id][data-suggestion-type="replaceInsertion"]:not(span):not(
     img
   ):not(hr) {
   background-color: oklch(87.1% 0.15 154.449);
 }
 
-.tiptap
+.clinical-workspace
+  .tiptap
   [data-suggestion-id][data-suggestion-type="delete"]:not(span):not(img):not(
     hr
   ),
-.tiptap
+.clinical-workspace
+  .tiptap
   [data-suggestion-id][data-suggestion-type="replaceDeletion"]:not(span):not(
     img
   ):not(hr) {
@@ -76,47 +91,54 @@
    surface) and outline the container. With `resizable: false` the table uses the
    default render path, so the extension's `renderHTML` puts `data-suggestion-type`
    on `<table>`. */
-.tiptap table[data-suggestion-type="add"],
-.tiptap table[data-suggestion-type="replaceInsertion"] {
+.clinical-workspace .tiptap table[data-suggestion-type="add"],
+.clinical-workspace .tiptap table[data-suggestion-type="replaceInsertion"] {
   outline: 2px solid oklch(0.72 0.16 154.449);
 }
-.tiptap table[data-suggestion-type="add"] :is(td, th),
-.tiptap table[data-suggestion-type="replaceInsertion"] :is(td, th) {
+.clinical-workspace .tiptap table[data-suggestion-type="add"] :is(td, th),
+.clinical-workspace
+  .tiptap
+  table[data-suggestion-type="replaceInsertion"]
+  :is(td, th) {
   background-color: oklch(87.1% 0.15 154.449);
 }
-.tiptap table[data-suggestion-type="delete"],
-.tiptap table[data-suggestion-type="replaceDeletion"] {
+.clinical-workspace .tiptap table[data-suggestion-type="delete"],
+.clinical-workspace .tiptap table[data-suggestion-type="replaceDeletion"] {
   outline: 2px solid oklch(0.62 0.21 25.723);
 }
-.tiptap table[data-suggestion-type="delete"] :is(td, th),
-.tiptap table[data-suggestion-type="replaceDeletion"] :is(td, th) {
+.clinical-workspace .tiptap table[data-suggestion-type="delete"] :is(td, th),
+.clinical-workspace
+  .tiptap
+  table[data-suggestion-type="replaceDeletion"]
+  :is(td, th) {
   background-color: oklch(80.8% 0.114 19.571);
   color: oklch(0.396 0.141 25.723);
   text-decoration: line-through;
 }
 
 /* Mark changes (e.g. bold/italic toggled by AI) */
-.tiptap span[data-suggestion][data-suggestion-type="markChange"] {
+.clinical-workspace .tiptap
+  span[data-suggestion][data-suggestion-type="markChange"] {
   background-color: oklch(85% 0.12 295);
   border-bottom: 2px solid oklch(55% 0.22 295);
 }
 
 /* Sink (increased list nesting) */
-.tiptap
-[data-suggestion-id][data-suggestion-type="sink"]:not(span):not(img):not(hr) {
+.clinical-workspace .tiptap
+  [data-suggestion-id][data-suggestion-type="sink"]:not(span):not(img):not(hr) {
   background-color: oklch(88% 0.1 200);
   box-shadow: inset 2px 0 0 oklch(55% 0.18 200);
 }
 
 /* Lift (decreased list nesting) */
-.tiptap
-[data-suggestion-id][data-suggestion-type="lift"]:not(span):not(img):not(hr) {
+.clinical-workspace .tiptap
+  [data-suggestion-id][data-suggestion-type="lift"]:not(span):not(img):not(hr) {
   background-color: oklch(88% 0.1 290);
   box-shadow: inset 2px 0 0 oklch(55% 0.2 290);
 }
 
 /* Block split. The content did not change, so only the ¶ widget is styled, never the block. */
-.tiptap .tiptap-tracked-change-split-marker {
+.clinical-workspace .tiptap .tiptap-tracked-change-split-marker {
   color: oklch(62.3% 0.214 259.8);
   margin-left: 0.15em;
   opacity: 0.7;
@@ -124,24 +146,19 @@
 }
 
 :where(
-    .tracked-changes-comments-demo
-      .tiptap
-      .tiptap-thread.tiptap-thread.tiptap-thread,
-    .tracked-changes-comments-demo
+    .clinical-workspace .tiptap .tiptap-thread.tiptap-thread.tiptap-thread,
+    .clinical-workspace
       .tiptap
       [data-type="inline-thread"][data-type="inline-thread"],
-    .tracked-changes-comments-demo
+    .clinical-workspace
       .tiptap
       [data-type="block-thread"][data-type="block-thread"],
-    .tracked-changes-comments-demo
-      .tiptap
-      .tiptap-thread.tiptap-thread.tiptap-thread
-      *,
-    .tracked-changes-comments-demo
+    .clinical-workspace .tiptap .tiptap-thread.tiptap-thread.tiptap-thread *,
+    .clinical-workspace
       .tiptap
       [data-type="inline-thread"][data-type="inline-thread"]
       *,
-    .tracked-changes-comments-demo
+    .clinical-workspace
       .tiptap
       [data-type="block-thread"][data-type="block-thread"]
       *
@@ -152,75 +169,75 @@
   box-shadow: none;
 }
 
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="open"]
   .tiptap
   .tiptap-thread[data-status-all="open"][data-type="block"]
   > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="open"]
   .tiptap
   .tiptap-thread[data-status-all="open"][data-type="block"]:hover
   > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="open"]
   .tiptap
   .tiptap-thread[data-status-all="open"][data-type="block"][data-state="selected"]
   > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="open"]
   .tiptap
   .tiptap-thread[data-status-all="open"][data-type="block"][data-state="hovered"]
   > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="resolved"]
   .tiptap
   .tiptap-thread[data-status="closed"][data-type="block"]
   > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="resolved"]
   .tiptap
   .tiptap-thread[data-status="closed"][data-type="block"]:hover
   > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="resolved"]
   .tiptap
   .tiptap-thread[data-status="closed"][data-type="block"][data-state="selected"]
   > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="resolved"]
   .tiptap
   .tiptap-thread[data-status="closed"][data-type="block"][data-state="hovered"]
   > :not(p, h1, h2, h3, h4, h5, h6, ul, li),
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="open"]
   .tiptap
   .tiptap-thread[data-status-all="open"][data-type="inline"],
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="open"]
   .tiptap
   .tiptap-thread[data-status-all="open"][data-type="inline"]:hover,
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="open"]
   .tiptap
   .tiptap-thread[data-status-all="open"][data-type="inline"][data-state="selected"],
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="open"]
   .tiptap
   .tiptap-thread[data-status-all="open"][data-type="inline"][data-state="hovered"],
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="resolved"]
   .tiptap
   .tiptap-thread[data-status="closed"][data-type="inline"],
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="resolved"]
   .tiptap
   .tiptap-thread[data-status="closed"][data-type="inline"]:hover,
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="resolved"]
   .tiptap
   .tiptap-thread[data-status="closed"][data-type="inline"][data-state="selected"],
-.tracked-changes-comments-demo
+.clinical-workspace
   [data-viewmode="resolved"]
   .tiptap
   .tiptap-thread[data-status="closed"][data-type="inline"][data-state="hovered"] {

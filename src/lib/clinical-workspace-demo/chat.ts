@@ -5,17 +5,17 @@ import {
   tool,
 } from "ai";
 import { z } from "zod";
-import { clinicalDocuments } from "@/demos/clinical-workspace/documents";
-import { prepareWorkspaceMessages } from "@/lib/clinical-workspace-messages";
+import { prepareWorkspaceMessages } from "@/lib/clinical-workspace-demo/clinical-workspace-messages";
 import {
   clinicalDocumentIdSchema,
   verifyWorkspaceSession,
   workspaceDocumentName,
-} from "@/lib/clinical-workspace-session";
-import { getModel } from "@/lib/get-model";
-import { getIp, rateLimit } from "@/lib/rate-limit";
-import { executeTool } from "@/lib/server-ai-toolkit/execute-tool";
-import { getTools } from "@/lib/server-ai-toolkit/get-tools";
+} from "@/lib/clinical-workspace-demo/clinical-workspace-session";
+import { clinicalDocuments } from "@/lib/clinical-workspace-demo/documents";
+import { getModel } from "@/lib/clinical-workspace-demo/get-model";
+import { getIp, rateLimit } from "@/lib/clinical-workspace-demo/rate-limit";
+import { executeTool } from "@/lib/clinical-workspace-demo/server-ai-toolkit/execute-tool";
+import { getTools } from "@/lib/clinical-workspace-demo/server-ai-toolkit/get-tools";
 
 const documentIdSchema = clinicalDocumentIdSchema;
 const requestSchema = z.object({

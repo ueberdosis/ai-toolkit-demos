@@ -6,7 +6,7 @@ import { ChatSidebar, type Message } from "./chat-sidebar";
 import { ResponsiveRightSidebar } from "./responsive-right-sidebar";
 import { SegmentedControl } from "./segmented-control";
 
-export type PanelId = "chat" | "tracked" | "comments" | "documents";
+export type PanelId = "chat" | "tracked" | "comments";
 
 interface RightSidebarProps {
   activePanel: PanelId;
@@ -20,10 +20,6 @@ interface RightSidebarProps {
   trackedPanel?: ReactNode;
   commentsPanel?: ReactNode;
   inputAction?: ReactNode;
-  documentsPanel?: ReactNode;
-  chatExtras?: ReactNode;
-  chatDisabled?: boolean;
-  isActive?: boolean;
 }
 
 // A tab is offered only for the panels the demo passes in.
@@ -39,16 +35,12 @@ export function RightSidebar({
   trackedPanel,
   commentsPanel,
   inputAction,
-  documentsPanel,
-  chatExtras,
-  chatDisabled,
-  isActive = true,
 }: RightSidebarProps) {
   const panels: Array<{ id: PanelId; label: string; content: ReactNode }> = [
     {
       id: "chat",
       label: "Chat",
-      content: isActive ? (
+      content: (
         <ChatSidebar
           embedded
           messages={messages}
@@ -58,11 +50,8 @@ export function RightSidebar({
           isLoading={isLoading}
           placeholder={placeholder}
           inputAction={inputAction}
-          disabled={chatDisabled}
-        >
-          {chatExtras}
-        </ChatSidebar>
-      ) : null,
+        />
+      ),
     },
   ];
 
@@ -78,19 +67,10 @@ export function RightSidebar({
     panels.push({ id: "comments", label: "Comments", content: commentsPanel });
   }
 
-  if (documentsPanel) {
-    panels.push({
-      id: "documents",
-      label: "Documents",
-      content: documentsPanel,
-    });
-  }
-
   const active = panels.find((panel) => panel.id === activePanel) ?? panels[0];
 
   return (
     <ResponsiveRightSidebar
-      isActive={isActive}
       mobileTitle="AI Chat"
       triggerLabel={isLoading ? "AI thinking..." : "Chat"}
       triggerIcon={

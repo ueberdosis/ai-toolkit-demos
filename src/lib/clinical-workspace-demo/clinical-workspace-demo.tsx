@@ -10,8 +10,8 @@ import * as Y from "yjs";
 import {
   createClinicalWorkspace,
   refreshClinicalDocumentToken,
-} from "@/app/clinical-workspace/actions";
-import { TrackedChangesEditor } from "@/demos/server-ai-tracked-changes/server-ai-tracked-changes-demo";
+} from "@/lib/clinical-workspace-demo/actions";
+import { ClinicalDocumentEditor } from "./document-editor";
 import { type ClinicalDocumentId, clinicalDocuments } from "./documents";
 import "./clinical-workspace.css";
 
@@ -409,9 +409,8 @@ function StudyWorkspace({
             key={runtime.id}
             className={runtime.id === focusedId ? "h-screen" : "hidden"}
           >
-            <TrackedChangesEditor
+            <ClinicalDocumentEditor
               doc={runtime.doc}
-              documentId={runtime.documentId}
               provider={runtime.provider}
               workspace={{
                 title: document.title,

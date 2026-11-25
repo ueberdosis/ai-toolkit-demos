@@ -1,13 +1,13 @@
 "use server";
 
-import { clinicalDocuments } from "@/demos/clinical-workspace/documents";
 import {
   clinicalDocumentIdSchema,
   createWorkspaceSession,
   verifyWorkspaceSession,
   workspaceDocumentName,
-} from "@/lib/clinical-workspace-session";
-import { getCollabConfig } from "@/lib/collaboration";
+} from "@/lib/clinical-workspace-demo/clinical-workspace-session";
+import { getCollabConfig } from "@/lib/clinical-workspace-demo/collaboration";
+import { clinicalDocuments } from "@/lib/clinical-workspace-demo/documents";
 
 export async function createClinicalWorkspace() {
   const { sessionId, token } = createWorkspaceSession();

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { convertToModelMessages, generateText, MissingToolResultsError } from "ai";
 import { MockLanguageModelV4 } from "ai/test";
-import { prepareWorkspaceMessages } from "../src/lib/clinical-workspace-messages.ts";
+import { prepareWorkspaceMessages } from "../clinical-workspace-messages.ts";
 
 const result = {
   content: [{ type: "text", text: "Recovered" }],

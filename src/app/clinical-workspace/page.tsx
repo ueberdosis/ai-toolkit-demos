@@ -1,4 +1,4 @@
-import { ClinicalWorkspaceDemo } from "@/demos/clinical-workspace/clinical-workspace-demo";
+import { ClinicalWorkspaceDemo } from "@/lib/clinical-workspace-demo/clinical-workspace-demo";
 
 export default function ClinicalWorkspacePage() {
   return <ClinicalWorkspaceDemo />;

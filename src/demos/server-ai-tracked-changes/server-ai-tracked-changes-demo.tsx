@@ -5,7 +5,7 @@ import { getEditorContext, ServerAiToolkit } from "@tiptap/ai-toolkit";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import LinkExtension from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import { type Editor, EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { CommentsKit } from "@tiptap-pro/extension-comments";
 import {
@@ -14,15 +14,8 @@ import {
   TrackedChanges,
 } from "@tiptap-pro/extension-tracked-changes";
 import { TiptapCollabProvider } from "@tiptap-pro/provider";
-import { DefaultChatTransport, type UIMessage } from "ai";
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { DefaultChatTransport } from "ai";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import * as Y from "yjs";
 import { getCollabConfig } from "@/app/server-ai-agent-chatbot/actions";
@@ -129,28 +122,11 @@ export function ServerAiTrackedChangesDemo() {
   );
 }
 
-export type WorkspaceEditorOptions = {
-  title: string;
-  isFocused: boolean;
-  content: string;
-  messages: UIMessage[];
-  input: string;
-  setInput: (value: string) => void;
-  sendMessage: (message: { text: string }) => unknown;
-  isLoading: boolean;
-  disabled: boolean;
-  documentsPanel: ReactNode;
-  chatExtras: ReactNode;
-  onEditor: (editor: Editor | null) => void;
-};
-
-export function TrackedChangesEditor({
+function TrackedChangesEditor({
   doc,
   documentId,
   provider,
-  workspace,
 }: {
-  workspace?: WorkspaceEditorOptions;
   doc: Y.Doc;
   documentId: string;
   provider: TiptapCollabProvider;
@@ -228,17 +204,11 @@ export function TrackedChangesEditor({
     // Seed outside the undo history so undo can't reach an inconsistent state after an AI edit.
     editor
       .chain()
-      .setContent(workspace?.content ?? initialTrackedChangesContent)
+      .setContent(initialTrackedChangesContent)
       .setMeta("addToHistory", false)
       .run();
     didSetInitialContentRef.current = true;
-  }, [editor, workspace?.content]);
-
-  const onWorkspaceEditor = workspace?.onEditor;
-  useEffect(() => {
-    onWorkspaceEditor?.(editor);
-    return () => onWorkspaceEditor?.(null);
-  }, [editor, onWorkspaceEditor]);
+  }, [editor]);
 
   useEffect(() => {
     if (!editor) {
@@ -322,20 +292,11 @@ export function TrackedChangesEditor({
     };
   }, [editor, provider, threads]);
 
-  const isFocused = workspace?.isFocused ?? true;
-  useEffect(() => {
-    if (!isFocused) {
-      setTooltipMount(null);
-      anchorRef.current?.remove();
-      anchorRef.current = null;
-    }
-  }, [isFocused]);
-
   const editorContext = editor ? getEditorContext(editor) : null;
   const editorContextRef = useRef(editorContext);
   editorContextRef.current = editorContext;
 
-  const localChat = useChat({
+  const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/server-ai-tracked-changes",
       body: () => ({
@@ -345,17 +306,11 @@ export function TrackedChangesEditor({
     }),
   });
 
-  const [localInput, setLocalInput] = useState(
+  const [input, setInput] = useState(
     "Replace the last paragraph with a short story about Tiptap.",
   );
 
-  const messages = workspace?.messages ?? localChat.messages;
-  const sendMessage = workspace?.sendMessage ?? localChat.sendMessage;
-  const input = workspace?.input ?? localInput;
-  const setInput = workspace?.setInput ?? setLocalInput;
-  const status = localChat.status;
-  const isLoading =
-    workspace?.isLoading ?? (status !== "ready" && status !== "error");
+  const isLoading = status !== "ready";
 
   const reasonBySuggestionId = useMemo(
     () =>
@@ -377,9 +332,8 @@ export function TrackedChangesEditor({
   const handleSubmit = (event: SubmitEvent) => {
     event.preventDefault();
 
-    if (input.trim() && !isLoading && !workspace?.disabled) {
-      const submitted = sendMessage({ text: input });
-      if (submitted === false) return;
+    if (input.trim()) {
+      sendMessage({ text: input });
       setInput("");
       setActivePanel("chat");
     }
@@ -444,20 +398,6 @@ export function TrackedChangesEditor({
   return (
     <div className="server-ai-tracked-changes-demo flex h-screen overflow-hidden bg-white">
       <main className="flex min-w-0 flex-1 flex-col">
-        {workspace && (
-          <header className="border-b border-blue-100 bg-blue-50 px-6 py-4">
-            <p className="text-sm text-blue-800">
-              Asterion Pharma / LUMEN-204 / Study workspace
-            </p>
-            <h1 className="mt-1 text-lg font-semibold text-slate-900">
-              {workspace.title}
-            </h1>
-            <p className="mt-1 text-xs text-slate-600">
-              Fictional study materials for demonstration. AI edits require your
-              review.
-            </p>
-          </header>
-        )}
         <Toolbar
           isTrackedChangesEnabled={getTrackedChangesEnabled(editor)}
           isBoldActive={editor.isActive("bold")}
@@ -508,7 +448,7 @@ export function TrackedChangesEditor({
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           <EditorContent editor={editor} />
-          {isFocused && tooltipMount && (
+          {tooltipMount && (
             <SuggestionReviewTooltip
               referenceElement={tooltipMount.element}
               text={tooltipMount.text}
@@ -539,22 +479,13 @@ export function TrackedChangesEditor({
         isLoading={isLoading}
         trackedPanel={trackedPanel}
         commentsPanel={commentsPanel}
-        documentsPanel={workspace?.documentsPanel}
-        chatExtras={workspace?.chatExtras}
-        chatDisabled={workspace?.disabled}
-        isActive={isFocused}
-        placeholder={
-          workspace ? "Ask about this study, or mention @Protocol…" : undefined
-        }
         inputAction={
-          workspace ? undefined : (
-            <CopyTestCaseButton
-              editor={editor}
-              messages={messages}
-              status={status}
-              requestConfig={{ reviewOptions: { mode: "trackedChanges" } }}
-            />
-          )
+          <CopyTestCaseButton
+            editor={editor}
+            messages={messages}
+            status={status}
+            requestConfig={{ reviewOptions: { mode: "trackedChanges" } }}
+          />
         }
       />
     </div>

@@ -23,10 +23,14 @@ import {
   useState,
 } from "react";
 import type * as Y from "yjs";
-import { type PanelId, RightSidebar } from "@/components/right-sidebar";
-import { SuggestionReviewTooltip } from "@/components/suggestion-review-tooltip";
+import {
+  type PanelId,
+  RightSidebar,
+} from "@/lib/clinical-workspace-demo/components/right-sidebar";
+import { SuggestionReviewTooltip } from "@/lib/clinical-workspace-demo/components/suggestion-review-tooltip";
 import { CommentsPanel } from "./comments-panel";
-import "../../styles/tracked-changes.css";
+import "./styles/tiptap-content.css";
+import "./styles/tracked-changes.css";
 import "./document-editor.css";
 import { getUniqueSuggestions } from "./suggestion-utils";
 import { TrackedChangesPanel } from "./tracked-changes-panel";

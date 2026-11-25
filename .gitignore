@@ -47,7 +47,3 @@ next-env.d.ts
 # yalc
 .yalc/
 yalc.lock
-
-# Standalone demo applications
-/apps/**/node_modules/
-/apps/**/.next/

@@ -1,78 +1,78 @@
-.tiptap {
+.clinical-workspace .tiptap {
   caret-color: var(--purple);
   padding: 1.5rem;
 }
-.tiptap:focus {
+.clinical-workspace .tiptap:focus {
   outline: none;
 }
-.tiptap :first-child {
+.clinical-workspace .tiptap :first-child {
   margin-top: 0;
 }
 
 /* Headings */
-.tiptap h1,
-.tiptap h2,
-.tiptap h3,
-.tiptap h4,
-.tiptap h5,
-.tiptap h6 {
+.clinical-workspace .tiptap h1,
+.clinical-workspace .tiptap h2,
+.clinical-workspace .tiptap h3,
+.clinical-workspace .tiptap h4,
+.clinical-workspace .tiptap h5,
+.clinical-workspace .tiptap h6 {
   font-weight: bold;
   line-height: 1.1;
   margin-top: 2.5rem;
   text-wrap: pretty;
 }
-.tiptap h1,
-.tiptap h2 {
+.clinical-workspace .tiptap h1,
+.clinical-workspace .tiptap h2 {
   margin-top: 3.5rem;
   margin-bottom: 1.5rem;
 }
-.tiptap h1 {
+.clinical-workspace .tiptap h1 {
   font-size: 1.4rem;
 }
-.tiptap h2 {
+.clinical-workspace .tiptap h2 {
   font-size: 1.2rem;
 }
-.tiptap h3 {
+.clinical-workspace .tiptap h3 {
   font-size: 1.1rem;
 }
-.tiptap h4,
-.tiptap h5,
-.tiptap h6 {
+.clinical-workspace .tiptap h4,
+.clinical-workspace .tiptap h5,
+.clinical-workspace .tiptap h6 {
   font-size: 1rem;
 }
 
 /* Paragraphs */
-.tiptap p {
+.clinical-workspace .tiptap p {
   margin-bottom: 0.5rem;
 }
 
 /* Lists */
-.tiptap ul,
-.tiptap ol {
+.clinical-workspace .tiptap ul,
+.clinical-workspace .tiptap ol {
   padding: 0 1rem;
   margin: 1.25rem 1rem 1.25rem 0.4rem;
 }
-.tiptap ul {
+.clinical-workspace .tiptap ul {
   list-style-type: disc;
 }
-.tiptap ol {
+.clinical-workspace .tiptap ol {
   list-style-type: decimal;
 }
-.tiptap ul li p,
-.tiptap ol li p {
+.clinical-workspace .tiptap ul li p,
+.clinical-workspace .tiptap ol li p {
   margin-top: 0.25em;
   margin-bottom: 0.25em;
 }
 
 /* Code */
-.tiptap code {
+.clinical-workspace .tiptap code {
   background-color: var(--purple-light);
   border-radius: 0.4rem;
   color: var(--black);
   font-size: 0.85rem;
   padding: 0.25em 0.3em;
 }
-.tiptap pre {
+.clinical-workspace .tiptap pre {
   background: var(--black);
   border-radius: 0.5rem;
   color: var(--white);
@@ -80,7 +80,7 @@
   margin: 1.5rem 0;
   padding: 0.75rem 1rem;
 }
-.tiptap pre code {
+.clinical-workspace .tiptap pre code {
   background: none;
   color: inherit;
   font-size: 0.8rem;
@@ -88,32 +88,32 @@
 }
 
 /* Blockquote */
-.tiptap blockquote {
+.clinical-workspace .tiptap blockquote {
   border-left: 3px solid var(--gray-3);
   margin: 1.5rem 0;
   padding-left: 1rem;
 }
 
 /* HR */
-.tiptap hr {
+.clinical-workspace .tiptap hr {
   border: none;
   border-top: 1px solid var(--gray-2);
   margin: 2rem 0;
 }
 
 /* Images */
-.tiptap img {
+.clinical-workspace .tiptap img {
   display: block;
   height: auto;
   margin: 1.5rem 0;
   max-width: 100%;
 }
-.tiptap img.ProseMirror-selectednode {
+.clinical-workspace .tiptap img.ProseMirror-selectednode {
   outline: 3px solid var(--purple);
 }
 
 /* Placeholder */
-.tiptap p.is-editor-empty:first-child::before {
+.clinical-workspace .tiptap p.is-editor-empty:first-child::before {
   color: var(--gray-4);
   content: attr(data-placeholder);
   float: left;
@@ -122,29 +122,29 @@
 }
 
 /* Links */
-.tiptap a {
+.clinical-workspace .tiptap a {
   color: var(--purple);
   cursor: pointer;
 }
-.tiptap a:hover {
+.clinical-workspace .tiptap a:hover {
   color: var(--purple-contrast);
 }
 
 /* Tables — Tiptap's table extension wraps the table in `.tableWrapper`
    and tracks column widths via the `colwidth` attr on cells. */
-.tiptap .tableWrapper {
+.clinical-workspace .tiptap .tableWrapper {
   overflow-x: auto;
   margin: 1rem 0;
 }
-.tiptap table {
+.clinical-workspace .tiptap table {
   border-collapse: collapse;
   table-layout: fixed;
   width: 100%;
   margin: 0;
   overflow: hidden;
 }
-.tiptap table td,
-.tiptap table th {
+.clinical-workspace .tiptap table td,
+.clinical-workspace .tiptap table th {
   border: 1px solid var(--gray-3);
   box-sizing: border-box;
   min-width: 1em;
@@ -152,16 +152,16 @@
   position: relative;
   vertical-align: top;
 }
-.tiptap table td > *,
-.tiptap table th > * {
+.clinical-workspace .tiptap table td > *,
+.clinical-workspace .tiptap table th > * {
   margin: 0;
 }
-.tiptap table th {
+.clinical-workspace .tiptap table th {
   background-color: var(--gray-1);
   font-weight: 600;
   text-align: left;
 }
-.tiptap table .selectedCell:after {
+.clinical-workspace .tiptap table .selectedCell:after {
   background: var(--gray-2);
   content: "";
   inset: 0;
@@ -169,7 +169,7 @@
   position: absolute;
   z-index: 2;
 }
-.tiptap table .column-resize-handle {
+.clinical-workspace .tiptap table .column-resize-handle {
   background-color: var(--purple);
   bottom: -2px;
   pointer-events: none;
@@ -178,6 +178,6 @@
   top: 0;
   width: 4px;
 }
-.tiptap.resize-cursor {
+.clinical-workspace .tiptap.resize-cursor {
   cursor: col-resize;
 }
